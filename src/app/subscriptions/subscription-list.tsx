@@ -24,7 +24,7 @@ import {
 import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
 const STATUS_OPTIONS = ["all", "active", "trialing", "cancelled", "past_due", "expired"];
-const PLAN_OPTIONS = ["all", "monthly", "semi_annual", "yearly"];
+const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly"];
 
 function statusVariant(s: string | null) {
   if (s === "active") return "default";
@@ -248,7 +248,7 @@ export function SubscriptionList() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="semi_annual">Semi-Annual</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
                   <SelectItem value="yearly">Yearly</SelectItem>
                 </SelectContent>
               </Select>
