@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { AdminGuard } from "@/components/providers/admin-guard";
-import { Sidebar, MobileSidebar } from "@/components/layout/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { LayoutShell } from "@/components/layout/layout-shell";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,11 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <AdminGuard>
-            <Sidebar />
-            <MobileSidebar />
-            <main className="min-h-screen p-6 pt-20 md:ml-56 md:pt-6">{children}</main>
-          </AdminGuard>
+          <LayoutShell>{children}</LayoutShell>
         </AuthProvider>
         <Toaster />
       </body>

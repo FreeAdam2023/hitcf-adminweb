@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchAdminStats, fetchAuditLogs, fetchBatchStatus } from "@/lib/api/admin";
 import type { AdminStats, AuditLogItem, BatchStatus, PaginatedResponse } from "@/lib/api/types";
-import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2 } from "lucide-react";
+import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked } from "lucide-react";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -70,6 +70,9 @@ export default function DashboardPage() {
     { label: "Test Sets", value: stats.test_set_count, icon: BookOpen },
     { label: "Questions", value: stats.question_count, icon: FileText },
     { label: "Total Attempts", value: stats.attempt_count, icon: BarChart3 },
+    { label: "Speaking Attempts", value: stats.speaking_attempt_count, icon: Mic },
+    { label: "Saved Words", value: stats.saved_word_count, icon: BookMarked },
+    { label: "Nihao Words", value: stats.nihao_word_count, icon: BookOpen },
   ];
 
   const qualityCards = [
@@ -83,7 +86,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Overview of your platform" />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
         {overviewCards.map((c) => (
           <Card key={c.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

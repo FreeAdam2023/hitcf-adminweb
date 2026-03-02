@@ -12,7 +12,8 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
-import { LayoutDashboard, Users, BookOpen, FileText, CreditCard, Lightbulb, ClipboardList, BarChart3, PenTool, Database, Shield } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, FileText, CreditCard, Lightbulb, ClipboardList, BarChart3, PenTool, Database, Shield, LogOut, BookMarked } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/attempts", label: "Attempts", icon: ClipboardList },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/writing", label: "Writing", icon: PenTool },
+  { href: "/vocabulary", label: "Vocabulary", icon: BookMarked },
   { href: "/data", label: "Data Ops", icon: Database },
   { href: "/audit", label: "Audit Log", icon: Shield },
 ];
@@ -57,6 +59,21 @@ function SidebarNav() {
   );
 }
 
+function LogoutButton() {
+  const logout = useAuthStore((s) => s.logout);
+  return (
+    <div className="border-t p-3">
+      <button
+        onClick={logout}
+        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </button>
+    </div>
+  );
+}
+
 export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r bg-card md:flex">
@@ -64,6 +81,7 @@ export function Sidebar() {
         <span className="text-lg font-bold">HiTCF Admin</span>
       </div>
       <SidebarNav />
+      <LogoutButton />
     </aside>
   );
 }

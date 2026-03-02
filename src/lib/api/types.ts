@@ -32,11 +32,61 @@ export interface AdminStats {
   test_set_count: number;
   question_count: number;
   attempt_count: number;
+  speaking_attempt_count: number;
+  saved_word_count: number;
+  nihao_word_count: number;
   // Data quality
   questions_without_answer: number;
   questions_without_options: number;
   questions_without_audio: number;
   questions_with_explanation: number;
+}
+
+// Speaking Attempts
+export interface AdminSpeakingAttemptItem {
+  id: string;
+  user_id: string;
+  user_email: string;
+  test_set_id: string;
+  test_set_name: string;
+  question_id: string;
+  mode: string;
+  status: string;
+  overall_score: number | null;
+  duration_seconds: number;
+  started_at: string;
+  completed_at: string | null;
+}
+
+// Vocabulary Admin
+export interface VocabPoolStats {
+  saved_word_count: number;
+  saved_word_user_count: number;
+  nihao_word_count: number;
+  top_saved_words: Array<{ word: string; count: number }>;
+}
+
+export interface AdminSavedWordItem {
+  id: string;
+  user_id: string;
+  user_email: string;
+  word: string;
+  source_type: string | null;
+  test_set_name: string | null;
+  created_at: string;
+}
+
+export interface AdminNihaoWordItem {
+  id: string;
+  word: string;
+  display_form: string;
+  level: string;
+  lesson: number;
+  lesson_title: string | null;
+  theme: string | null;
+  meaning_zh: string | null;
+  meaning_en: string | null;
+  part_of_speech: string | null;
 }
 
 // Admin User List Item

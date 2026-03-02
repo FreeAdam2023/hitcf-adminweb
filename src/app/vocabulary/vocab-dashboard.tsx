@@ -1,0 +1,137 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
+import { fetchVocabStats } from "@/lib/api/admin";
+import type { VocabPoolStats } from "@/lib/api/types";
+import { AlertCircle, BookMarked, BookOpen, Users } from "lucide-react";
+
+export function VocabDashboard() {
+  const [stats, setStats] = useState<VocabPoolStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchVocabStats();
+      setStats(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load stats");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (loading) {
+    return (
+      <div className="flex h-32 items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <AlertCircle className="mb-3 h-10 w-10 text-destructive" />
+        <p className="text-sm text-destructive">{error}</p>
+        <Button className="mt-4" variant="outline" onClick={load}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Pool Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              User Saved Words
+            </CardTitle>
+            <BookMarked className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats.saved_word_count.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              from {stats.saved_word_user_count} users
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Nihao French Words
+            </CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats.nihao_word_count.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              A1-B2 vocabulary corpus
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats.saved_word_user_count}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              users with saved words
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top Saved Words */}
+      {stats.top_saved_words.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              Top Saved Words
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {stats.top_saved_words.map((w, i) => (
+                <div
+                  key={w.word}
+                  className="flex items-center justify-between rounded-md border px-3 py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      #{i + 1}
+                    </span>
+                    <span className="font-medium">{w.word}</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {w.count}x
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

@@ -24,6 +24,10 @@ import type {
   AudioStatus,
   MissingAudioItem,
   AuditLogItem,
+  AdminSpeakingAttemptItem,
+  VocabPoolStats,
+  AdminSavedWordItem,
+  AdminNihaoWordItem,
 } from "./types";
 
 // Dashboard
@@ -290,4 +294,63 @@ export function fetchAuditLogs(params: {
   if (params.page) sp.set("page", String(params.page));
   if (params.page_size) sp.set("page_size", String(params.page_size));
   return get<PaginatedResponse<AuditLogItem>>(`/api/admin/audit-logs?${sp}`);
+}
+
+// Speaking Attempts
+export function fetchSpeakingAttempts(params: {
+  user_id?: string;
+  mode?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params.user_id) sp.set("user_id", params.user_id);
+  if (params.mode) sp.set("mode", params.mode);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<AdminSpeakingAttemptItem>>(
+    `/api/admin/speaking-attempts?${sp}`,
+  );
+}
+
+// Vocabulary Admin
+export function fetchVocabStats() {
+  return get<VocabPoolStats>("/api/admin/vocab/stats");
+}
+
+export function fetchAdminSavedWords(params: {
+  user_id?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params.user_id) sp.set("user_id", params.user_id);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<AdminSavedWordItem>>(
+    `/api/admin/vocab/saved-words?${sp}`,
+  );
+}
+
+export function fetchAdminNihaoWords(params: {
+  level?: string;
+  lesson?: number;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params.level) sp.set("level", params.level);
+  if (params.lesson) sp.set("lesson", String(params.lesson));
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<AdminNihaoWordItem>>(
+    `/api/admin/vocab/nihao-words?${sp}`,
+  );
+}
+
+export function updateNihaoWord(
+  id: string,
+  data: Record<string, unknown>,
+) {
+  return put<{ message: string }>(`/api/admin/vocab/nihao-words/${id}`, data);
 }

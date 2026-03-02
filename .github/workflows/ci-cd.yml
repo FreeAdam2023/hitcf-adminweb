@@ -1,0 +1,69 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main, dev]
+
+env:
+  ACR_REGISTRY: tomtroveacr.azurecr.io
+  IMAGE_NAME: hitcf-admin
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+  deploy:
+    needs: lint-and-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "ENV_TAG=prod" >> $GITHUB_ENV
+            echo "WEBAPP_NAME=hitcf-admin-prod" >> $GITHUB_ENV
+            echo "BACKEND_URL=${{ secrets.BACKEND_URL_PROD }}" >> $GITHUB_ENV
+          else
+            echo "ENV_TAG=dev" >> $GITHUB_ENV
+            echo "WEBAPP_NAME=hitcf-admin-dev" >> $GITHUB_ENV
+            echo "BACKEND_URL=${{ secrets.BACKEND_URL_DEV }}" >> $GITHUB_ENV
+          fi
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ env.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build --build-arg BACKEND_URL=${{ env.BACKEND_URL }} \
+                       -t ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.ENV_TAG }} \
+                       -t ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.ENV_TAG }}
+          docker push ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.WEBAPP_NAME }}
+          publish-profile: ${{ github.ref_name == 'main' && secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD || secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+          images: ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
