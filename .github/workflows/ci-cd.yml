@@ -28,6 +28,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: Run tests
+        run: npm test
+
   deploy:
     needs: lint-and-build
     runs-on: ubuntu-latest
