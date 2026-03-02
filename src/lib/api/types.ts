@@ -371,6 +371,18 @@ export interface MissingAudioItem {
   question_number: number | null;
 }
 
+// User Feedback
+export interface FeedbackItem {
+  id: string;
+  user_email: string;
+  category: string;
+  content: string;
+  page_url: string | null;
+  status: string;
+  admin_note: string | null;
+  created_at: string;
+}
+
 // Audit Logs
 export interface AuditLogItem {
   id: string;

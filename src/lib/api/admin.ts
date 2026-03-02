@@ -3,6 +3,7 @@ import type {
   PaginatedResponse,
   AdminStats,
   AdminUserItem,
+  FeedbackItem,
   AdminTestSetItem,
   AdminTestSetDetail,
   AdminQuestionItem,
@@ -294,6 +295,30 @@ export function fetchAuditLogs(params: {
   if (params.page) sp.set("page", String(params.page));
   if (params.page_size) sp.set("page_size", String(params.page_size));
   return get<PaginatedResponse<AuditLogItem>>(`/api/admin/audit-logs?${sp}`);
+}
+
+// Feedback
+export function fetchFeedback(params: {
+  category?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params.category) sp.set("category", params.category);
+  if (params.status) sp.set("status", params.status);
+  if (params.search) sp.set("search", params.search);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<FeedbackItem>>(`/api/admin/feedback?${sp}`);
+}
+
+export function updateFeedback(
+  id: string,
+  data: { status: string; admin_note?: string },
+) {
+  return put<FeedbackItem>(`/api/admin/feedback/${id}`, data);
 }
 
 // Speaking Attempts
