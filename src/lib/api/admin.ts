@@ -16,6 +16,7 @@ import type {
   AdminAttemptItem,
   AdminAttemptDetail,
   AnalyticsOverview,
+  AnalyticsInsights,
   TestPopularityItem,
   DifficultyItem,
   AdminWritingItem,
@@ -200,6 +201,10 @@ export function fetchAttemptDetail(id: string) {
 // Analytics
 export function fetchAnalyticsOverview() {
   return get<AnalyticsOverview>("/api/admin/analytics/overview");
+}
+
+export function fetchAnalyticsInsights() {
+  return get<AnalyticsInsights>("/api/admin/analytics/insights", { timeout: 60_000 });
 }
 
 export function fetchTestPopularity(params?: { page?: number; page_size?: number }) {

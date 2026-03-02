@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
-import { fetchAdminStats, fetchAuditLogs, fetchBatchStatus } from "@/lib/api/admin";
-import type { AdminStats, AuditLogItem, BatchStatus, PaginatedResponse } from "@/lib/api/types";
-import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked } from "lucide-react";
+import { fetchAdminStats, fetchAuditLogs, fetchBatchStatus, fetchAnalyticsOverview } from "@/lib/api/admin";
+import type { AdminStats, AuditLogItem, BatchStatus, PaginatedResponse, AnalyticsOverview } from "@/lib/api/types";
+import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked, ExternalLink } from "lucide-react";
+import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
   const [recentActions, setRecentActions] = useState<AuditLogItem[]>([]);
   const [batchStatus, setBatchStatus] = useState<BatchStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,14 +24,16 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [data, logs, batch] = await Promise.all([
+      const [data, logs, batch, analyticsData] = await Promise.all([
         fetchAdminStats(),
         fetchAuditLogs({ page_size: 5 }).catch(() => ({ items: [] })),
         fetchBatchStatus().catch(() => null),
+        fetchAnalyticsOverview().catch(() => null),
       ]);
       setStats(data);
       setRecentActions((logs as PaginatedResponse<AuditLogItem>).items || []);
       setBatchStatus(batch);
+      setAnalytics(analyticsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load stats");
     } finally {
@@ -76,10 +80,10 @@ export default function DashboardPage() {
   ];
 
   const qualityCards = [
-    { label: "Missing Answer", value: stats.questions_without_answer ?? 0, icon: AlertTriangle, color: "text-amber-600", href: "/questions" },
-    { label: "Missing Options", value: stats.questions_without_options ?? 0, icon: ListChecks, color: "text-amber-600", href: "/questions" },
-    { label: "Missing Audio", value: stats.questions_without_audio ?? 0, icon: Volume2, color: "text-amber-600", href: "/data" },
-    { label: "Has Explanation", value: stats.questions_with_explanation ?? 0, icon: Lightbulb, color: "text-green-600", href: "/explanations" },
+    { label: "Missing Answer", value: stats.questions_without_answer ?? 0, base: stats.listening_reading_count ?? 0, scope: "listening+reading", icon: AlertTriangle, color: "text-amber-600", href: "/questions" },
+    { label: "Missing Options", value: stats.questions_without_options ?? 0, base: stats.listening_reading_count ?? 0, scope: "listening+reading", icon: ListChecks, color: "text-amber-600", href: "/questions" },
+    { label: "Missing Audio", value: stats.questions_without_audio ?? 0, base: stats.listening_count ?? 0, scope: "listening", icon: Volume2, color: "text-amber-600", href: "/data" },
+    { label: "Has Explanation", value: stats.questions_with_explanation ?? 0, base: stats.listening_reading_count ?? 0, scope: "listening+reading", icon: Lightbulb, color: "text-green-600", href: "/explanations" },
   ];
 
   return (
@@ -100,6 +104,107 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Charts */}
+      {analytics && (
+        <div className="grid gap-4 lg:grid-cols-3">
+          {/* New User Registrations */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">New Users (30d)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={analytics.new_users}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(v: string) => v.slice(5)}
+                    />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip labelFormatter={(v) => String(v)} />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      stroke="hsl(var(--primary))"
+                      fill="hsl(var(--primary))"
+                      fillOpacity={0.15}
+                      name="Registrations"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Daily Active Users */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Daily Active Users (30d)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={analytics.dau}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(v: string) => v.slice(5)}
+                    />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip labelFormatter={(v) => String(v)} />
+                    <Area
+                      type="monotone"
+                      dataKey="dau"
+                      stroke="hsl(var(--primary))"
+                      fill="hsl(var(--primary))"
+                      fillOpacity={0.15}
+                      name="DAU"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Practice vs Exam */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Practice vs Exam (30d)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={Object.entries(analytics.by_mode).map(([name, value]) => ({
+                        name,
+                        value,
+                      }))}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={75}
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, percent }) =>
+                        `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`
+                      }
+                    >
+                      <Cell fill="hsl(var(--primary))" />
+                      <Cell fill="hsl(var(--muted-foreground))" />
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Data Quality */}
         <div>
@@ -115,7 +220,7 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-2xl font-bold">{c.value.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      of {(stats.question_count ?? 0).toLocaleString()} questions
+                      of {c.base.toLocaleString()} {c.scope} questions
                     </p>
                   </CardContent>
                 </Card>
@@ -200,11 +305,45 @@ export default function DashboardPage() {
               <Link href="/explanations">
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Lightbulb className="mr-2 h-3 w-3" />
-                  {((stats.question_count ?? 0) - (stats.questions_with_explanation ?? 0))} need explanation
+                  {((stats.listening_reading_count ?? 0) - (stats.questions_with_explanation ?? 0))} need explanation
                 </Button>
               </Link>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* External Services */}
+      <div>
+        <h2 className="mb-3 text-lg font-semibold">External Services</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { name: "MongoDB Atlas", desc: "Database cluster", url: "https://cloud.mongodb.com", color: "bg-green-600" },
+            { name: "Azure Portal", desc: "Web Apps & Speech & Blob", url: "https://portal.azure.com", color: "bg-blue-600" },
+            { name: "Stripe", desc: "Payments & subscriptions", url: "https://dashboard.stripe.com", color: "bg-purple-600" },
+            { name: "Cloudflare", desc: "DNS & Access & CDN", url: "https://dash.cloudflare.com", color: "bg-orange-500" },
+            { name: "GitHub", desc: "Code & CI/CD Actions", url: "https://github.com", color: "bg-gray-800" },
+            { name: "Resend", desc: "Transactional email", url: "https://resend.com/emails", color: "bg-gray-700" },
+            { name: "xAI Console", desc: "Grok API (speaking AI)", url: "https://console.x.ai", color: "bg-gray-900" },
+            { name: "HiTCF Prod", desc: "hitcf.com (live site)", url: "https://hitcf.com", color: "bg-primary" },
+          ].map((s) => (
+            <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer">
+              <Card className="transition-colors hover:bg-accent/50">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-white text-xs font-bold ${s.color}`}>
+                    {s.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-medium">{s.name}</span>
+                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{s.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          ))}
         </div>
       </div>
     </div>

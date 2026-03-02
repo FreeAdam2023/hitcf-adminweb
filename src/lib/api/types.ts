@@ -40,6 +40,8 @@ export interface AdminStats {
   questions_without_options: number;
   questions_without_audio: number;
   questions_with_explanation: number;
+  listening_reading_count: number;
+  listening_count: number;
 }
 
 // Speaking Attempts
@@ -264,6 +266,54 @@ export interface AnalyticsOverview {
   dau: Array<{ date: string; dau: number }>;
   avg_score_by_type: Record<string, { avg_score: number; count: number }>;
   by_mode: Record<string, number>;
+  new_users: Array<{ date: string; count: number }>;
+}
+
+export interface RetentionData {
+  total_registered: number;
+  d1: number;
+  d7: number;
+  d30: number;
+  d1_rate: number;
+  d7_rate: number;
+  d30_rate: number;
+}
+
+export interface ConversionCohort {
+  month: string;
+  registered: number;
+  activated: number;
+  rate: number;
+}
+
+export interface ConversionData {
+  total_registered: number;
+  activated: number;
+  conversion_rate: number;
+  cohorts: ConversionCohort[];
+}
+
+export interface TrialConversionData {
+  total_trialed: number;
+  converted: number;
+  churned: number;
+  still_trialing: number;
+  conversion_rate: number;
+  churn_rate: number;
+}
+
+export interface ScoreDistBucket {
+  range: string;
+  listening: number;
+  reading: number;
+}
+
+export interface AnalyticsInsights {
+  retention: RetentionData;
+  feature_usage: Record<string, number>;
+  conversion: ConversionData;
+  trial_conversion: TrialConversionData;
+  score_distribution: ScoreDistBucket[];
 }
 
 export interface TestPopularityItem {

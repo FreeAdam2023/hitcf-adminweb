@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewCharts } from "./overview-charts";
 import { TestPopularityTable } from "./test-popularity-table";
 import { DifficultyTable } from "./difficulty-table";
+import { InsightsPanel } from "./insights-panel";
 
 export default function AnalyticsPage() {
   return (
@@ -15,6 +16,7 @@ export default function AnalyticsPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="popularity">Test Popularity</TabsTrigger>
           <TabsTrigger value="difficulty">Difficulty</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4">
           <OverviewCharts />
@@ -24,6 +26,9 @@ export default function AnalyticsPage() {
         </TabsContent>
         <TabsContent value="difficulty" className="mt-4">
           <DifficultyTable />
+        </TabsContent>
+        <TabsContent value="insights" className="mt-4">
+          <InsightsPanel />
         </TabsContent>
       </Tabs>
     </div>
