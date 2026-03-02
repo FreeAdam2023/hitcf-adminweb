@@ -2,11 +2,11 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
 
 env:
   ACR_REGISTRY: tomtroveacr.azurecr.io
-  IMAGE_NAME: hitcf-admin
+  IMAGE_NAME: hitcf-adminweb
 
 jobs:
   lint-and-build:
@@ -34,18 +34,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set environment variables
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "ENV_TAG=prod" >> $GITHUB_ENV
-            echo "WEBAPP_NAME=hitcf-admin-prod" >> $GITHUB_ENV
-            echo "BACKEND_URL=${{ secrets.BACKEND_URL_PROD }}" >> $GITHUB_ENV
-          else
-            echo "ENV_TAG=dev" >> $GITHUB_ENV
-            echo "WEBAPP_NAME=hitcf-admin-dev" >> $GITHUB_ENV
-            echo "BACKEND_URL=${{ secrets.BACKEND_URL_DEV }}" >> $GITHUB_ENV
-          fi
-
       - name: Log in to Azure Container Registry
         uses: azure/docker-login@v2
         with:
@@ -55,15 +43,16 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build --build-arg BACKEND_URL=${{ env.BACKEND_URL }} \
-                       -t ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.ENV_TAG }} \
+          docker build --platform linux/amd64 \
+                       --build-arg BACKEND_URL=${{ secrets.BACKEND_URL_PROD }} \
+                       -t ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
                        -t ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker push ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.ENV_TAG }}
+          docker push ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.WEBAPP_NAME }}
-          publish-profile: ${{ github.ref_name == 'main' && secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD || secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+          app-name: hitcf-adminweb
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
           images: ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
