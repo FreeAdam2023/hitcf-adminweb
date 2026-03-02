@@ -65,21 +65,21 @@ export default function DashboardPage() {
   }
 
   const overviewCards = [
-    { label: "Total Users", value: stats.user_count, icon: Users },
-    { label: "Active Subscriptions", value: stats.active_subscription_count, icon: CreditCard },
-    { label: "Test Sets", value: stats.test_set_count, icon: BookOpen },
-    { label: "Questions", value: stats.question_count, icon: FileText },
-    { label: "Total Attempts", value: stats.attempt_count, icon: BarChart3 },
-    { label: "Speaking Attempts", value: stats.speaking_attempt_count, icon: Mic },
-    { label: "Saved Words", value: stats.saved_word_count, icon: BookMarked },
-    { label: "Nihao Words", value: stats.nihao_word_count, icon: BookOpen },
+    { label: "Total Users", value: stats.user_count ?? 0, icon: Users },
+    { label: "Active Subscriptions", value: stats.active_subscription_count ?? 0, icon: CreditCard },
+    { label: "Test Sets", value: stats.test_set_count ?? 0, icon: BookOpen },
+    { label: "Questions", value: stats.question_count ?? 0, icon: FileText },
+    { label: "Total Attempts", value: stats.attempt_count ?? 0, icon: BarChart3 },
+    { label: "Speaking Attempts", value: stats.speaking_attempt_count ?? 0, icon: Mic },
+    { label: "Saved Words", value: stats.saved_word_count ?? 0, icon: BookMarked },
+    { label: "Nihao Words", value: stats.nihao_word_count ?? 0, icon: BookOpen },
   ];
 
   const qualityCards = [
-    { label: "Missing Answer", value: stats.questions_without_answer, icon: AlertTriangle, color: "text-amber-600", href: "/questions" },
-    { label: "Missing Options", value: stats.questions_without_options, icon: ListChecks, color: "text-amber-600", href: "/questions" },
-    { label: "Missing Audio", value: stats.questions_without_audio, icon: Volume2, color: "text-amber-600", href: "/data" },
-    { label: "Has Explanation", value: stats.questions_with_explanation, icon: Lightbulb, color: "text-green-600", href: "/explanations" },
+    { label: "Missing Answer", value: stats.questions_without_answer ?? 0, icon: AlertTriangle, color: "text-amber-600", href: "/questions" },
+    { label: "Missing Options", value: stats.questions_without_options ?? 0, icon: ListChecks, color: "text-amber-600", href: "/questions" },
+    { label: "Missing Audio", value: stats.questions_without_audio ?? 0, icon: Volume2, color: "text-amber-600", href: "/data" },
+    { label: "Has Explanation", value: stats.questions_with_explanation ?? 0, icon: Lightbulb, color: "text-green-600", href: "/explanations" },
   ];
 
   return (
@@ -115,7 +115,7 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-2xl font-bold">{c.value.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">
-                      of {stats.question_count.toLocaleString()} questions
+                      of {(stats.question_count ?? 0).toLocaleString()} questions
                     </p>
                   </CardContent>
                 </Card>
@@ -194,13 +194,13 @@ export default function DashboardPage() {
               <Link href="/data">
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Volume2 className="mr-2 h-3 w-3" />
-                  {stats.questions_without_audio} missing audio
+                  {stats.questions_without_audio ?? 0} missing audio
                 </Button>
               </Link>
               <Link href="/explanations">
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Lightbulb className="mr-2 h-3 w-3" />
-                  {(stats.question_count - stats.questions_with_explanation)} need explanation
+                  {((stats.question_count ?? 0) - (stats.questions_with_explanation ?? 0))} need explanation
                 </Button>
               </Link>
             </CardContent>
