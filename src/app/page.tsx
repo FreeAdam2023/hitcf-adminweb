@@ -325,6 +325,8 @@ export default function DashboardPage() {
             { name: "GitHub", desc: "Code & CI/CD Actions", url: "https://github.com", color: "bg-gray-800" },
             { name: "Resend", desc: "Transactional email", url: "https://resend.com/emails", color: "bg-gray-700" },
             { name: "xAI Console", desc: "Grok API (speaking AI)", url: "https://console.x.ai", color: "bg-gray-900" },
+            { name: "Google Search Console", desc: "SEO & indexing", url: "https://search.google.com/search-console?resource_id=sc-domain%3Ahitcf.com", color: "bg-blue-500" },
+            { name: "Bing Webmaster", desc: "SEO & indexing", url: "https://www.bing.com/webmasters?siteUrl=https%3A%2F%2Fhitcf.com", color: "bg-teal-600" },
             { name: "HiTCF Prod", desc: "hitcf.com (live site)", url: "https://hitcf.com", color: "bg-primary" },
           ].map((s) => (
             <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer">
