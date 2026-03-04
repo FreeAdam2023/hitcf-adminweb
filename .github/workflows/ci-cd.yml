@@ -79,8 +79,30 @@ jobs:
             --container-image-name ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           az webapp restart --name hitcf-adminweb --resource-group HiTCF
 
+  smoke-test:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for container startup
+        run: sleep 30
+
+      - name: Check admin site is reachable
+        run: |
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://admin.hitcf.com" --max-time 10 -L || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            # 302/403 = Cloudflare Access redirect (expected), 200 = direct access
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ] || [ "$STATUS" = "403" ]; then
+              echo "Admin site is reachable (HTTP $STATUS)"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Admin site unreachable after 5 attempts"
+          exit 1
+
   notify:
-    needs: [lint, test, deploy]
+    needs: [lint, test, deploy, smoke-test]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -104,8 +126,9 @@ jobs:
           LINT="${{ needs.lint.result }}"
           TEST="${{ needs.test.result }}"
           DEPLOY="${{ needs.deploy.result }}"
+          SMOKE="${{ needs.smoke-test.result }}"
 
-          if [ "$DEPLOY" = "success" ]; then
+          if [ "$DEPLOY" = "success" ] && [ "$SMOKE" = "success" ]; then
             ICON="✅"
             SUBJECT="${ICON} ${REPO} (${BRANCH}) deployed successfully"
             COLOR="#22c55e"
@@ -124,6 +147,7 @@ jobs:
               <tr><td style='padding:4px 12px;font-weight:bold'>Lint</td><td>${LINT}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Test</td><td>${TEST}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Deploy</td><td>${DEPLOY}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Smoke Test</td><td>${SMOKE}</td></tr>
             </table>
             <p><a href='${RUN_URL}'>View workflow run</a></p>
           </div>"
