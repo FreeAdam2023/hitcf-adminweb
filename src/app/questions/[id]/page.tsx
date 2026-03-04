@@ -6,6 +6,7 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchQuestionDetail } from "@/lib/api/admin";
 import type { AdminQuestionDetail } from "@/lib/api/types";
 import { QuestionForm } from "./question-form";
+import { TimestampEditor } from "./timestamp-editor";
 
 export default function EditQuestionPage({ params }: { params: { id: string } }) {
   const [data, setData] = useState<AdminQuestionDetail | null>(null);
@@ -28,6 +29,13 @@ export default function EditQuestionPage({ params }: { params: { id: string } })
     <div className="space-y-6">
       <PageHeader title="Edit Question" description={`#${data.question_number} (${data.type})`} />
       <QuestionForm initial={data} />
+      {data.type === "listening" && (
+        <TimestampEditor
+          questionId={data.id}
+          audioUrl={data.audio_url}
+          initial={data.audio_timestamps}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { get, post, put, del } from "./client";
+import { get, post, put, patch, del } from "./client";
 import type {
   PaginatedResponse,
   AdminStats,
@@ -95,6 +95,12 @@ export function createQuestion(data: Record<string, unknown>) {
 
 export function updateQuestion(id: string, data: Record<string, unknown>) {
   return put<{ message: string }>(`/api/admin/questions/${id}`, data);
+}
+
+export function updateAudioTimestamps(id: string, timestamps: import("./types").AudioTimestamp[]) {
+  return patch<{ message: string }>(`/api/admin/questions/${id}/audio-timestamps`, {
+    audio_timestamps: timestamps,
+  });
 }
 
 export function deleteQuestion(id: string) {

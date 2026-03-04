@@ -444,6 +444,13 @@ export interface AuditLogItem {
   created_at: string;
 }
 
+export interface AudioTimestamp {
+  text: string;
+  start: number;
+  end: number;
+  sentence_index: number | null;
+}
+
 export interface AdminQuestionDetail {
   id: string;
   test_set_id: string;
@@ -459,6 +466,7 @@ export interface AdminQuestionDetail {
   is_deleted: boolean;
   has_explanation: boolean;
   explanation: ExplanationDetail | null;
+  audio_timestamps: AudioTimestamp[] | null;
   created_at: string;
   updated_at: string;
 }

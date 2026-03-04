@@ -109,6 +109,21 @@ export function put<T>(
   );
 }
 
+export function patch<T>(
+  path: string,
+  body?: unknown,
+  options?: RequestOptions,
+): Promise<T> {
+  return request<T>(
+    path,
+    {
+      method: "PATCH",
+      body: body ? JSON.stringify(body) : undefined,
+    },
+    options,
+  );
+}
+
 export function del<T>(path: string, options?: RequestOptions): Promise<T> {
   return request<T>(path, { method: "DELETE" }, options);
 }
