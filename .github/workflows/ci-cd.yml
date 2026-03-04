@@ -78,3 +78,62 @@ jobs:
             --resource-group HiTCF \
             --container-image-name ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           az webapp restart --name hitcf-adminweb --resource-group HiTCF
+
+  notify:
+    needs: [lint, test, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send deployment notification
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: |
+          if [ -z "$RESEND_API_KEY" ] || [ -z "$NOTIFY_EMAIL" ]; then
+            echo "Notification secrets not configured, skipping"
+            exit 0
+          fi
+
+          REPO="${{ github.repository }}"
+          BRANCH="${{ github.ref_name }}"
+          COMMIT="${{ github.event.head_commit.message }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          LINT="${{ needs.lint.result }}"
+          TEST="${{ needs.test.result }}"
+          DEPLOY="${{ needs.deploy.result }}"
+
+          if [ "$DEPLOY" = "success" ]; then
+            ICON="✅"
+            SUBJECT="${ICON} ${REPO} (${BRANCH}) deployed successfully"
+            COLOR="#22c55e"
+          else
+            ICON="❌"
+            SUBJECT="${ICON} ${REPO} (${BRANCH}) deployment failed"
+            COLOR="#ef4444"
+          fi
+
+          BODY="<div style='font-family:sans-serif;max-width:600px'>
+            <h2 style='color:${COLOR}'>${SUBJECT}</h2>
+            <table style='border-collapse:collapse;width:100%'>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Repo</td><td>${REPO}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Branch</td><td>${BRANCH}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Commit</td><td>${SHORT_SHA} — ${COMMIT}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Lint</td><td>${LINT}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Test</td><td>${TEST}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Deploy</td><td>${DEPLOY}</td></tr>
+            </table>
+            <p><a href='${RUN_URL}'>View workflow run</a></p>
+          </div>"
+
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer ${RESEND_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg from "HiTCF CI/CD <noreply@hitcf.com>" \
+              --arg to "$NOTIFY_EMAIL" \
+              --arg subject "$SUBJECT" \
+              --arg html "$BODY" \
+              '{from: $from, to: [$to], subject: $subject, html: $html}')"
