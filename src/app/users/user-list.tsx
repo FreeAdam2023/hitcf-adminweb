@@ -15,9 +15,33 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { fetchUsers, updateUserRole } from "@/lib/api/admin";
 import type { AdminUserItem, PaginatedResponse } from "@/lib/api/types";
-import { AlertCircle, RotateCcw, ChevronDown } from "lucide-react";
+import { AlertCircle, RotateCcw, ChevronDown, Globe, Monitor, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+function parseUA(ua: string | null): string {
+  if (!ua) return "-";
+  // Extract OS
+  let os = "Unknown OS";
+  if (ua.includes("Windows")) os = "Windows";
+  else if (ua.includes("Mac OS X") || ua.includes("Macintosh")) os = "macOS";
+  else if (ua.includes("Android")) os = "Android";
+  else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
+  else if (ua.includes("Linux")) os = "Linux";
+  // Extract browser
+  let browser = "";
+  if (ua.includes("Edg/")) browser = "Edge";
+  else if (ua.includes("Chrome/") && !ua.includes("Edg/")) browser = "Chrome";
+  else if (ua.includes("Firefox/")) browser = "Firefox";
+  else if (ua.includes("Safari/") && !ua.includes("Chrome/")) browser = "Safari";
+  return browser ? `${browser} / ${os}` : os;
+}
+
+function formatLocation(t: { signup_country?: string | null; signup_city?: string | null; signup_region?: string | null } | null): string {
+  if (!t) return "-";
+  const parts = [t.signup_city, t.signup_region, t.signup_country].filter(Boolean);
+  return parts.length > 0 ? parts.join(", ") : "-";
+}
 
 export function UserList() {
   const [data, setData] = useState<PaginatedResponse<AdminUserItem> | null>(null);
@@ -163,23 +187,83 @@ export function UserList() {
                   {expandedId === u.id && (
                     <TableRow key={`${u.id}-detail`}>
                       <TableCell colSpan={7} className="bg-muted/30">
-                        <div className="grid grid-cols-2 gap-4 px-4 py-3 text-sm md:grid-cols-4">
-                          <div>
-                            <span className="text-xs text-muted-foreground">Subscription Status</span>
-                            <p className="font-medium">{u.subscription_status || "None"}</p>
+                        <div className="space-y-3 px-4 py-3 text-sm">
+                          {/* Row 1: Basic info */}
+                          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                            <div>
+                              <span className="text-xs text-muted-foreground">Subscription</span>
+                              <p className="font-medium">{u.subscription_status || "None"}</p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-muted-foreground">Role</span>
+                              <p className="font-medium capitalize">{u.role}</p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-muted-foreground">Created</span>
+                              <p className="font-medium">{formatDateTime(u.created_at)}</p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-muted-foreground">Last Login</span>
+                              <p className="font-medium">{formatDateTime(u.last_login_at)}</p>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-xs text-muted-foreground">Role</span>
-                            <p className="font-medium capitalize">{u.role}</p>
+                          {/* Row 2: Tracking - Location & Device */}
+                          <div className="border-t pt-3">
+                            <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tracking</p>
+                            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                              <div>
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Globe className="h-3 w-3" /> Location
+                                </span>
+                                <p className="font-medium">{formatLocation(u.tracking)}</p>
+                              </div>
+                              <div>
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Monitor className="h-3 w-3" /> Signup Device
+                                </span>
+                                <p className="font-medium">{parseUA(u.tracking?.signup_user_agent ?? null)}</p>
+                              </div>
+                              <div>
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Link2 className="h-3 w-3" /> Source
+                                </span>
+                                <p className="font-medium">
+                                  {u.tracking?.signup_utm_source || u.tracking?.signup_referer || "-"}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Monitor className="h-3 w-3" /> Last Login Device
+                                </span>
+                                <p className="font-medium">{parseUA(u.tracking?.last_login_user_agent ?? null)}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-xs text-muted-foreground">Created</span>
-                            <p className="font-medium">{formatDateTime(u.created_at)}</p>
-                          </div>
-                          <div>
-                            <span className="text-xs text-muted-foreground">Last Login</span>
-                            <p className="font-medium">{formatDateTime(u.last_login_at)}</p>
-                          </div>
+                          {/* Row 3: IPs & UTM details (collapsible) */}
+                          {u.tracking && (u.tracking.signup_ip || u.tracking.signup_utm_medium || u.tracking.signup_utm_campaign) && (
+                            <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground md:grid-cols-4">
+                              <div>
+                                <span>Signup IP</span>
+                                <p className="font-mono text-foreground">{u.tracking.signup_ip || "-"}</p>
+                              </div>
+                              <div>
+                                <span>Last Login IP</span>
+                                <p className="font-mono text-foreground">{u.tracking.last_login_ip || "-"}</p>
+                              </div>
+                              {u.tracking.signup_utm_medium && (
+                                <div>
+                                  <span>UTM Medium</span>
+                                  <p className="text-foreground">{u.tracking.signup_utm_medium}</p>
+                                </div>
+                              )}
+                              {u.tracking.signup_utm_campaign && (
+                                <div>
+                                  <span>UTM Campaign</span>
+                                  <p className="text-foreground">{u.tracking.signup_utm_campaign}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

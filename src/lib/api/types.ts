@@ -91,6 +91,21 @@ export interface AdminNihaoWordItem {
   part_of_speech: string | null;
 }
 
+// User Tracking
+export interface UserTrackingInfo {
+  signup_ip: string | null;
+  signup_country: string | null;
+  signup_city: string | null;
+  signup_region: string | null;
+  signup_user_agent: string | null;
+  signup_referer: string | null;
+  signup_utm_source: string | null;
+  signup_utm_medium: string | null;
+  signup_utm_campaign: string | null;
+  last_login_ip: string | null;
+  last_login_user_agent: string | null;
+}
+
 // Admin User List Item
 export interface AdminUserItem {
   id: string;
@@ -100,6 +115,7 @@ export interface AdminUserItem {
   subscription_status: string | null;
   created_at: string;
   last_login_at: string | null;
+  tracking: UserTrackingInfo | null;
 }
 
 // Admin Test Set
@@ -115,6 +131,7 @@ export interface AdminTestSetItem {
   code: string;
   name: string;
   type: string;
+  exam_type?: string;
   question_count: number;
   is_free: boolean;
   is_deleted: boolean;
@@ -127,6 +144,7 @@ export interface AdminTestSetDetail {
   code: string;
   name: string;
   type: string;
+  exam_type?: string;
   question_count: number;
   time_limit_minutes: number;
   is_free: boolean;
