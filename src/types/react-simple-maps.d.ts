@@ -1,5 +1,5 @@
 declare module "react-simple-maps" {
-  import { ComponentType, ReactNode, CSSProperties } from "react";
+  import { ComponentType, ReactNode } from "react";
 
   interface ProjectionConfig {
     scale?: number;

@@ -32,11 +32,22 @@ const TYPE_OPTIONS = [
   { value: "writing", label: "Writing" },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const EXAM_TYPE_OPTIONS = [
+  { value: "all", label: "All Exams" },
+  { value: "tcf_canada", label: "TCF Canada" },
+  { value: "tcf_tp", label: "TCF TP" },
+  { value: "tcf_irn", label: "TCF IRN" },
+  { value: "tcf_quebec", label: "TCF Québec" },
+];
+
 export function TestSetList() {
   const [data, setData] = useState<PaginatedResponse<AdminTestSetItem> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [examTypeFilter, setExamTypeFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -46,6 +57,7 @@ export function TestSetList() {
     try {
       const res = await fetchTestSets({
         type: typeFilter === "all" ? undefined : typeFilter,
+        exam_type: examTypeFilter === "all" ? undefined : examTypeFilter,
         search: search || undefined,
         page,
       });
@@ -55,7 +67,7 @@ export function TestSetList() {
     } finally {
       setLoading(false);
     }
-  }, [typeFilter, search, page]);
+  }, [typeFilter, examTypeFilter, search, page]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -112,6 +124,7 @@ export function TestSetList() {
             ))}
           </SelectContent>
         </Select>
+        {/* Exam type filter hidden — only TCF Canada data for now */}
         <Input
           placeholder="Search by name..."
           value={searchInput}
@@ -140,6 +153,7 @@ export function TestSetList() {
                 <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Exam</TableHead>
                 <TableHead className="text-center">Questions</TableHead>
                 <TableHead className="text-center">Completeness</TableHead>
                 <TableHead className="text-center">Free</TableHead>
@@ -154,6 +168,7 @@ export function TestSetList() {
                   <TableCell className="font-mono text-sm">{ts.code}</TableCell>
                   <TableCell>{ts.name}</TableCell>
                   <TableCell>{typeBadge(ts.type)}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{ts.exam_type?.replace("tcf_", "TCF ").replace("canada", "Canada").replace("quebec", "Québec") || "TCF Canada"}</TableCell>
                   <TableCell className="text-center">{ts.question_count}</TableCell>
                   <TableCell className="text-center">{renderQuality(ts)}</TableCell>
                   <TableCell className="text-center">{ts.is_free ? "Yes" : "-"}</TableCell>
