@@ -35,6 +35,7 @@ import type {
   NotificationItem,
   QuestionReportItem,
   UserGeoData,
+  CostEstimate,
 } from "./types";
 
 // Dashboard
@@ -399,6 +400,11 @@ export function updateNihaoWord(
   data: Record<string, unknown>,
 ) {
   return put<{ message: string }>(`/api/admin/vocab/nihao-words/${id}`, data);
+}
+
+// Cost Estimate
+export function fetchCostEstimate() {
+  return get<CostEstimate>("/api/admin/cost-estimate");
 }
 
 // User Geo

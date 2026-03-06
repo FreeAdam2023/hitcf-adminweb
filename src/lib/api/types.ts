@@ -181,6 +181,29 @@ export interface QuestionReportItem {
   created_at: string;
 }
 
+export interface CostItem {
+  name: string;
+  type: string;
+  plan?: string;
+  usage?: string;
+  cost: number;
+  unit: string;
+  note: string;
+}
+
+export interface CostEstimate {
+  period: string;
+  fixed_costs: CostItem[];
+  variable_costs: CostItem[];
+  summary: {
+    total_fixed: number;
+    total_variable: number;
+    total_estimated: number;
+    user_count: number;
+    cost_per_user: number;
+  };
+}
+
 export interface GeoCountry {
   country: string;
   count: number;
