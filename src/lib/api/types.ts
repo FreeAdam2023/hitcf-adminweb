@@ -118,6 +118,79 @@ export interface AdminUserItem {
   tracking: UserTrackingInfo | null;
 }
 
+export interface UserDetailActivity {
+  attempts: number;
+  writing: number;
+  speaking: number;
+  conversations: number;
+  vocab: number;
+  reports: number;
+  active_days: number;
+}
+
+export interface UserDetailAttempt {
+  id: string;
+  test_set_name: string;
+  test_set_type: string;
+  mode: string;
+  status: string;
+  score: number | null;
+  total: number | null;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export interface UserDetail {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+  created_at: string;
+  last_login_at: string | null;
+  subscription: {
+    plan: string;
+    status: string;
+    trial_end: string | null;
+    current_period_end: string | null;
+    stripe_customer_id: string | null;
+  } | null;
+  tracking: UserTrackingInfo | null;
+  activity: UserDetailActivity;
+  recent_attempts: UserDetailAttempt[];
+}
+
+export interface NotificationItem {
+  type: string;
+  message: string;
+  user_id: string;
+  email: string;
+  time: string;
+}
+
+export interface QuestionReportItem {
+  id: string;
+  user_id: string;
+  user_email: string;
+  question_id: string;
+  question_number: number | null;
+  question_type: string;
+  question_text: string;
+  issue_type: string;
+  description: string | null;
+  status: string;
+  created_at: string;
+}
+
+export interface GeoCountry {
+  country: string;
+  count: number;
+  users: Array<{ city: string; email: string }>;
+}
+
+export interface UserGeoData {
+  countries: GeoCountry[];
+}
+
 // Admin Test Set
 export interface TestSetQuality {
   total: number;
@@ -285,6 +358,7 @@ export interface AnalyticsOverview {
   avg_score_by_type: Record<string, { avg_score: number; count: number }>;
   by_mode: Record<string, number>;
   new_users: Array<{ date: string; count: number }>;
+  user_growth: Array<{ date: string; total: number }>;
 }
 
 export interface RetentionData {
@@ -332,6 +406,34 @@ export interface AnalyticsInsights {
   conversion: ConversionData;
   trial_conversion: TrialConversionData;
   score_distribution: ScoreDistBucket[];
+}
+
+// User Activity
+export interface ActivityEvent {
+  user_id: string;
+  action: string;
+  desc: string;
+  time: string;
+}
+
+export interface UserActivitySummary {
+  user_id: string;
+  email: string;
+  name: string;
+  created_at: string | null;
+  last_active: string | null;
+  attempts: number;
+  writing: number;
+  speaking: number;
+  conversations: number;
+  vocab: number;
+  total_actions: number;
+}
+
+export interface UserActivityData {
+  heatmap: number[][]; // 7×24 matrix [dow][hour]
+  feed: ActivityEvent[];
+  users: UserActivitySummary[];
 }
 
 export interface TestPopularityItem {

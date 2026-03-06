@@ -12,7 +12,8 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
-import { LayoutDashboard, Users, BookOpen, FileText, CreditCard, Lightbulb, ClipboardList, BarChart3, PenTool, Database, Shield, LogOut, BookMarked, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, FileText, CreditCard, Lightbulb, ClipboardList, BarChart3, PenTool, Database, Shield, LogOut, BookMarked, MessageSquare, Flag } from "lucide-react";
+import { NotificationBell } from "./notification-bell";
 import { useAuthStore } from "@/stores/auth-store";
 
 const navItems = [
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/vocabulary", label: "Vocabulary", icon: BookMarked },
   { href: "/data", label: "Data Ops", icon: Database },
   { href: "/feedback", label: "Feedback", icon: MessageSquare },
+  { href: "/reports", label: "Reports", icon: Flag },
   { href: "/audit", label: "Audit Log", icon: Shield },
 ];
 
@@ -78,8 +80,9 @@ function LogoutButton() {
 export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r bg-card md:flex">
-      <div className="flex h-14 items-center border-b px-4">
+      <div className="flex h-14 items-center justify-between border-b px-4">
         <span className="text-lg font-bold">HiTCF Admin</span>
+        <NotificationBell />
       </div>
       <SidebarNav />
       <LogoutButton />

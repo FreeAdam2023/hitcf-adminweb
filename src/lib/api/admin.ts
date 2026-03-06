@@ -30,6 +30,11 @@ import type {
   VocabPoolStats,
   AdminSavedWordItem,
   AdminNihaoWordItem,
+  UserActivityData,
+  UserDetail,
+  NotificationItem,
+  QuestionReportItem,
+  UserGeoData,
 } from "./types";
 
 // Dashboard
@@ -51,9 +56,10 @@ export function updateUserRole(userId: string, role: string) {
 }
 
 // Test Sets
-export function fetchTestSets(params: { type?: string; search?: string; page?: number; page_size?: number }) {
+export function fetchTestSets(params: { type?: string; exam_type?: string; search?: string; page?: number; page_size?: number }) {
   const sp = new URLSearchParams();
   if (params.type) sp.set("type", params.type);
+  if (params.exam_type) sp.set("exam_type", params.exam_type);
   if (params.search) sp.set("search", params.search);
   if (params.page) sp.set("page", String(params.page));
   if (params.page_size) sp.set("page_size", String(params.page_size));
@@ -211,6 +217,10 @@ export function fetchAnalyticsOverview() {
 
 export function fetchAnalyticsInsights() {
   return get<AnalyticsInsights>("/api/admin/analytics/insights", { timeout: 60_000 });
+}
+
+export function fetchUserActivity(days = 30) {
+  return get<UserActivityData>(`/api/admin/analytics/user-activity?days=${days}`, { timeout: 60_000 });
 }
 
 export function fetchTestPopularity(params?: { page?: number; page_size?: number }) {
@@ -389,4 +399,33 @@ export function updateNihaoWord(
   data: Record<string, unknown>,
 ) {
   return put<{ message: string }>(`/api/admin/vocab/nihao-words/${id}`, data);
+}
+
+// User Geo
+export function fetchUserGeo() {
+  return get<UserGeoData>("/api/admin/users/geo");
+}
+
+// User Detail
+export function fetchUserDetail(userId: string) {
+  return get<UserDetail>(`/api/admin/users/${userId}/detail`, { timeout: 60_000 });
+}
+
+// Notifications
+export function fetchNotifications() {
+  return get<{ notifications: NotificationItem[] }>("/api/admin/notifications/recent");
+}
+
+// Question Reports
+export function fetchQuestionReports(params?: { status?: string; issue_type?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set("status", params.status);
+  if (params?.issue_type) sp.set("issue_type", params.issue_type);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<QuestionReportItem>>(`/api/admin/question-reports?${sp}`);
+}
+
+export function resolveQuestionReport(reportId: string) {
+  return put<{ message: string }>(`/api/admin/question-reports/${reportId}/resolve`, {});
 }

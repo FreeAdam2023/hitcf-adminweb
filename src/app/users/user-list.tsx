@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -157,7 +158,7 @@ export function UserList() {
                         )}
                       />
                     </TableCell>
-                    <TableCell className="font-medium">{u.email}</TableCell>
+                    <TableCell className="font-medium"><Link href={`/users/${u.id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>{u.email}</Link></TableCell>
                     <TableCell>{u.name || "-"}</TableCell>
                     <TableCell>
                       <Select
