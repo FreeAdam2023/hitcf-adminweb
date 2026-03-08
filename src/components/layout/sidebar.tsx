@@ -12,7 +12,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
-import { LayoutDashboard, Users, BookOpen, FileText, CreditCard, Lightbulb, ClipboardList, BarChart3, PenTool, Database, Shield, LogOut, BookMarked, MessageSquare, Flag } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, FileText, CreditCard, Lightbulb, ClipboardList, BarChart3, PenTool, Database, Shield, LogOut, BookMarked, MessageSquare, Flag, Gift } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -28,6 +28,7 @@ const navItems = [
   { href: "/writing", label: "Writing", icon: PenTool },
   { href: "/vocabulary", label: "Vocabulary", icon: BookMarked },
   { href: "/data", label: "Data Ops", icon: Database },
+  { href: "/referrals", label: "Referrals", icon: Gift },
   { href: "/feedback", label: "Feedback", icon: MessageSquare },
   { href: "/reports", label: "Reports", icon: Flag },
   { href: "/audit", label: "Audit Log", icon: Shield },

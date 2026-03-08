@@ -36,6 +36,8 @@ import type {
   QuestionReportItem,
   UserGeoData,
   CostEstimate,
+  AdminReferralItem,
+  ReferralStats,
 } from "./types";
 
 // Dashboard
@@ -434,4 +436,29 @@ export function fetchQuestionReports(params?: { status?: string; issue_type?: st
 
 export function resolveQuestionReport(reportId: string) {
   return put<{ message: string }>(`/api/admin/question-reports/${reportId}/resolve`, {});
+}
+
+// ── Referrals ─────────────────────────────────────────────────
+export function fetchReferrals(params?: {
+  status?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set("status", params.status);
+  if (params?.search) sp.set("search", params.search);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<{ items: AdminReferralItem[]; total: number; page: number; page_size: number }>(
+    `/api/admin/referrals?${sp}`,
+  );
+}
+
+export function fetchReferralStats() {
+  return get<ReferralStats>("/api/admin/referrals/stats");
+}
+
+export function markReferralFraud(referralId: string) {
+  return put<{ message: string }>(`/api/admin/referrals/${referralId}/mark-fraud`, {});
 }

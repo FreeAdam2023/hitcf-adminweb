@@ -613,3 +613,29 @@ export interface AdminQuestionDetail {
   created_at: string;
   updated_at: string;
 }
+
+// Referrals
+export interface AdminReferralItem {
+  id: string;
+  referrer_email: string;
+  referrer_name: string | null;
+  referee_email: string;
+  referee_name: string | null;
+  referral_code: string;
+  status: string;
+  referrer_reward_days: number;
+  referee_reward_days: number;
+  referrer_rewarded: boolean;
+  referee_rewarded: boolean;
+  fraud_flags: string[];
+  created_at: string;
+}
+
+export interface ReferralStats {
+  total: number;
+  completed: number;
+  fraud: number;
+  total_referrer_reward_days: number;
+  total_referee_reward_days: number;
+  top_referrers: { email: string; name: string | null; count: number }[];
+}
