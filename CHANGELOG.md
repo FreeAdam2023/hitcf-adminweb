@@ -1,3 +1,10 @@
+## 2026-03-08 (2fe79a7)
+
+### Refactor
+- add pending status to admin referral UI (2fe79a7)
+
+---
+
 ## 2026-03-08 (4437616)
 
 ### Tests
