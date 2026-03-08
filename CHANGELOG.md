@@ -1,3 +1,13 @@
+## 2026-03-08 (ed547c9)
+
+### Features
+- add referral management to admin dashboard (#12) (ed547c9)
+
+### CI/CD
+- update changelog workflow push comment (406c8da)
+
+---
+
 # Changelog
 
 ## 2026-03-08 (e85312a)
