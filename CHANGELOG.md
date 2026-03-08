@@ -1,3 +1,20 @@
+## 2026-03-08 (4437616)
+
+### Tests
+- add admin referral API tests (3 tests) (4437616)
+
+---
+
+## 2026-03-08 (ed547c9)
+
+### Features
+- add referral management to admin dashboard (#12) (ed547c9)
+
+### CI/CD
+- update changelog workflow push comment (406c8da)
+
+---
+
 # Changelog
 
 ## 2026-03-08 (e85312a)

@@ -87,6 +87,7 @@ export function ReferralList() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
             <SelectItem value="fraud">Fraud</SelectItem>
           </SelectContent>
@@ -131,7 +132,7 @@ export function ReferralList() {
                     <code className="text-xs">{r.referral_code}</code>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={r.status === "completed" ? "default" : "destructive"}>
+                    <Badge variant={r.status === "completed" ? "default" : r.status === "pending" ? "secondary" : "destructive"}>
                       {r.status}
                     </Badge>
                   </TableCell>

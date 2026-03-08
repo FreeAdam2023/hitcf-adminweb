@@ -633,6 +633,7 @@ export interface AdminReferralItem {
 
 export interface ReferralStats {
   total: number;
+  pending: number;
   completed: number;
   fraud: number;
   total_referrer_reward_days: number;
