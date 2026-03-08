@@ -1,3 +1,10 @@
+## 2026-03-08 (4437616)
+
+### Tests
+- add admin referral API tests (3 tests) (4437616)
+
+---
+
 ## 2026-03-08 (ed547c9)
 
 ### Features
