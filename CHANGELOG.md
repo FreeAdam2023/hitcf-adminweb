@@ -1,3 +1,10 @@
+## 2026-03-09 (477cc67)
+
+### Bug Fixes
+- CI/CD notify only on failure to save email quota (7b2b984)
+
+---
+
 ## 2026-03-08 (2fe79a7)
 
 ### Refactor
