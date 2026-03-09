@@ -158,7 +158,14 @@ export function UserList() {
                         )}
                       />
                     </TableCell>
-                    <TableCell className="font-medium"><Link href={`/users/${u.id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>{u.email}</Link></TableCell>
+                    <TableCell className="font-medium">
+                      <Link href={`/users/${u.id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>{u.email}</Link>
+                      {u.is_locked && (
+                        <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                          LOCKED
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell>{u.name || "-"}</TableCell>
                     <TableCell>
                       <Select
