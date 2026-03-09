@@ -101,12 +101,12 @@ jobs:
           echo "::error::Admin site unreachable after 5 attempts"
           exit 1
 
-  notify:
+  notify-failure:
     needs: [lint, test, deploy, smoke-test]
-    if: always()
+    if: failure()
     runs-on: ubuntu-latest
     steps:
-      - name: Send deployment notification
+      - name: Send failure notification
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
@@ -123,31 +123,17 @@ jobs:
           SHORT_SHA="${SHA:0:7}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          LINT="${{ needs.lint.result }}"
-          TEST="${{ needs.test.result }}"
-          DEPLOY="${{ needs.deploy.result }}"
-          SMOKE="${{ needs.smoke-test.result }}"
-
-          if [ "$DEPLOY" = "success" ] && [ "$SMOKE" = "success" ]; then
-            ICON="✅"
-            SUBJECT="${ICON} ${REPO} (${BRANCH}) deployed successfully"
-            COLOR="#22c55e"
-          else
-            ICON="❌"
-            SUBJECT="${ICON} ${REPO} (${BRANCH}) deployment failed"
-            COLOR="#ef4444"
-          fi
+          SUBJECT="❌ ${REPO} (${BRANCH}) deployment failed"
 
           BODY="<div style='font-family:sans-serif;max-width:600px'>
-            <h2 style='color:${COLOR}'>${SUBJECT}</h2>
+            <h2 style='color:#ef4444'>${SUBJECT}</h2>
             <table style='border-collapse:collapse;width:100%'>
-              <tr><td style='padding:4px 12px;font-weight:bold'>Repo</td><td>${REPO}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Branch</td><td>${BRANCH}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Commit</td><td>${SHORT_SHA} — ${COMMIT}</td></tr>
-              <tr><td style='padding:4px 12px;font-weight:bold'>Lint</td><td>${LINT}</td></tr>
-              <tr><td style='padding:4px 12px;font-weight:bold'>Test</td><td>${TEST}</td></tr>
-              <tr><td style='padding:4px 12px;font-weight:bold'>Deploy</td><td>${DEPLOY}</td></tr>
-              <tr><td style='padding:4px 12px;font-weight:bold'>Smoke Test</td><td>${SMOKE}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Lint</td><td>${{ needs.lint.result }}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Test</td><td>${{ needs.test.result }}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Deploy</td><td>${{ needs.deploy.result }}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Smoke Test</td><td>${{ needs.smoke-test.result }}</td></tr>
             </table>
             <p><a href='${RUN_URL}'>View workflow run</a></p>
           </div>"
