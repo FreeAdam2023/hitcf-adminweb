@@ -38,6 +38,7 @@ import type {
   CostEstimate,
   AdminReferralItem,
   ReferralStats,
+  WatermarkUserResult,
 } from "./types";
 
 // Dashboard
@@ -461,4 +462,17 @@ export function fetchReferralStats() {
 
 export function markReferralFraud(referralId: string) {
   return put<{ message: string }>(`/api/admin/referrals/${referralId}/mark-fraud`, {});
+}
+
+// ── Watermark Lookup & User Lock ────────────────────────────
+export function searchByWatermark(suffix: string) {
+  return get<WatermarkUserResult[]>(`/api/admin/users/by-watermark/${suffix}`);
+}
+
+export function lockUser(userId: string, reason: string) {
+  return post<{ message: string; is_locked: boolean }>(`/api/admin/users/${userId}/lock`, { reason });
+}
+
+export function unlockUser(userId: string) {
+  return post<{ message: string; is_locked: boolean }>(`/api/admin/users/${userId}/unlock`);
 }

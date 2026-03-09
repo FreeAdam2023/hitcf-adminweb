@@ -112,6 +112,7 @@ export interface AdminUserItem {
   email: string;
   name: string | null;
   role: string;
+  is_locked: boolean;
   subscription_status: string | null;
   created_at: string;
   last_login_at: string | null;
@@ -145,6 +146,9 @@ export interface UserDetail {
   email: string;
   name: string | null;
   role: string;
+  is_locked: boolean;
+  locked_at: string | null;
+  locked_reason: string | null;
   created_at: string;
   last_login_at: string | null;
   subscription: {
@@ -639,4 +643,18 @@ export interface ReferralStats {
   total_referrer_reward_days: number;
   total_referee_reward_days: number;
   top_referrers: { email: string; name: string | null; count: number }[];
+}
+
+// Watermark Lookup
+export interface WatermarkUserResult {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+  is_locked: boolean;
+  locked_at: string | null;
+  locked_reason: string | null;
+  subscription_status: string | null;
+  created_at: string | null;
+  last_login_at: string | null;
 }
