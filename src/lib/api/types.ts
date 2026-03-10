@@ -847,3 +847,98 @@ export interface WatermarkUserResult {
   created_at: string | null;
   last_login_at: string | null;
 }
+
+// ---- 运营工作台 (Ops Workbench) ----
+
+export interface OpsPostPerformance {
+  views: number;
+  likes: number;
+  comments: number;
+  saves: number;
+  shares: number;
+  signups_attributed: number;
+  last_updated: string;
+}
+
+export interface OpsContentDraft {
+  id: string;
+  admin_id: string;
+  platform: string;
+  topic: string;
+  angle: string | null;
+  tone: string;
+  title: string;
+  body: string;
+  hashtags: string[];
+  variation_group: string | null;
+  variation_index: number;
+  status: string;
+  scheduled_date: string | null;
+  published_at: string | null;
+  banned_words_found: string[];
+  performance: OpsPostPerformance | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OpsReplyVariation {
+  text: string;
+  use_count: number;
+  last_used_at: string | null;
+  is_ai_generated: boolean;
+}
+
+export interface OpsReplyScenario {
+  id: string;
+  name: string;
+  description: string;
+  platform: string;
+  replies: OpsReplyVariation[];
+  use_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OpsAssetItem {
+  id: string;
+  admin_id: string;
+  filename: string;
+  blob_url: string;
+  content_type: string;
+  size_bytes: number;
+  tags: string[];
+  description: string | null;
+  is_reusable: boolean;
+  created_at: string;
+}
+
+export interface OpsPerformanceSummary {
+  total_posts: number;
+  total_views: number;
+  total_likes: number;
+  total_comments: number;
+  total_saves: number;
+  total_signups: number;
+  avg_engagement_rate: number;
+  best_post: OpsContentDraft | null;
+}
+
+export interface OpsCalendarEntry {
+  id: string;
+  title: string;
+  topic: string;
+  status: string;
+  date: string;
+  platform: string;
+}
+
+export interface OpsCalendarData {
+  year: number;
+  month: number;
+  entries: OpsCalendarEntry[];
+}
+
+export interface OpsGenerateResult {
+  variation_group: string;
+  drafts: OpsContentDraft[];
+}

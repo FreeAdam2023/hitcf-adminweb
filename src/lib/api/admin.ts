@@ -564,3 +564,113 @@ export function fetchEvents(params?: { event?: string; user_id?: string; days?: 
   if (params?.page_size) sp.set("page_size", String(params.page_size));
   return get<EventsData>(`/api/admin/analytics/events?${sp}`, { timeout: 60_000 });
 }
+
+// ---- 运营工作台 (Ops Workbench) ----
+
+import type {
+  OpsContentDraft,
+  OpsReplyScenario,
+  OpsAssetItem,
+  OpsPerformanceSummary,
+  OpsCalendarData,
+  OpsGenerateResult,
+} from "./types";
+
+// Drafts
+export function fetchOpsDrafts(params?: { search?: string; status?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.search) sp.set("search", params.search);
+  if (params?.status) sp.set("status", params.status);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<OpsContentDraft>>(`/api/admin/ops/drafts?${sp}`);
+}
+
+export function generateOpsDrafts(data: { topic: string; angle?: string; tone?: string; count?: number }) {
+  return post<OpsGenerateResult>("/api/admin/ops/drafts/generate", data, { timeout: 60_000 });
+}
+
+export function getOpsDraft(id: string) {
+  return get<OpsContentDraft>(`/api/admin/ops/drafts/${id}`);
+}
+
+export function updateOpsDraft(id: string, data: Partial<OpsContentDraft>) {
+  return put<OpsContentDraft>(`/api/admin/ops/drafts/${id}`, data);
+}
+
+export function deleteOpsDraft(id: string) {
+  return del<{ message: string }>(`/api/admin/ops/drafts/${id}`);
+}
+
+export function checkDraftBannedWords(id: string) {
+  return post<{ banned_words_found: string[]; count: number }>(`/api/admin/ops/drafts/${id}/check-banned`, {});
+}
+
+export function updateDraftPerformance(id: string, data: { views?: number; likes?: number; comments?: number; saves?: number; shares?: number; signups_attributed?: number }) {
+  return put<OpsContentDraft>(`/api/admin/ops/drafts/${id}/performance`, data);
+}
+
+// Calendar
+export function fetchOpsCalendar(year: number, month: number) {
+  return get<OpsCalendarData>(`/api/admin/ops/calendar?year=${year}&month=${month}`);
+}
+
+// Reply Library
+export function fetchOpsReplies(params?: { search?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.search) sp.set("search", params.search);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<OpsReplyScenario>>(`/api/admin/ops/replies?${sp}`);
+}
+
+export function createOpsReply(data: { name: string; description?: string; replies?: { text: string }[] }) {
+  return post<OpsReplyScenario>("/api/admin/ops/replies", data);
+}
+
+export function updateOpsReply(id: string, data: Partial<OpsReplyScenario>) {
+  return put<OpsReplyScenario>(`/api/admin/ops/replies/${id}`, data);
+}
+
+export function deleteOpsReply(id: string) {
+  return del<{ message: string }>(`/api/admin/ops/replies/${id}`);
+}
+
+export function generateReplyVariations(id: string, count = 5) {
+  return post<OpsReplyScenario>(`/api/admin/ops/replies/${id}/generate`, { count }, { timeout: 60_000 });
+}
+
+export function markReplyUsed(scenarioId: string, variationIndex: number) {
+  return put<OpsReplyScenario>(`/api/admin/ops/replies/${scenarioId}/use/${variationIndex}`, {});
+}
+
+// Performance
+export function fetchOpsPerformanceSummary() {
+  return get<OpsPerformanceSummary>("/api/admin/ops/performance/summary");
+}
+
+// Assets
+export function fetchOpsAssets(params?: { search?: string; tag?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.search) sp.set("search", params.search);
+  if (params?.tag) sp.set("tag", params.tag);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<OpsAssetItem>>(`/api/admin/ops/assets?${sp}`);
+}
+
+export function createOpsAsset(data: { filename: string; blob_url: string; content_type?: string; size_bytes?: number; tags?: string[]; description?: string }) {
+  return post<OpsAssetItem>("/api/admin/ops/assets", data);
+}
+
+export function updateOpsAsset(id: string, data: Partial<OpsAssetItem>) {
+  return put<OpsAssetItem>(`/api/admin/ops/assets/${id}`, data);
+}
+
+export function deleteOpsAsset(id: string) {
+  return del<{ message: string }>(`/api/admin/ops/assets/${id}`);
+}
+
+export function fetchBannedWords() {
+  return get<{ words: string[]; count: number }>("/api/admin/ops/banned-words");
+}

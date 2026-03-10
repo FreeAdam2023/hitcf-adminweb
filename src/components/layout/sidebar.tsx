@@ -27,6 +27,7 @@ import {
   FolderOpen,
   Settings,
   TrendingUp,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -57,39 +58,40 @@ function isGroup(entry: NavEntry): entry is NavGroup {
 }
 
 const navEntries: NavEntry[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/users", label: "Users", icon: Users },
-  { href: "/subscriptions", label: "Subscriptions", icon: CreditCard },
+  { href: "/", label: "仪表盘", icon: LayoutDashboard },
+  { href: "/users", label: "用户管理", icon: Users },
+  { href: "/subscriptions", label: "订阅管理", icon: CreditCard },
   {
-    label: "Content",
+    label: "内容管理",
     icon: FolderOpen,
     children: [
-      { href: "/test-sets", label: "Test Sets", icon: BookOpen },
-      { href: "/questions", label: "Questions", icon: FileText },
-      { href: "/explanations", label: "Explanations", icon: Lightbulb },
-      { href: "/attempts", label: "Attempts", icon: ClipboardList },
-      { href: "/writing", label: "Writing", icon: PenTool },
-      { href: "/vocabulary", label: "Vocabulary", icon: BookMarked },
+      { href: "/test-sets", label: "题库", icon: BookOpen },
+      { href: "/questions", label: "题目", icon: FileText },
+      { href: "/explanations", label: "解析", icon: Lightbulb },
+      { href: "/attempts", label: "答题记录", icon: ClipboardList },
+      { href: "/writing", label: "写作", icon: PenTool },
+      { href: "/vocabulary", label: "词汇", icon: BookMarked },
     ],
   },
   {
-    label: "Analytics",
+    label: "数据分析",
     icon: TrendingUp,
     children: [
-      { href: "/analytics", label: "Overview", icon: BarChart3 },
-      { href: "/referrals", label: "Referrals", icon: Gift },
-      { href: "/feedback", label: "Feedback", icon: MessageSquare },
-      { href: "/reports", label: "Reports", icon: Flag },
-      { href: "/competitors", label: "Competitors", icon: Swords },
+      { href: "/analytics", label: "总览", icon: BarChart3 },
+      { href: "/referrals", label: "推荐奖励", icon: Gift },
+      { href: "/feedback", label: "用户反馈", icon: MessageSquare },
+      { href: "/reports", label: "举报", icon: Flag },
+      { href: "/competitors", label: "竞品分析", icon: Swords },
     ],
   },
   {
-    label: "Operations",
+    label: "运营",
     icon: Settings,
     children: [
-      { href: "/data", label: "Data Ops", icon: Database },
-      { href: "/audit", label: "Audit Log", icon: Shield },
-      { href: "/quick-links", label: "Quick Links", icon: ExternalLink },
+      { href: "/ops", label: "运营工作台", icon: Megaphone },
+      { href: "/data", label: "数据操作", icon: Database },
+      { href: "/audit", label: "审计日志", icon: Shield },
+      { href: "/quick-links", label: "快捷链接", icon: ExternalLink },
     ],
   },
 ];
@@ -207,7 +209,7 @@ function LogoutButton() {
         className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
       >
         <LogOut className="h-4 w-4" />
-        Sign out
+        退出登录
       </button>
     </div>
   );
