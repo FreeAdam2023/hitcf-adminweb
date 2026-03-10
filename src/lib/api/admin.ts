@@ -42,6 +42,14 @@ import type {
   CompetitorItem,
   CompetitorDetail,
   ComparisonMatrix,
+  FunnelData,
+  SegmentsData,
+  FeatureCorrelationData,
+  ChurnRiskData,
+  CohortRetentionData,
+  FeatureAdoptionData,
+  LTVData,
+  EventsData,
 } from "./types";
 
 // Dashboard
@@ -516,4 +524,43 @@ export function checkCompetitor(id: string) {
 
 export function checkAllCompetitors() {
   return post<{ checked: number; results: Array<{ id: string; name: string; is_up: boolean; status_code: number; notes: string }> }>("/api/admin/competitors/check-all");
+}
+
+// ── Funnel & Advanced Analytics ─────────────────────────────
+export function fetchFunnel(days = 30) {
+  return get<FunnelData>(`/api/admin/analytics/funnel?days=${days}`, { timeout: 60_000 });
+}
+
+export function fetchSegments(days = 90) {
+  return get<SegmentsData>(`/api/admin/analytics/segments?days=${days}`, { timeout: 60_000 });
+}
+
+export function fetchFeatureCorrelation(days = 90) {
+  return get<FeatureCorrelationData>(`/api/admin/analytics/feature-correlation?days=${days}`, { timeout: 60_000 });
+}
+
+export function fetchChurnRisk(inactiveDays = 14) {
+  return get<ChurnRiskData>(`/api/admin/analytics/churn-risk?inactive_days=${inactiveDays}`, { timeout: 60_000 });
+}
+
+export function fetchCohortRetention(granularity: "weekly" | "monthly" = "weekly", cohorts = 12) {
+  return get<CohortRetentionData>(`/api/admin/analytics/cohort-retention?granularity=${granularity}&cohorts=${cohorts}`, { timeout: 60_000 });
+}
+
+export function fetchFeatureAdoption(days = 90) {
+  return get<FeatureAdoptionData>(`/api/admin/analytics/feature-adoption?days=${days}`, { timeout: 60_000 });
+}
+
+export function fetchLTV() {
+  return get<LTVData>("/api/admin/analytics/ltv", { timeout: 60_000 });
+}
+
+export function fetchEvents(params?: { event?: string; user_id?: string; days?: number; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.event) sp.set("event", params.event);
+  if (params?.user_id) sp.set("user_id", params.user_id);
+  if (params?.days) sp.set("days", String(params.days));
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<EventsData>(`/api/admin/analytics/events?${sp}`, { timeout: 60_000 });
 }

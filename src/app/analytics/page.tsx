@@ -7,12 +7,18 @@ import { UserActivityPanel } from "./user-activity-panel";
 import { TestPopularityTable } from "./test-popularity-table";
 import { DifficultyTable } from "./difficulty-table";
 import { InsightsPanel } from "./insights-panel";
+import { FunnelPanel } from "./funnel-panel";
+import { SegmentsPanel } from "./segments-panel";
+import { CohortPanel } from "./cohort-panel";
 import {
   BarChart3,
   Activity,
   Flame,
   AlertTriangle,
   Lightbulb,
+  Filter,
+  Users,
+  Grid3X3,
 } from "lucide-react";
 
 export default function AnalyticsPage() {
@@ -24,6 +30,18 @@ export default function AnalyticsPage() {
           <TabsTrigger value="overview" className="gap-1.5">
             <BarChart3 className="h-3.5 w-3.5" />
             总览
+          </TabsTrigger>
+          <TabsTrigger value="funnel" className="gap-1.5">
+            <Filter className="h-3.5 w-3.5" />
+            漏斗
+          </TabsTrigger>
+          <TabsTrigger value="segments" className="gap-1.5">
+            <Users className="h-3.5 w-3.5" />
+            分群
+          </TabsTrigger>
+          <TabsTrigger value="cohort" className="gap-1.5">
+            <Grid3X3 className="h-3.5 w-3.5" />
+            留存 & LTV
           </TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5">
             <Activity className="h-3.5 w-3.5" />
@@ -44,6 +62,15 @@ export default function AnalyticsPage() {
         </TabsList>
         <TabsContent value="overview" className="mt-4">
           <OverviewCharts />
+        </TabsContent>
+        <TabsContent value="funnel" className="mt-4">
+          <FunnelPanel />
+        </TabsContent>
+        <TabsContent value="segments" className="mt-4">
+          <SegmentsPanel />
+        </TabsContent>
+        <TabsContent value="cohort" className="mt-4">
+          <CohortPanel />
         </TabsContent>
         <TabsContent value="activity" className="mt-4">
           <UserActivityPanel />

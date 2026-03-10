@@ -706,6 +706,134 @@ export interface ComparisonMatrix {
   rows: ComparisonRow[];
 }
 
+// ── Funnel & Advanced Analytics ──────────────────────────────
+
+export interface FunnelStep {
+  name: string;
+  label: string;
+  count: number;
+  rate: number;
+}
+
+export interface FunnelData {
+  days: number;
+  steps: FunnelStep[];
+}
+
+export interface SegmentRow {
+  segment: string;
+  registered: number;
+  paid: number;
+  conversion_rate: number;
+}
+
+export interface SegmentsData {
+  days: number;
+  by_utm_source: SegmentRow[];
+  by_country: SegmentRow[];
+  by_device: SegmentRow[];
+}
+
+export interface FeatureCorrelationGroup {
+  group: string;
+  users: number;
+  listening: number;
+  reading: number;
+  writing: number;
+  speaking: number;
+  conversation: number;
+  vocabulary: number;
+}
+
+export interface FeatureCorrelationData {
+  days: number;
+  groups: FeatureCorrelationGroup[];
+}
+
+export interface ChurnRiskUser {
+  user_id: string;
+  email: string;
+  name: string | null;
+  plan: string | null;
+  status: string | null;
+  current_period_end: string | null;
+  last_active: string;
+  days_inactive: number;
+}
+
+export interface ChurnRiskData {
+  inactive_days: number;
+  total_subscribers: number;
+  at_risk_count: number;
+  at_risk: ChurnRiskUser[];
+}
+
+export interface CohortRetentionPeriod {
+  period: number;
+  active: number;
+  rate: number;
+}
+
+export interface CohortRow {
+  cohort: string;
+  size: number;
+  retention: CohortRetentionPeriod[];
+}
+
+export interface CohortRetentionData {
+  granularity: string;
+  cohorts: CohortRow[];
+  periods: string[];
+}
+
+export interface FeatureAdoptionData {
+  days: number;
+  total_users: number;
+  users_with_activity: number;
+  first_feature: Record<string, number>;
+  top_sequences: Array<{ sequence: string[]; count: number }>;
+}
+
+export interface LTVPlanStats {
+  active: number;
+  churned: number;
+  avg_tenure_days: number;
+  churn_rate: number;
+  monthly_price: number;
+}
+
+export interface LTVData {
+  total_subscribers_ever: number;
+  active_subscribers: number;
+  avg_tenure_days: number;
+  by_plan: Record<string, LTVPlanStats>;
+  estimated_monthly_arpu: number;
+  estimated_ltv: number;
+}
+
+export interface UserEventItem {
+  id: string;
+  user_id: string;
+  user_email: string;
+  event: string;
+  data: Record<string, unknown>;
+  source: string;
+  created_at: string;
+}
+
+export interface EventSummary {
+  event: string;
+  count: number;
+}
+
+export interface EventsData {
+  total: number;
+  page: number;
+  page_size: number;
+  items: UserEventItem[];
+  event_summary: EventSummary[];
+}
+
 // Watermark Lookup
 export interface WatermarkUserResult {
   id: string;
