@@ -1,3 +1,10 @@
+## 2026-03-10 (2ca303a)
+
+### Features
+- add ops workbench UI + localize sidebar (运营工作台) (bea008f)
+
+---
+
 ## 2026-03-10 (1747e2d)
 
 ### Features
