@@ -44,6 +44,21 @@ export interface AdminStats {
   listening_count: number;
 }
 
+// Traffic (Cloudflare Analytics)
+export interface TrafficDay {
+  date: string;
+  requests: number;
+  page_views: number;
+  unique_visitors: number;
+  bytes: number;
+}
+
+export interface TrafficData {
+  days: TrafficDay[];
+  today: TrafficDay | null;
+  error?: string;
+}
+
 // Speaking Attempts
 export interface AdminSpeakingAttemptItem {
   id: string;

@@ -13,6 +13,7 @@ import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListCh
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { UserGeoMap } from "@/components/dashboard/user-geo-map";
 import { CostOverview } from "@/components/dashboard/cost-overview";
+import { TrafficOverview } from "@/components/dashboard/traffic-overview";
 
 interface StatCard {
   label: string;
@@ -120,6 +121,9 @@ export default function DashboardPage() {
 
       {/* User Geo Map */}
       <UserGeoMap />
+
+      {/* Website Traffic */}
+      <TrafficOverview />
 
       {/* Charts */}
       {analytics && (

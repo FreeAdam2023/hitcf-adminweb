@@ -50,11 +50,16 @@ import type {
   FeatureAdoptionData,
   LTVData,
   EventsData,
+  TrafficData,
 } from "./types";
 
 // Dashboard
 export function fetchAdminStats() {
   return get<AdminStats>("/api/admin/stats");
+}
+
+export function fetchTraffic(days = 30) {
+  return get<TrafficData>(`/api/admin/traffic?days=${days}`);
 }
 
 // Users
