@@ -1,3 +1,11 @@
+## 2026-03-10 (2bf282a)
+
+### Features
+- collapsible sidebar groups + Quick Links page (f147eaf)
+- add competitors module — list, detail, comparison matrix, monitor (7d0e225)
+
+---
+
 ## 2026-03-09 (1172d16)
 
 ### Features
