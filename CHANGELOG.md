@@ -1,3 +1,10 @@
+## 2026-03-09 (1172d16)
+
+### Features
+- watermark lookup tool for user identification (d4b2166)
+
+---
+
 ## 2026-03-09 (477cc67)
 
 ### Bug Fixes
