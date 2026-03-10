@@ -34,7 +34,6 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
-  SheetClose,
 } from "@/components/ui/sheet";
 import { NotificationBell } from "./notification-bell";
 import { useAuthStore } from "@/stores/auth-store";
