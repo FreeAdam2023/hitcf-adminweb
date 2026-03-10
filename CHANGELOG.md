@@ -1,3 +1,10 @@
+## 2026-03-10 (8a774ae)
+
+### Bug Fixes
+- remove unused SheetClose import (lint error) (2c9c9fc)
+
+---
+
 ## 2026-03-10 (2bf282a)
 
 ### Features
