@@ -1,3 +1,10 @@
+## 2026-03-10 (1747e2d)
+
+### Features
+- add funnel, segments, cohort retention & LTV analytics tabs (425d5f9)
+
+---
+
 ## 2026-03-10 (8a774ae)
 
 ### Bug Fixes
