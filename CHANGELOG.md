@@ -1,3 +1,10 @@
+## 2026-03-10 (9a53f4d)
+
+### Features
+- add website traffic overview to admin dashboard (cb3a552)
+
+---
+
 ## 2026-03-10 (2ca303a)
 
 ### Features
