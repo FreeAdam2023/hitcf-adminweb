@@ -645,6 +645,67 @@ export interface ReferralStats {
   top_referrers: { email: string; name: string | null; count: number }[];
 }
 
+// Competitors
+export interface CompetitorFeature {
+  name: string;
+  value: string;
+  score: number;
+}
+
+export interface MonitorSnapshot {
+  checked_at: string;
+  status_code: number;
+  is_up: boolean;
+  changes_detected: boolean;
+  notes: string;
+}
+
+export interface CompetitorItem {
+  id: string;
+  name: string;
+  url: string;
+  logo_url: string | null;
+  description: string | null;
+  tags: string[];
+  status: string;
+  pricing_free: string | null;
+  pricing_paid: string | null;
+  features: CompetitorFeature[];
+  notes: string | null;
+  strengths: string | null;
+  weaknesses: string | null;
+  monitor_enabled: boolean;
+  last_check: MonitorSnapshot | null;
+  order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompetitorDetail extends CompetitorItem {
+  check_history: MonitorSnapshot[];
+}
+
+export interface ComparisonColumn {
+  id: string;
+  name: string;
+  is_self: boolean;
+}
+
+export interface ComparisonCell {
+  value: string;
+  score: number;
+}
+
+export interface ComparisonRow {
+  feature: string;
+  [columnId: string]: string | ComparisonCell;
+}
+
+export interface ComparisonMatrix {
+  columns: ComparisonColumn[];
+  rows: ComparisonRow[];
+}
+
 // Watermark Lookup
 export interface WatermarkUserResult {
   id: string;

@@ -39,6 +39,9 @@ import type {
   AdminReferralItem,
   ReferralStats,
   WatermarkUserResult,
+  CompetitorItem,
+  CompetitorDetail,
+  ComparisonMatrix,
 } from "./types";
 
 // Dashboard
@@ -475,4 +478,42 @@ export function lockUser(userId: string, reason: string) {
 
 export function unlockUser(userId: string) {
   return post<{ message: string; is_locked: boolean }>(`/api/admin/users/${userId}/unlock`);
+}
+
+// ── Competitors ─────────────────────────────────────────────
+export function fetchCompetitors(params?: { search?: string; status?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.search) sp.set("search", params.search);
+  if (params?.status) sp.set("status", params.status);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<CompetitorItem>>(`/api/admin/competitors?${sp}`);
+}
+
+export function fetchCompetitorDetail(id: string) {
+  return get<CompetitorDetail>(`/api/admin/competitors/${id}`);
+}
+
+export function fetchComparisonMatrix() {
+  return get<ComparisonMatrix>("/api/admin/competitors/comparison");
+}
+
+export function createCompetitor(data: Record<string, unknown>) {
+  return post<CompetitorItem>("/api/admin/competitors", data);
+}
+
+export function updateCompetitor(id: string, data: Record<string, unknown>) {
+  return put<CompetitorItem>(`/api/admin/competitors/${id}`, data);
+}
+
+export function deleteCompetitor(id: string) {
+  return del<{ message: string }>(`/api/admin/competitors/${id}`);
+}
+
+export function checkCompetitor(id: string) {
+  return post<import("./types").MonitorSnapshot>(`/api/admin/competitors/${id}/check`);
+}
+
+export function checkAllCompetitors() {
+  return post<{ checked: number; results: Array<{ id: string; name: string; is_up: boolean; status_code: number; notes: string }> }>("/api/admin/competitors/check-all");
 }
