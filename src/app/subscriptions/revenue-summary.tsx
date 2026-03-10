@@ -15,7 +15,7 @@ export function RevenueSummary() {
   useEffect(() => {
     fetchSubscriptionRevenue()
       .then(setData)
-      .catch((e) => toast.error(e.message || "Failed to load revenue"))
+      .catch((e) => toast.error(e.message || "加载收入数据失败"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -23,11 +23,11 @@ export function RevenueSummary() {
   if (!data) return null;
 
   const cards = [
-    { label: "Active", value: data.total_active, icon: UserCheck, color: "text-green-600" },
-    { label: "Trialing", value: data.total_trialing, icon: Users, color: "text-blue-600" },
-    { label: "Cancelled", value: data.total_cancelled, icon: UserX, color: "text-muted-foreground" },
-    { label: "Past Due", value: data.total_past_due, icon: AlertTriangle, color: "text-red-600" },
-    { label: "Est. MRR", value: `$${data.estimated_mrr.toLocaleString()}`, icon: DollarSign, color: "text-green-600" },
+    { label: "活跃", value: data.total_active, icon: UserCheck, color: "text-green-600" },
+    { label: "试用中", value: data.total_trialing, icon: Users, color: "text-blue-600" },
+    { label: "已取消", value: data.total_cancelled, icon: UserX, color: "text-muted-foreground" },
+    { label: "逾期", value: data.total_past_due, icon: AlertTriangle, color: "text-red-600" },
+    { label: "预估MRR", value: `$${data.estimated_mrr.toLocaleString()}`, icon: DollarSign, color: "text-green-600" },
   ];
 
   return (
@@ -50,7 +50,7 @@ export function RevenueSummary() {
       {Object.keys(data.by_plan).length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Active by Plan</CardTitle>
+            <CardTitle className="text-base">按套餐分布</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

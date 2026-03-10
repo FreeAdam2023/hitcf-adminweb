@@ -22,7 +22,7 @@ export function ReferralStatsPanel() {
   useEffect(() => {
     fetchReferralStats()
       .then(setStats)
-      .catch(() => toast.error("Failed to load referral stats"))
+      .catch(() => toast.error("加载推荐统计失败"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -35,7 +35,7 @@ export function ReferralStatsPanel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Referrals
+              总推荐数
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -45,7 +45,7 @@ export function ReferralStatsPanel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Pending
+              待完成
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -55,7 +55,7 @@ export function ReferralStatsPanel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Completed
+              已完成
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -65,7 +65,7 @@ export function ReferralStatsPanel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Fraud
+              欺诈
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -75,7 +75,7 @@ export function ReferralStatsPanel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Reward Days Given
+              已发放奖励天数
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -83,7 +83,7 @@ export function ReferralStatsPanel() {
               {stats.total_referrer_reward_days + stats.total_referee_reward_days}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Referrers: {stats.total_referrer_reward_days}d / Referees: {stats.total_referee_reward_days}d
+              推荐人: {stats.total_referrer_reward_days}天 / 被推荐人: {stats.total_referee_reward_days}天
             </p>
           </CardContent>
         </Card>
@@ -92,16 +92,16 @@ export function ReferralStatsPanel() {
       {stats.top_referrers.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Top Referrers</CardTitle>
+            <CardTitle>推荐排行榜</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>#</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="text-right">Referrals</TableHead>
+                  <TableHead>邮箱</TableHead>
+                  <TableHead>姓名</TableHead>
+                  <TableHead className="text-right">推荐数</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

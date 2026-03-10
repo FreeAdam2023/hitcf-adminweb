@@ -27,7 +27,7 @@ export default function LoginPage() {
     setError("");
 
     if (!email.trim() || !password) {
-      setError("Please enter email and password.");
+      setError("请输入邮箱和密码");
       return;
     }
 
@@ -41,13 +41,13 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid credentials or insufficient privileges.");
+        setError("凭证无效或权限不足");
       } else {
         router.push("/");
         router.refresh();
       }
     } catch {
-      setError("Login failed. Please try again.");
+      setError("登录失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -61,12 +61,12 @@ export default function LoginPage() {
             <ShieldAlert className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-xl">HiTCF Admin</CardTitle>
-          <CardDescription>Sign in with your admin account</CardDescription>
+          <CardDescription>使用管理员账号登录</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">邮箱</Label>
               <Input
                 id="email"
                 type="email"
@@ -78,11 +78,11 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">密码</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="请输入密码"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
@@ -93,7 +93,7 @@ export default function LoginPage() {
             {error && <p className="text-sm text-destructive">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "登录中..." : "登录"}
             </Button>
           </form>
         </CardContent>

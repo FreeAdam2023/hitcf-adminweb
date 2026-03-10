@@ -57,7 +57,7 @@ export function QuestionList() {
       });
       setData(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load questions");
+      setError(err instanceof Error ? err.message : "加载题目失败");
     } finally {
       setLoading(false);
     }
@@ -68,10 +68,10 @@ export function QuestionList() {
   const handleDelete = async (id: string) => {
     try {
       await deleteQuestion(id);
-      toast.success("Question deleted");
+      toast.success("题目已删除");
       load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete question");
+      toast.error(err instanceof Error ? err.message : "删除题目失败");
     }
   };
 
@@ -80,10 +80,10 @@ export function QuestionList() {
     setBulkDeleting(true);
     try {
       await bulkDeleteQuestions(Array.from(selectedIds));
-      toast.success(`${selectedIds.size} questions deleted`);
+      toast.success(`${selectedIds.size} 道题已删除`);
       load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Bulk delete failed");
+      toast.error(err instanceof Error ? err.message : "批量删除失败");
     } finally {
       setBulkDeleting(false);
     }
@@ -129,10 +129,10 @@ export function QuestionList() {
       <div className="flex items-center gap-3">
         <Select value={testSetId || "all"} onValueChange={(v) => { setTestSetId(v === "all" ? "" : v); setPage(1); }}>
           <SelectTrigger className="w-64">
-            <SelectValue placeholder="Filter by test set..." />
+            <SelectValue placeholder="按题库筛选..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Test Sets</SelectItem>
+            <SelectItem value="all">全部题库</SelectItem>
             {testSets.map((ts) => (
               <SelectItem key={ts.id} value={ts.id}>{ts.code} — {ts.name}</SelectItem>
             ))}
@@ -143,19 +143,19 @@ export function QuestionList() {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm" disabled={bulkDeleting}>
                 <Trash2 className="mr-1 h-3 w-3" />
-                Delete {selectedIds.size} selected
+                删除已选 {selectedIds.size} 项
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Bulk delete questions?</AlertDialogTitle>
+                <AlertDialogTitle>批量删除题目？</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will soft-delete {selectedIds.size} selected questions.
+                  将软删除已选的 {selectedIds.size} 道题目。
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleBulkDelete}>Delete</AlertDialogAction>
+                <AlertDialogCancel>取消</AlertDialogCancel>
+                <AlertDialogAction onClick={handleBulkDelete}>删除</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -169,11 +169,11 @@ export function QuestionList() {
           <AlertCircle className="h-10 w-10 text-destructive mb-3" />
           <p className="text-sm text-destructive mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={load}>
-            <RotateCcw className="mr-1 h-3 w-3" /> Retry
+            <RotateCcw className="mr-1 h-3 w-3" /> 重试
           </Button>
         </div>
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No questions found" description="Try selecting a different test set." />
+        <EmptyState title="未找到题目" description="请尝试选择其他题库" />
       ) : (
         <>
           <Table>
@@ -186,14 +186,14 @@ export function QuestionList() {
                   />
                 </TableHead>
                 <TableHead className="w-12">#</TableHead>
-                <TableHead>Question</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead className="text-center">Options</TableHead>
-                <TableHead className="text-center">Answer</TableHead>
-                <TableHead className="text-center">Audio</TableHead>
-                <TableHead className="text-center">Deleted</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>题目</TableHead>
+                <TableHead>类型</TableHead>
+                <TableHead>级别</TableHead>
+                <TableHead className="text-center">选项</TableHead>
+                <TableHead className="text-center">答案</TableHead>
+                <TableHead className="text-center">音频</TableHead>
+                <TableHead className="text-center">已删除</TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -224,7 +224,7 @@ export function QuestionList() {
                   <TableCell className="text-center">
                     {q.has_audio ? <Check className="inline h-4 w-4 text-green-600" /> : <X className="inline h-4 w-4 text-muted-foreground" />}
                   </TableCell>
-                  <TableCell className="text-center">{q.is_deleted ? "Yes" : "-"}</TableCell>
+                  <TableCell className="text-center">{q.is_deleted ? "是" : "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="sm" asChild>
@@ -241,14 +241,14 @@ export function QuestionList() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete question?</AlertDialogTitle>
+                              <AlertDialogTitle>删除题目？</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will soft-delete question #{q.question_number}.
+                                将软删除第 {q.question_number} 题。
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(q.id)}>Delete</AlertDialogAction>
+                              <AlertDialogCancel>取消</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(q.id)}>删除</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

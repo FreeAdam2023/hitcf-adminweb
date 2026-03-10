@@ -30,10 +30,10 @@ export function ImportPanel() {
       const parsed = JSON.parse(jsonText);
       if (Array.isArray(parsed)) return parsed;
       if (parsed.questions && Array.isArray(parsed.questions)) return parsed.questions;
-      toast.error("JSON must be an array or object with 'questions' array");
+      toast.error("JSON 必须是数组或包含 'questions' 数组的对象");
       return null;
     } catch {
-      toast.error("Invalid JSON");
+      toast.error("无效的 JSON");
       return null;
     }
   }
@@ -46,7 +46,7 @@ export function ImportPanel() {
       const res = await previewImport({ test_set_id: selectedTs, questions });
       setPreview(res);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Preview failed");
+      toast.error(e instanceof Error ? e.message : "预览失败");
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export function ImportPanel() {
       setPreview(null);
       setJsonText("");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Import failed");
+      toast.error(e instanceof Error ? e.message : "导入失败");
     } finally {
       setImporting(false);
     }
@@ -72,9 +72,9 @@ export function ImportPanel() {
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label>Test Set</Label>
+          <Label>题库</Label>
           <Select value={selectedTs} onValueChange={setSelectedTs}>
-            <SelectTrigger><SelectValue placeholder="Select test set" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="选择题库" /></SelectTrigger>
             <SelectContent>
               {testSets.map((ts) => (
                 <SelectItem key={ts.id} value={ts.id}>{ts.code} - {ts.name}</SelectItem>
@@ -85,7 +85,7 @@ export function ImportPanel() {
       </div>
 
       <div className="space-y-2">
-        <Label>Questions JSON</Label>
+        <Label>题目 JSON</Label>
         <Textarea
           rows={12}
           placeholder='[{"question_number": 1, "type": "listening", "correct_answer": "A", "options": [{"key": "A", "text": "..."}]}]'
@@ -102,29 +102,29 @@ export function ImportPanel() {
           disabled={!selectedTs || !jsonText || loading}
         >
           <Eye className="mr-1 h-4 w-4" />
-          {loading ? "Previewing..." : "Preview"}
+          {loading ? "预览中..." : "预览"}
         </Button>
         {preview && (
           <Button onClick={handleImport} disabled={importing}>
             <Upload className="mr-1 h-4 w-4" />
-            {importing ? "Importing..." : "Import"}
+            {importing ? "导入中..." : "导入"}
           </Button>
         )}
       </div>
 
       {preview && (
         <Card>
-          <CardHeader><CardTitle className="text-base">Preview: {preview.test_set_name}</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">预览: {preview.test_set_name}</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <span className="font-medium text-green-600">{preview.to_create}</span> to create
+                <span className="font-medium text-green-600">{preview.to_create}</span> 待创建
               </div>
               <div>
-                <span className="font-medium text-blue-600">{preview.to_update}</span> to update
+                <span className="font-medium text-blue-600">{preview.to_update}</span> 待更新
               </div>
               <div>
-                <span className="font-medium text-red-600">{preview.conflicts}</span> conflicts
+                <span className="font-medium text-red-600">{preview.conflicts}</span> 冲突
               </div>
             </div>
             {preview.details.conflict_details.length > 0 && (

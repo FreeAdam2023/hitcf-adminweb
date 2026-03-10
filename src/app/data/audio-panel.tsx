@@ -39,7 +39,7 @@ export function AudioPanel() {
       setStatus(s);
       setMissing(m);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load audio data");
+      toast.error(e instanceof Error ? e.message : "加载音频数据失败");
     } finally {
       setLoading(false);
     }
@@ -51,12 +51,12 @@ export function AudioPanel() {
     if (!urlDialog || !urlInput.trim()) return;
     try {
       await setAudioUrl(urlDialog.question_id, urlInput.trim());
-      toast.success("Audio URL updated");
+      toast.success("音频URL已更新");
       setUrlDialog(null);
       setUrlInput("");
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to set audio URL");
+      toast.error(e instanceof Error ? e.message : "设置音频URL失败");
     }
   }
 
@@ -69,21 +69,21 @@ export function AudioPanel() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Listening</CardTitle>
+              <CardTitle className="text-sm font-medium">总听力题</CardTitle>
               <Volume2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent><div className="text-2xl font-bold">{status.total_listening}</div></CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">With Audio</CardTitle>
+              <CardTitle className="text-sm font-medium">有音频</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent><div className="text-2xl font-bold">{status.with_audio}</div></CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Missing Audio</CardTitle>
+              <CardTitle className="text-sm font-medium">缺音频</CardTitle>
               <VolumeX className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent><div className="text-2xl font-bold">{status.without_audio}</div></CardContent>
@@ -94,7 +94,7 @@ export function AudioPanel() {
       {/* By Test Set */}
       {status && status.by_test_set.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-base">Audio Coverage by Test Set</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">各题库音频覆盖率</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-2">
               {status.by_test_set.map((ts) => {
@@ -118,18 +118,18 @@ export function AudioPanel() {
 
       {/* Missing Audio List */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Missing Audio</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">缺音频</CardTitle></CardHeader>
         <CardContent>
           {!missing || missing.items.length === 0 ? (
-            <EmptyState title="All listening questions have audio" />
+            <EmptyState title="所有听力题目均有音频" />
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Test Set</TableHead>
-                    <TableHead>Question #</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>题库</TableHead>
+                    <TableHead>题号</TableHead>
+                    <TableHead>操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -143,7 +143,7 @@ export function AudioPanel() {
                           size="sm"
                           onClick={() => { setUrlDialog(item); setUrlInput(""); }}
                         >
-                          Set URL
+                          设置URL
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -160,13 +160,13 @@ export function AudioPanel() {
       <Dialog open={!!urlDialog} onOpenChange={() => setUrlDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Set Audio URL</DialogTitle>
+            <DialogTitle>设置音频URL</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {urlDialog?.test_set_name} - Q{urlDialog?.question_number}
           </p>
           <div className="space-y-2">
-            <Label>Audio URL</Label>
+            <Label>音频URL</Label>
             <Input
               placeholder="https://..."
               value={urlInput}
@@ -174,8 +174,8 @@ export function AudioPanel() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setUrlDialog(null)}>Cancel</Button>
-            <Button onClick={handleSetUrl} disabled={!urlInput.trim()}>Save</Button>
+            <Button variant="outline" onClick={() => setUrlDialog(null)}>取消</Button>
+            <Button onClick={handleSetUrl} disabled={!urlInput.trim()}>保存</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

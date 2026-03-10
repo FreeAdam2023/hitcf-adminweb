@@ -41,7 +41,7 @@ export function ExplanationDashboard() {
       setBatch(b);
       setTestSets(ts.items);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load stats");
+      toast.error(e instanceof Error ? e.message : "加载统计失败");
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ export function ExplanationDashboard() {
       const b = await fetchBatchStatus();
       setBatch(b);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to start batch generation");
+      toast.error(e instanceof Error ? e.message : "启动批量生成失败");
     } finally {
       setStarting(false);
     }
@@ -93,7 +93,7 @@ export function ExplanationDashboard() {
       const res = await cancelBatchGeneration();
       toast.success(res.message);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to cancel batch");
+      toast.error(e instanceof Error ? e.message : "取消批量生成失败");
     }
   }
 
@@ -108,28 +108,28 @@ export function ExplanationDashboard() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
+            <CardTitle className="text-sm font-medium">题目总数</CardTitle>
             <Lightbulb className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent><div className="text-2xl font-bold">{stats.total.toLocaleString()}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">With Explanation</CardTitle>
+            <CardTitle className="text-sm font-medium">已生成解析</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent><div className="text-2xl font-bold">{stats.with_explanation.toLocaleString()}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Missing</CardTitle>
+            <CardTitle className="text-sm font-medium">待生成</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent><div className="text-2xl font-bold">{stats.without_explanation.toLocaleString()}</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Coverage</CardTitle>
+            <CardTitle className="text-sm font-medium">覆盖率</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pct}%</div>
@@ -142,7 +142,7 @@ export function ExplanationDashboard() {
 
       {/* By Type */}
       <Card>
-        <CardHeader><CardTitle className="text-base">By Type</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">按类型统计</CardTitle></CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-4">
             {Object.entries(stats.by_type).map(([type, data]) => {
@@ -165,14 +165,14 @@ export function ExplanationDashboard() {
 
       {/* Batch Generation */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Batch Generation</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">批量生成</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           {batch?.running ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span>Progress: {batch.completed + batch.failed} / {batch.total}</span>
+                <span>进度: {batch.completed + batch.failed} / {batch.total}</span>
                 <span className="text-muted-foreground">
-                  {batch.failed > 0 && <span className="text-red-600">{batch.failed} failed</span>}
+                  {batch.failed > 0 && <span className="text-red-600">{batch.failed} 个失败</span>}
                 </span>
               </div>
               <div className="h-3 rounded-full bg-muted">
@@ -188,28 +188,28 @@ export function ExplanationDashboard() {
                   ))}
                 </div>
               )}
-              <Button variant="destructive" size="sm" onClick={handleCancel}>Cancel</Button>
+              <Button variant="destructive" size="sm" onClick={handleCancel}>取消</Button>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Type</Label>
+                  <Label>类型</Label>
                   <Select value={selectedType} onValueChange={setSelectedType}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="listening">Listening</SelectItem>
-                      <SelectItem value="reading">Reading</SelectItem>
+                      <SelectItem value="all">全部类型</SelectItem>
+                      <SelectItem value="listening">听力</SelectItem>
+                      <SelectItem value="reading">阅读</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Test Set</Label>
+                  <Label>题库</Label>
                   <Select value={selectedTestSet} onValueChange={setSelectedTestSet}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Test Sets</SelectItem>
+                      <SelectItem value="all">全部题库</SelectItem>
                       {testSets.map((ts) => (
                         <SelectItem key={ts.id} value={ts.id}>{ts.code} - {ts.name}</SelectItem>
                       ))}
@@ -217,7 +217,7 @@ export function ExplanationDashboard() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Limit</Label>
+                  <Label>数量上限</Label>
                   <Input
                     type="number"
                     min={1}
@@ -228,7 +228,7 @@ export function ExplanationDashboard() {
                 </div>
               </div>
               <Button onClick={handleStart} disabled={starting}>
-                {starting ? "Starting..." : "Start Batch Generation"}
+                {starting ? "启动中..." : "开始批量生成"}
               </Button>
             </div>
           )}

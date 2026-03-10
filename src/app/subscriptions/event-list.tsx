@@ -28,7 +28,7 @@ export function EventList() {
       });
       setData(res);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load events");
+      toast.error(e instanceof Error ? e.message : "加载事件失败");
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export function EventList() {
   return (
     <div className="space-y-4">
       <Input
-        placeholder="Filter by event type (e.g. invoice.paid)..."
+        placeholder="按事件类型筛选（如 invoice.paid）..."
         className="max-w-sm"
         value={filterInput}
         onChange={(e) => setFilterInput(e.target.value)}
@@ -54,15 +54,15 @@ export function EventList() {
       {loading ? (
         <LoadingSpinner />
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No events found" />
+        <EmptyState title="未找到事件" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Event ID</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Processed At</TableHead>
+                <TableHead>事件ID</TableHead>
+                <TableHead>类型</TableHead>
+                <TableHead>处理时间</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

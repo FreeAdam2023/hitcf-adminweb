@@ -45,10 +45,10 @@ export function TestSetForm({ initial }: TestSetFormProps) {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!code.trim()) errs.code = "Code is required";
-    if (!name.trim()) errs.name = "Name is required";
-    if (questionCount < 0) errs.question_count = "Must be >= 0";
-    if (timeLimit < 0) errs.time_limit = "Must be >= 0";
+    if (!code.trim()) errs.code = "编号不能为空";
+    if (!name.trim()) errs.name = "名称不能为空";
+    if (questionCount < 0) errs.question_count = "必须 ≥ 0";
+    if (timeLimit < 0) errs.time_limit = "必须 ≥ 0";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -72,14 +72,14 @@ export function TestSetForm({ initial }: TestSetFormProps) {
 
       if (isEdit) {
         await updateTestSet(initial.id, data);
-        toast.success("Test set updated");
+        toast.success("题库已更新");
       } else {
         await createTestSet(data);
-        toast.success("Test set created");
+        toast.success("题库已创建");
       }
       router.push("/test-sets");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save test set");
+      toast.error(err instanceof Error ? err.message : "保存题库失败");
     } finally {
       setSaving(false);
     }
@@ -89,7 +89,7 @@ export function TestSetForm({ initial }: TestSetFormProps) {
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="code">Code</Label>
+          <Label htmlFor="code">编号</Label>
           <Input
             id="code"
             value={code}
@@ -99,7 +99,7 @@ export function TestSetForm({ initial }: TestSetFormProps) {
           {errors.code && <p className="text-xs text-destructive">{errors.code}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">名称</Label>
           <Input
             id="name"
             value={name}
@@ -112,19 +112,19 @@ export function TestSetForm({ initial }: TestSetFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Type</Label>
+          <Label>类型</Label>
           <Select value={type} onValueChange={setType}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="listening">listening</SelectItem>
-              <SelectItem value="reading">reading</SelectItem>
-              <SelectItem value="speaking">speaking</SelectItem>
-              <SelectItem value="writing">writing</SelectItem>
+              <SelectItem value="listening">听力</SelectItem>
+              <SelectItem value="reading">阅读</SelectItem>
+              <SelectItem value="speaking">口语</SelectItem>
+              <SelectItem value="writing">写作</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="question_count">Question Count</Label>
+          <Label htmlFor="question_count">题目数量</Label>
           <Input
             id="question_count"
             type="number"
@@ -138,7 +138,7 @@ export function TestSetForm({ initial }: TestSetFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="time_limit">Time Limit (minutes)</Label>
+          <Label htmlFor="time_limit">时间限制（分钟）</Label>
           <Input
             id="time_limit"
             type="number"
@@ -149,7 +149,7 @@ export function TestSetForm({ initial }: TestSetFormProps) {
           {errors.time_limit && <p className="text-xs text-destructive">{errors.time_limit}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="order">Order</Label>
+          <Label htmlFor="order">排序</Label>
           <Input
             id="order"
             type="number"
@@ -161,22 +161,22 @@ export function TestSetForm({ initial }: TestSetFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="serie_number">Serie Number</Label>
+          <Label htmlFor="serie_number">系列编号</Label>
           <Input
             id="serie_number"
             type="number"
             value={serieNumber}
             onChange={(e) => setSerieNumber(e.target.value)}
-            placeholder="Optional"
+            placeholder="可选"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="source_date">Source Date</Label>
+          <Label htmlFor="source_date">来源日期</Label>
           <Input
             id="source_date"
             value={sourceDate}
             onChange={(e) => setSourceDate(e.target.value)}
-            placeholder="Optional"
+            placeholder="可选"
           />
         </div>
       </div>
@@ -187,15 +187,15 @@ export function TestSetForm({ initial }: TestSetFormProps) {
           checked={isFree}
           onCheckedChange={(v) => setIsFree(v === true)}
         />
-        <Label htmlFor="is_free">Free</Label>
+        <Label htmlFor="is_free">免费</Label>
       </div>
 
       <div className="flex gap-3">
         <Button type="submit" disabled={saving}>
-          {saving ? "Saving..." : isEdit ? "Update" : "Create"}
+          {saving ? "保存中..." : isEdit ? "保存" : "创建"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.push("/test-sets")}>
-          Cancel
+          取消
         </Button>
       </div>
     </form>

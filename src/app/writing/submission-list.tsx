@@ -47,7 +47,7 @@ export function SubmissionList() {
       const res = await fetchWritingSubmissions({ page });
       setData(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load writing submissions");
+      setError(err instanceof Error ? err.message : "加载写作提交失败");
     } finally {
       setLoading(false);
     }
@@ -64,23 +64,23 @@ export function SubmissionList() {
           <AlertCircle className="h-10 w-10 text-destructive mb-3" />
           <p className="text-sm text-destructive mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={load}>
-            <RotateCcw className="mr-1 h-3 w-3" /> Retry
+            <RotateCcw className="mr-1 h-3 w-3" /> 重试
           </Button>
         </div>
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No writing submissions" description="No submissions have been recorded yet." />
+        <EmptyState title="暂无写作提交" description="还没有写作提交记录" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User Email</TableHead>
-                <TableHead className="text-center">Task #</TableHead>
-                <TableHead className="text-center">Word Count</TableHead>
-                <TableHead className="text-center">Score (/20)</TableHead>
-                <TableHead className="text-center">Level</TableHead>
-                <TableHead>Submitted At</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>用户邮箱</TableHead>
+                <TableHead className="text-center">任务</TableHead>
+                <TableHead className="text-center">字数</TableHead>
+                <TableHead className="text-center">评分 (/20)</TableHead>
+                <TableHead className="text-center">等级</TableHead>
+                <TableHead>提交时间</TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -98,7 +98,7 @@ export function SubmissionList() {
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/writing/${item.id}`}>
                         <Eye className="mr-1 h-4 w-4" />
-                        View
+                        查看
                       </Link>
                     </Button>
                   </TableCell>

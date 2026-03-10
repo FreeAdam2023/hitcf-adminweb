@@ -34,18 +34,18 @@ import {
 import type { CompetitorItem, CompetitorFeature } from "@/lib/api/types";
 
 const DEFAULT_FEATURES: CompetitorFeature[] = [
-  { name: "Listening Practice", value: "", score: 0 },
-  { name: "Reading Practice", value: "", score: 0 },
-  { name: "Speaking Practice", value: "", score: 0 },
-  { name: "Writing Practice", value: "", score: 0 },
-  { name: "AI Explanations", value: "", score: 0 },
-  { name: "Vocabulary Tools", value: "", score: 0 },
-  { name: "Mock Exam Mode", value: "", score: 0 },
-  { name: "Pronunciation", value: "", score: 0 },
-  { name: "Mobile Support", value: "", score: 0 },
-  { name: "Pricing", value: "", score: 0 },
-  { name: "Free Tier", value: "", score: 0 },
-  { name: "Multi-language", value: "", score: 0 },
+  { name: "听力练习", value: "", score: 0 },
+  { name: "阅读练习", value: "", score: 0 },
+  { name: "口语练习", value: "", score: 0 },
+  { name: "写作练习", value: "", score: 0 },
+  { name: "AI 解析", value: "", score: 0 },
+  { name: "词汇工具", value: "", score: 0 },
+  { name: "模考模式", value: "", score: 0 },
+  { name: "发音训练", value: "", score: 0 },
+  { name: "移动端支持", value: "", score: 0 },
+  { name: "价格", value: "", score: 0 },
+  { name: "免费额度", value: "", score: 0 },
+  { name: "多语言", value: "", score: 0 },
 ];
 
 interface FormData {
@@ -103,7 +103,7 @@ export function CompetitorList() {
       const res = await fetchCompetitors({ search: search || undefined, page_size: 50 });
       setItems(res.items);
     } catch {
-      toast.error("Failed to load competitors");
+      toast.error("加载竞品列表失败");
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ export function CompetitorList() {
 
   const handleSave = async () => {
     if (!form.name || !form.url) {
-      toast.error("Name and URL are required");
+      toast.error("名称和网址为必填项");
       return;
     }
     setSaving(true);
@@ -173,15 +173,15 @@ export function CompetitorList() {
       };
       if (editingId) {
         await updateCompetitor(editingId, payload);
-        toast.success("Competitor updated");
+        toast.success("竞品已更新");
       } else {
         await createCompetitor(payload);
-        toast.success("Competitor created");
+        toast.success("竞品已创建");
       }
       setDialogOpen(false);
       load();
     } catch {
-      toast.error("Save failed");
+      toast.error("保存失败");
     } finally {
       setSaving(false);
     }
@@ -191,11 +191,11 @@ export function CompetitorList() {
     if (!deleteId) return;
     try {
       await deleteCompetitor(deleteId);
-      toast.success("Competitor deleted");
+      toast.success("竞品已删除");
       setDeleteId(null);
       load();
     } catch {
-      toast.error("Delete failed");
+      toast.error("删除失败");
     }
   };
 
@@ -211,21 +211,21 @@ export function CompetitorList() {
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <Input
-          placeholder="Search competitors..."
+          placeholder="搜索竞品..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
         <Button onClick={openCreate} size="sm">
-          <Plus className="mr-1 h-4 w-4" /> Add Competitor
+          <Plus className="mr-1 h-4 w-4" /> 添加竞品
         </Button>
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <p className="text-sm text-muted-foreground">加载中...</p>
       ) : items.length === 0 ? (
         <div className="rounded-lg border p-8 text-center text-muted-foreground">
-          No competitors yet. Click &quot;Add Competitor&quot; to get started.
+          暂无竞品数据，点击「添加竞品」开始录入。
         </div>
       ) : (
         <div className="space-y-3">
@@ -265,7 +265,7 @@ export function CompetitorList() {
                     <span className="text-xs text-muted-foreground mr-2">{item.pricing_paid}</span>
                   )}
                   {item.last_check && (
-                    <span className={`inline-block h-2 w-2 rounded-full mr-2 ${item.last_check.is_up ? "bg-green-500" : "bg-red-500"}`} title={item.last_check.is_up ? "Online" : "Down"} />
+                    <span className={`inline-block h-2 w-2 rounded-full mr-2 ${item.last_check.is_up ? "bg-green-500" : "bg-red-500"}`} title={item.last_check.is_up ? "在线" : "宕机"} />
                   )}
                   <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                     <Pencil className="h-4 w-4" />
@@ -279,24 +279,24 @@ export function CompetitorList() {
               {expandedId === item.id && (
                 <div className="border-t px-4 py-3 grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <h4 className="font-medium mb-1">Strengths</h4>
+                    <h4 className="font-medium mb-1">优势</h4>
                     <p className="text-muted-foreground">{item.strengths || "-"}</p>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-1">Weaknesses</h4>
+                    <h4 className="font-medium mb-1">劣势</h4>
                     <p className="text-muted-foreground">{item.weaknesses || "-"}</p>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-1">Free Tier</h4>
+                    <h4 className="font-medium mb-1">免费额度</h4>
                     <p className="text-muted-foreground">{item.pricing_free || "-"}</p>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-1">Notes</h4>
+                    <h4 className="font-medium mb-1">备注</h4>
                     <p className="text-muted-foreground">{item.notes || "-"}</p>
                   </div>
                   {item.features.length > 0 && (
                     <div className="col-span-2">
-                      <h4 className="font-medium mb-2">Features</h4>
+                      <h4 className="font-medium mb-2">功能对比</h4>
                       <div className="grid grid-cols-3 gap-2">
                         {item.features.map((f) => (
                           <div key={f.name} className="flex items-center gap-2">
@@ -319,72 +319,72 @@ export function CompetitorList() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Competitor" : "Add Competitor"}</DialogTitle>
+            <DialogTitle>{editingId ? "编辑竞品" : "添加竞品"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Name *</Label>
+                <Label>名称 *</Label>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div>
-                <Label>URL *</Label>
+                <Label>网址 *</Label>
                 <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://" />
               </div>
             </div>
 
             <div>
-              <Label>Description</Label>
+              <Label>描述</Label>
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label>Tags (comma-separated)</Label>
+                <Label>标签 (逗号分隔)</Label>
                 <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="TCF, TEF" />
               </div>
               <div>
-                <Label>Status</Label>
+                <Label>状态</Label>
                 <select
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="defunct">Defunct</option>
+                  <option value="active">运营中</option>
+                  <option value="inactive">已停用</option>
+                  <option value="defunct">已关闭</option>
                 </select>
               </div>
               <div>
-                <Label>Sort Order</Label>
+                <Label>排序</Label>
                 <Input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Free Tier</Label>
-                <Input value={form.pricing_free} onChange={(e) => setForm({ ...form, pricing_free: e.target.value })} placeholder="e.g. 3 free tests" />
+                <Label>免费额度</Label>
+                <Input value={form.pricing_free} onChange={(e) => setForm({ ...form, pricing_free: e.target.value })} placeholder="例: 3套免费试题" />
               </div>
               <div>
-                <Label>Paid Plans</Label>
-                <Input value={form.pricing_paid} onChange={(e) => setForm({ ...form, pricing_paid: e.target.value })} placeholder="e.g. $9.90-$49.90/mo" />
+                <Label>付费方案</Label>
+                <Input value={form.pricing_paid} onChange={(e) => setForm({ ...form, pricing_paid: e.target.value })} placeholder="例: $9.90-$49.90/月" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Strengths</Label>
+                <Label>优势</Label>
                 <Textarea value={form.strengths} onChange={(e) => setForm({ ...form, strengths: e.target.value })} rows={2} />
               </div>
               <div>
-                <Label>Weaknesses</Label>
+                <Label>劣势</Label>
                 <Textarea value={form.weaknesses} onChange={(e) => setForm({ ...form, weaknesses: e.target.value })} rows={2} />
               </div>
             </div>
 
             <div>
-              <Label>Notes</Label>
+              <Label>备注</Label>
               <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} />
             </div>
 
@@ -393,12 +393,12 @@ export function CompetitorList() {
                 checked={form.monitor_enabled}
                 onCheckedChange={(v) => setForm({ ...form, monitor_enabled: !!v })}
               />
-              <Label className="cursor-pointer">Enable website monitoring</Label>
+              <Label className="cursor-pointer">启用网站监控</Label>
             </div>
 
             {/* Feature Scores */}
             <div>
-              <Label className="mb-2 block">Feature Comparison (leave value empty to skip)</Label>
+              <Label className="mb-2 block">功能对比 (留空则跳过)</Label>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {form.features.map((f, i) => (
                   <div key={f.name} className="grid grid-cols-[1fr_1.5fr_80px] gap-2 items-center">
@@ -406,7 +406,7 @@ export function CompetitorList() {
                     <Input
                       value={f.value}
                       onChange={(e) => updateFeature(i, "value", e.target.value)}
-                      placeholder="Description..."
+                      placeholder="描述..."
                       className="h-8 text-sm"
                     />
                     <select
@@ -424,9 +424,9 @@ export function CompetitorList() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>取消</Button>
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Saving..." : editingId ? "Update" : "Create"}
+                {saving ? "保存中..." : editingId ? "更新" : "创建"}
               </Button>
             </div>
           </div>
@@ -437,15 +437,15 @@ export function CompetitorList() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete competitor?</AlertDialogTitle>
+            <AlertDialogTitle>删除竞品?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove this competitor entry.
+              此操作将永久删除该竞品记录。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Delete
+              删除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

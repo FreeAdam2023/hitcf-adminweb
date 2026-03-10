@@ -19,19 +19,19 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         size="sm"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        aria-label="Previous page"
+        aria-label="上一页"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
       <span className="text-sm text-muted-foreground">
-        {page} / {totalPages}
+        第 {page} / {totalPages} 页
       </span>
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        aria-label="Next page"
+        aria-label="下一页"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>

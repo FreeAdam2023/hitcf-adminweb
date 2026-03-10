@@ -38,9 +38,9 @@ export function ExportPanel() {
       const data = await exportTestSet(selectedTs);
       const ts = testSets.find((t) => t.id === selectedTs);
       downloadJson(data, `${ts?.code || "test-set"}.json`);
-      toast.success("Export downloaded");
+      toast.success("导出已下载");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Export failed");
+      toast.error(e instanceof Error ? e.message : "导出失败");
     } finally {
       setExporting(false);
     }
@@ -54,9 +54,9 @@ export function ExportPanel() {
         type: selectedType !== "all" ? selectedType : undefined,
       });
       downloadJson(data, "questions_export.json");
-      toast.success("Export downloaded");
+      toast.success("导出已下载");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Export failed");
+      toast.error(e instanceof Error ? e.message : "导出失败");
     } finally {
       setExporting(false);
     }
@@ -65,12 +65,12 @@ export function ExportPanel() {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <h3 className="font-medium">Export Test Set</h3>
+        <h3 className="font-medium">导出题库</h3>
         <div className="flex gap-3 items-end">
           <div className="space-y-2 flex-1 max-w-sm">
-            <Label>Test Set</Label>
+            <Label>题库</Label>
             <Select value={selectedTs} onValueChange={setSelectedTs}>
-              <SelectTrigger><SelectValue placeholder="Select test set" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="选择题库" /></SelectTrigger>
               <SelectContent>
                 {testSets.map((ts) => (
                   <SelectItem key={ts.id} value={ts.id}>{ts.code} - {ts.name}</SelectItem>
@@ -80,30 +80,30 @@ export function ExportPanel() {
           </div>
           <Button onClick={handleExportTestSet} disabled={!selectedTs || exporting}>
             <Download className="mr-1 h-4 w-4" />
-            Export Test Set
+            导出题库
           </Button>
         </div>
       </div>
 
       <div className="border-t pt-6 space-y-4">
-        <h3 className="font-medium">Export Questions by Filter</h3>
+        <h3 className="font-medium">按条件导出题目</h3>
         <div className="flex gap-3 items-end">
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>类型</Label>
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="listening">Listening</SelectItem>
-                <SelectItem value="reading">Reading</SelectItem>
-                <SelectItem value="speaking">Speaking</SelectItem>
-                <SelectItem value="writing">Writing</SelectItem>
+                <SelectItem value="all">所有类型</SelectItem>
+                <SelectItem value="listening">听力</SelectItem>
+                <SelectItem value="reading">阅读</SelectItem>
+                <SelectItem value="speaking">口语</SelectItem>
+                <SelectItem value="writing">写作</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <Button onClick={handleExportQuestions} disabled={exporting}>
             <Download className="mr-1 h-4 w-4" />
-            Export Questions
+            导出题目
           </Button>
         </div>
       </div>

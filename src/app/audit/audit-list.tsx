@@ -52,7 +52,7 @@ export function AuditList() {
       });
       setData(res);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load audit logs");
+      toast.error(e instanceof Error ? e.message : "加载审计日志失败");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export function AuditList() {
       {/* Filters */}
       <div className="flex gap-3">
         <Input
-          placeholder="Filter by action..."
+          placeholder="按操作筛选..."
           className="max-w-xs"
           value={actionInput}
           onChange={(e) => setActionInput(e.target.value)}
@@ -74,7 +74,7 @@ export function AuditList() {
           <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             {TARGET_TYPES.map((t) => (
-              <SelectItem key={t} value={t}>{t === "all" ? "All Types" : t}</SelectItem>
+              <SelectItem key={t} value={t}>{t === "all" ? "全部类型" : t}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -83,17 +83,17 @@ export function AuditList() {
       {loading ? (
         <LoadingSpinner />
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No audit logs found" />
+        <EmptyState title="未找到审计日志" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8"></TableHead>
-                <TableHead>Admin</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Target</TableHead>
-                <TableHead>Time</TableHead>
+                <TableHead>管理员</TableHead>
+                <TableHead>操作</TableHead>
+                <TableHead>目标</TableHead>
+                <TableHead>时间</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

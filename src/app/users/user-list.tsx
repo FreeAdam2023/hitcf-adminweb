@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 function parseUA(ua: string | null): string {
   if (!ua) return "-";
   // Extract OS
-  let os = "Unknown OS";
+  let os = "未知系统";
   if (ua.includes("Windows")) os = "Windows";
   else if (ua.includes("Mac OS X") || ua.includes("Macintosh")) os = "macOS";
   else if (ua.includes("Android")) os = "Android";
@@ -59,7 +59,7 @@ export function UserList() {
       const res = await fetchUsers({ search: search || undefined, page });
       setData(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load users");
+      setError(err instanceof Error ? err.message : "加载用户失败");
     } finally {
       setLoading(false);
     }
@@ -80,10 +80,10 @@ export function UserList() {
   const handleRoleChange = async (userId: string, role: string) => {
     try {
       await updateUserRole(userId, role);
-      toast.success("User role updated");
+      toast.success("用户角色已更新");
       load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update role");
+      toast.error(err instanceof Error ? err.message : "更新角色失败");
     }
   };
 
@@ -110,7 +110,7 @@ export function UserList() {
   return (
     <div className="space-y-4">
       <Input
-        placeholder="Search by email..."
+        placeholder="按邮箱搜索..."
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
         className="max-w-sm"
@@ -123,23 +123,23 @@ export function UserList() {
           <AlertCircle className="h-10 w-10 text-destructive mb-3" />
           <p className="text-sm text-destructive mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={load}>
-            <RotateCcw className="mr-1 h-3 w-3" /> Retry
+            <RotateCcw className="mr-1 h-3 w-3" /> 重试
           </Button>
         </div>
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No users found" description="Try adjusting your search terms." />
+        <EmptyState title="未找到用户" description="请调整搜索条件" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8"></TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Subscription</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Last Login</TableHead>
+                <TableHead>邮箱</TableHead>
+                <TableHead>姓名</TableHead>
+                <TableHead>角色</TableHead>
+                <TableHead>订阅</TableHead>
+                <TableHead>注册时间</TableHead>
+                <TableHead>最后登录</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,7 +162,7 @@ export function UserList() {
                       <Link href={`/users/${u.id}`} className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>{u.email}</Link>
                       {u.is_locked && (
                         <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                          LOCKED
+                          已锁定
                         </span>
                       )}
                     </TableCell>
@@ -179,14 +179,14 @@ export function UserList() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">user</SelectItem>
-                          <SelectItem value="admin">admin</SelectItem>
+                          <SelectItem value="user">用户</SelectItem>
+                          <SelectItem value="admin">管理员</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
                     <TableCell>
                       <Badge variant={u.subscription_status === "active" ? "default" : "secondary"}>
-                        {u.subscription_status || "none"}
+                        {u.subscription_status || "无"}
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(u.created_at)}</TableCell>
@@ -199,41 +199,41 @@ export function UserList() {
                           {/* Row 1: Basic info */}
                           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                             <div>
-                              <span className="text-xs text-muted-foreground">Subscription</span>
-                              <p className="font-medium">{u.subscription_status || "None"}</p>
+                              <span className="text-xs text-muted-foreground">订阅</span>
+                              <p className="font-medium">{u.subscription_status || "无"}</p>
                             </div>
                             <div>
-                              <span className="text-xs text-muted-foreground">Role</span>
+                              <span className="text-xs text-muted-foreground">角色</span>
                               <p className="font-medium capitalize">{u.role}</p>
                             </div>
                             <div>
-                              <span className="text-xs text-muted-foreground">Created</span>
+                              <span className="text-xs text-muted-foreground">注册时间</span>
                               <p className="font-medium">{formatDateTime(u.created_at)}</p>
                             </div>
                             <div>
-                              <span className="text-xs text-muted-foreground">Last Login</span>
+                              <span className="text-xs text-muted-foreground">最后登录</span>
                               <p className="font-medium">{formatDateTime(u.last_login_at)}</p>
                             </div>
                           </div>
                           {/* Row 2: Tracking - Location & Device */}
                           <div className="border-t pt-3">
-                            <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tracking</p>
+                            <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">追踪信息</p>
                             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                               <div>
                                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Globe className="h-3 w-3" /> Location
+                                  <Globe className="h-3 w-3" /> 位置
                                 </span>
                                 <p className="font-medium">{formatLocation(u.tracking)}</p>
                               </div>
                               <div>
                                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Monitor className="h-3 w-3" /> Signup Device
+                                  <Monitor className="h-3 w-3" /> 注册设备
                                 </span>
                                 <p className="font-medium">{parseUA(u.tracking?.signup_user_agent ?? null)}</p>
                               </div>
                               <div>
                                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Link2 className="h-3 w-3" /> Source
+                                  <Link2 className="h-3 w-3" /> 来源
                                 </span>
                                 <p className="font-medium">
                                   {u.tracking?.signup_utm_source || u.tracking?.signup_referer || "-"}
@@ -241,7 +241,7 @@ export function UserList() {
                               </div>
                               <div>
                                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Monitor className="h-3 w-3" /> Last Login Device
+                                  <Monitor className="h-3 w-3" /> 最后登录设备
                                 </span>
                                 <p className="font-medium">{parseUA(u.tracking?.last_login_user_agent ?? null)}</p>
                               </div>
@@ -251,22 +251,22 @@ export function UserList() {
                           {u.tracking && (u.tracking.signup_ip || u.tracking.signup_utm_medium || u.tracking.signup_utm_campaign) && (
                             <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground md:grid-cols-4">
                               <div>
-                                <span>Signup IP</span>
+                                <span>注册IP</span>
                                 <p className="font-mono text-foreground">{u.tracking.signup_ip || "-"}</p>
                               </div>
                               <div>
-                                <span>Last Login IP</span>
+                                <span>最后登录IP</span>
                                 <p className="font-mono text-foreground">{u.tracking.last_login_ip || "-"}</p>
                               </div>
                               {u.tracking.signup_utm_medium && (
                                 <div>
-                                  <span>UTM Medium</span>
+                                  <span>UTM 媒介</span>
                                   <p className="text-foreground">{u.tracking.signup_utm_medium}</p>
                                 </div>
                               )}
                               {u.tracking.signup_utm_campaign && (
                                 <div>
-                                  <span>UTM Campaign</span>
+                                  <span>UTM 活动</span>
                                   <p className="text-foreground">{u.tracking.signup_utm_campaign}</p>
                                 </div>
                               )}

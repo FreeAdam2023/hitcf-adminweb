@@ -29,7 +29,13 @@ function categoryBadge(cat: string) {
     content: "bg-yellow-100 text-yellow-700",
     other: "bg-gray-100 text-gray-700",
   };
-  return <Badge className={colors[cat] || ""}>{cat}</Badge>;
+  const labels: Record<string, string> = {
+    bug: "Bug",
+    feature: "功能建议",
+    content: "内容问题",
+    other: "其他",
+  };
+  return <Badge className={colors[cat] || ""}>{labels[cat] || cat}</Badge>;
 }
 
 function statusBadge(status: string) {
@@ -38,7 +44,12 @@ function statusBadge(status: string) {
     resolved: "bg-green-100 text-green-700",
     dismissed: "bg-gray-100 text-gray-500",
   };
-  return <Badge className={colors[status] || ""}>{status}</Badge>;
+  const labels: Record<string, string> = {
+    pending: "待处理",
+    resolved: "已解决",
+    dismissed: "已驳回",
+  };
+  return <Badge className={colors[status] || ""}>{labels[status] || status}</Badge>;
 }
 
 function ExpandedRow({
@@ -59,10 +70,10 @@ function ExpandedRow({
         status,
         admin_note: adminNote || undefined,
       });
-      toast.success("Feedback updated");
+      toast.success("反馈已更新");
       onUpdated();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Update failed");
+      toast.error(e instanceof Error ? e.message : "更新失败");
     } finally {
       setSaving(false);
     }
@@ -73,41 +84,41 @@ function ExpandedRow({
       <TableCell colSpan={7}>
         <div className="space-y-3 p-2">
           <div>
-            <p className="text-sm font-medium mb-1">Full content:</p>
+            <p className="text-sm font-medium mb-1">完整内容:</p>
             <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded">
               {item.content}
             </p>
           </div>
           {item.page_url && (
             <p className="text-sm text-muted-foreground">
-              Page: <span className="font-mono">{item.page_url}</span>
+              页面: <span className="font-mono">{item.page_url}</span>
             </p>
           )}
           <div className="flex items-end gap-3">
             <div className="space-y-1">
-              <label className="text-sm font-medium">Status</label>
+              <label className="text-sm font-medium">状态</label>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger className="w-[140px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">pending</SelectItem>
-                  <SelectItem value="resolved">resolved</SelectItem>
-                  <SelectItem value="dismissed">dismissed</SelectItem>
+                  <SelectItem value="pending">待处理</SelectItem>
+                  <SelectItem value="resolved">已解决</SelectItem>
+                  <SelectItem value="dismissed">已驳回</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex-1 space-y-1">
-              <label className="text-sm font-medium">Admin note</label>
+              <label className="text-sm font-medium">管理员备注</label>
               <Textarea
                 value={adminNote}
                 onChange={(e) => setAdminNote(e.target.value)}
-                placeholder="Add a note..."
+                placeholder="添加备注..."
                 rows={2}
               />
             </div>
             <Button onClick={handleSave} disabled={saving} size="sm">
-              {saving ? "Saving..." : "Save"}
+              {saving ? "保存中..." : "保存"}
             </Button>
           </div>
         </div>
@@ -142,7 +153,7 @@ export function FeedbackList() {
       });
       setData(res);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load feedback");
+      toast.error(e instanceof Error ? e.message : "加载反馈失败");
     } finally {
       setLoading(false);
     }
@@ -154,7 +165,7 @@ export function FeedbackList() {
     <div className="space-y-4">
       <div className="flex gap-3">
         <Input
-          placeholder="Search content..."
+          placeholder="搜索内容..."
           className="max-w-xs"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -162,17 +173,19 @@ export function FeedbackList() {
         <Select value={category} onValueChange={(v) => { setCategory(v); setPage(1); }}>
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            {CATEGORIES.map((c) => (
-              <SelectItem key={c} value={c}>{c === "all" ? "All Categories" : c}</SelectItem>
-            ))}
+            {CATEGORIES.map((c) => {
+              const catLabels: Record<string, string> = { all: "全部分类", bug: "Bug", feature: "功能建议", content: "内容问题", other: "其他" };
+              return <SelectItem key={c} value={c}>{catLabels[c] || c}</SelectItem>;
+            })}
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={(v) => { setStatus(v); setPage(1); }}>
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            {STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>{s === "all" ? "All Statuses" : s}</SelectItem>
-            ))}
+            {STATUSES.map((s) => {
+              const statusLabels: Record<string, string> = { all: "全部状态", pending: "待处理", resolved: "已解决", dismissed: "已驳回" };
+              return <SelectItem key={s} value={s}>{statusLabels[s] || s}</SelectItem>;
+            })}
           </SelectContent>
         </Select>
       </div>
@@ -180,18 +193,18 @@ export function FeedbackList() {
       {loading ? (
         <LoadingSpinner />
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No feedback found" />
+        <EmptyState title="暂无反馈" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8"></TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Content</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Time</TableHead>
+                <TableHead>用户</TableHead>
+                <TableHead>分类</TableHead>
+                <TableHead>内容</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>时间</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

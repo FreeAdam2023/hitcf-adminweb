@@ -31,7 +31,7 @@ interface LinkGroup {
 
 const linkGroups: LinkGroup[] = [
   {
-    title: "Email",
+    title: "邮件",
     links: [
       {
         label: "Zoho Inbox",
@@ -54,18 +54,18 @@ const linkGroups: LinkGroup[] = [
     ],
   },
   {
-    title: "Hosting & Infra",
+    title: "托管与基础设施",
     links: [
       {
         label: "Azure Portal",
         href: "https://portal.azure.com/#browse/Microsoft.Web%2Fsites",
-        description: "Web Apps, ACR, Storage",
+        description: "Web Apps、ACR、Storage 管理",
         icon: Cloud,
       },
       {
         label: "Cloudflare",
         href: "https://dash.cloudflare.com",
-        description: "DNS, CDN, Access, Email Routing",
+        description: "DNS、CDN、Access、邮件路由",
         icon: Shield,
       },
       {
@@ -77,7 +77,7 @@ const linkGroups: LinkGroup[] = [
     ],
   },
   {
-    title: "Payment",
+    title: "支付",
     links: [
       {
         label: "Stripe Dashboard",
@@ -94,7 +94,7 @@ const linkGroups: LinkGroup[] = [
     ],
   },
   {
-    title: "Code & CI/CD",
+    title: "代码与CI/CD",
     links: [
       {
         label: "hitcf-web",
@@ -123,7 +123,7 @@ const linkGroups: LinkGroup[] = [
     ],
   },
   {
-    title: "Monitoring & Analytics",
+    title: "监控与分析",
     links: [
       {
         label: "Health Monitor",
@@ -134,7 +134,7 @@ const linkGroups: LinkGroup[] = [
       {
         label: "Backend API Docs",
         href: "https://api.hitcf.com/docs",
-        description: "Swagger / OpenAPI",
+        description: "Swagger / OpenAPI 文档",
         icon: FileText,
       },
       {
@@ -146,7 +146,7 @@ const linkGroups: LinkGroup[] = [
     ],
   },
   {
-    title: "Sites",
+    title: "站点",
     links: [
       {
         label: "hitcf.com (Prod)",
@@ -174,7 +174,7 @@ export default function QuickLinksPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Quick Links"
+        title="快捷链接"
         description="常用外部服务与工具快捷入口"
       />
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

@@ -49,7 +49,7 @@ export function AttemptList() {
       });
       setData(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load attempts");
+      setError(err instanceof Error ? err.message : "加载答题记录失败");
     } finally {
       setLoading(false);
     }
@@ -81,31 +81,31 @@ export function AttemptList() {
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <Input
-          placeholder="Filter by user email..."
+          placeholder="按用户邮箱筛选..."
           value={emailInput}
           onChange={(e) => setEmailInput(e.target.value)}
           className="max-w-sm"
         />
         <Select value={mode || "all"} onValueChange={(v) => { setMode(v === "all" ? "" : v); setPage(1); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Mode" />
+            <SelectValue placeholder="模式" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Modes</SelectItem>
-            <SelectItem value="practice">Practice</SelectItem>
-            <SelectItem value="exam">Exam</SelectItem>
-            <SelectItem value="speed_drill">Speed Drill</SelectItem>
+            <SelectItem value="all">全部模式</SelectItem>
+            <SelectItem value="practice">练习</SelectItem>
+            <SelectItem value="exam">考试</SelectItem>
+            <SelectItem value="speed_drill">极速刷题</SelectItem>
           </SelectContent>
         </Select>
         <Select value={status || "all"} onValueChange={(v) => { setStatus(v === "all" ? "" : v); setPage(1); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="状态" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="abandoned">Abandoned</SelectItem>
+            <SelectItem value="all">全部状态</SelectItem>
+            <SelectItem value="in_progress">进行中</SelectItem>
+            <SelectItem value="completed">已完成</SelectItem>
+            <SelectItem value="abandoned">已放弃</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -117,23 +117,23 @@ export function AttemptList() {
           <AlertCircle className="h-10 w-10 text-destructive mb-3" />
           <p className="text-sm text-destructive mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={load}>
-            <RotateCcw className="mr-1 h-3 w-3" /> Retry
+            <RotateCcw className="mr-1 h-3 w-3" /> 重试
           </Button>
         </div>
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No attempts found" description="Try adjusting your filters." />
+        <EmptyState title="未找到答题记录" description="请尝试调整筛选条件" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User Email</TableHead>
-                <TableHead>Test Set</TableHead>
-                <TableHead>Mode</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-center">Score</TableHead>
-                <TableHead>Started At</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>用户邮箱</TableHead>
+                <TableHead>题库</TableHead>
+                <TableHead>模式</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead className="text-center">分数</TableHead>
+                <TableHead>开始时间</TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -155,7 +155,7 @@ export function AttemptList() {
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/attempts/${a.id}`}>
                         <Eye className="mr-1 h-4 w-4" />
-                        View
+                        查看
                       </Link>
                     </Button>
                   </TableCell>

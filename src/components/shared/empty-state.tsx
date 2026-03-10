@@ -7,8 +7,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  title = "No data found",
-  description = "Try adjusting your filters or search terms.",
+  title = "暂无数据",
+  description = "请调整筛选条件或搜索词",
   icon,
 }: EmptyStateProps) {
   return (

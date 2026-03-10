@@ -20,7 +20,7 @@ export function VocabDashboard() {
       const data = await fetchVocabStats();
       setStats(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load stats");
+      setError(err instanceof Error ? err.message : "加载统计数据失败");
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ export function VocabDashboard() {
         <AlertCircle className="mb-3 h-10 w-10 text-destructive" />
         <p className="text-sm text-destructive">{error}</p>
         <Button className="mt-4" variant="outline" onClick={load}>
-          Retry
+          重试
         </Button>
       </div>
     );
@@ -57,7 +57,7 @@ export function VocabDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              User Saved Words
+              用户收藏单词
             </CardTitle>
             <BookMarked className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -66,14 +66,14 @@ export function VocabDashboard() {
               {stats.saved_word_count.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              from {stats.saved_word_user_count} users
+              来自 {stats.saved_word_user_count} 个用户
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Nihao French Words
+              你好法语词汇
             </CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -82,13 +82,13 @@ export function VocabDashboard() {
               {stats.nihao_word_count.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              A1-B2 vocabulary corpus
+              A1-B2 词汇库
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">活跃用户</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -96,7 +96,7 @@ export function VocabDashboard() {
               {stats.saved_word_user_count}
             </div>
             <p className="text-xs text-muted-foreground">
-              users with saved words
+              有收藏单词的用户
             </p>
           </CardContent>
         </Card>
@@ -107,7 +107,7 @@ export function VocabDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">
-              Top Saved Words
+              热门收藏单词
             </CardTitle>
           </CardHeader>
           <CardContent>

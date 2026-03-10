@@ -25,16 +25,16 @@ import { Pencil, Trash2, AlertCircle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 const TYPE_OPTIONS = [
-  { value: "all", label: "All Types" },
-  { value: "listening", label: "Listening" },
-  { value: "reading", label: "Reading" },
-  { value: "speaking", label: "Speaking" },
-  { value: "writing", label: "Writing" },
+  { value: "all", label: "全部类型" },
+  { value: "listening", label: "听力" },
+  { value: "reading", label: "阅读" },
+  { value: "speaking", label: "口语" },
+  { value: "writing", label: "写作" },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EXAM_TYPE_OPTIONS = [
-  { value: "all", label: "All Exams" },
+  { value: "all", label: "全部考试" },
   { value: "tcf_canada", label: "TCF Canada" },
   { value: "tcf_tp", label: "TCF TP" },
   { value: "tcf_irn", label: "TCF IRN" },
@@ -63,7 +63,7 @@ export function TestSetList() {
       });
       setData(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load test sets");
+      setError(err instanceof Error ? err.message : "加载题库失败");
     } finally {
       setLoading(false);
     }
@@ -83,10 +83,10 @@ export function TestSetList() {
   const handleDelete = async (id: string) => {
     try {
       await deleteTestSet(id);
-      toast.success("Test set deleted");
+      toast.success("题库已删除");
       load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete test set");
+      toast.error(err instanceof Error ? err.message : "删除题库失败");
     }
   };
 
@@ -126,7 +126,7 @@ export function TestSetList() {
         </Select>
         {/* Exam type filter hidden — only TCF Canada data for now */}
         <Input
-          placeholder="Search by name..."
+          placeholder="按名称搜索..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="max-w-sm"
@@ -140,26 +140,26 @@ export function TestSetList() {
           <AlertCircle className="h-10 w-10 text-destructive mb-3" />
           <p className="text-sm text-destructive mb-3">{error}</p>
           <Button variant="outline" size="sm" onClick={load}>
-            <RotateCcw className="mr-1 h-3 w-3" /> Retry
+            <RotateCcw className="mr-1 h-3 w-3" /> 重试
           </Button>
         </div>
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No test sets found" description="Try adjusting your filters or search terms." />
+        <EmptyState title="未找到题库" description="请调整筛选条件或搜索词" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Exam</TableHead>
-                <TableHead className="text-center">Questions</TableHead>
-                <TableHead className="text-center">Completeness</TableHead>
-                <TableHead className="text-center">Free</TableHead>
-                <TableHead className="text-center">Deleted</TableHead>
-                <TableHead className="text-center">Order</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>编号</TableHead>
+                <TableHead>名称</TableHead>
+                <TableHead>类型</TableHead>
+                <TableHead>考试</TableHead>
+                <TableHead className="text-center">题目数</TableHead>
+                <TableHead className="text-center">完整度</TableHead>
+                <TableHead className="text-center">免费</TableHead>
+                <TableHead className="text-center">已删除</TableHead>
+                <TableHead className="text-center">排序</TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -171,8 +171,8 @@ export function TestSetList() {
                   <TableCell className="text-xs text-muted-foreground">{ts.exam_type?.replace("tcf_", "TCF ").replace("canada", "Canada").replace("quebec", "Québec") || "TCF Canada"}</TableCell>
                   <TableCell className="text-center">{ts.question_count}</TableCell>
                   <TableCell className="text-center">{renderQuality(ts)}</TableCell>
-                  <TableCell className="text-center">{ts.is_free ? "Yes" : "-"}</TableCell>
-                  <TableCell className="text-center">{ts.is_deleted ? "Yes" : "-"}</TableCell>
+                  <TableCell className="text-center">{ts.is_free ? "是" : "-"}</TableCell>
+                  <TableCell className="text-center">{ts.is_deleted ? "是" : "-"}</TableCell>
                   <TableCell className="text-center">{ts.order}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -190,14 +190,14 @@ export function TestSetList() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete test set?</AlertDialogTitle>
+                              <AlertDialogTitle>删除题库？</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will soft-delete &quot;{ts.name}&quot;. It can be restored later.
+                                将软删除 &quot;{ts.name}&quot;。之后可以恢复。
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(ts.id)}>Delete</AlertDialogAction>
+                              <AlertDialogCancel>取消</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(ts.id)}>删除</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

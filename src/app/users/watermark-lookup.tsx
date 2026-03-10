@@ -34,9 +34,9 @@ export function WatermarkLookup() {
     try {
       const data = await searchByWatermark(suffix.trim());
       setResults(data);
-      if (data.length === 0) setError("No user found with this ID suffix");
+      if (data.length === 0) setError("未找到匹配该ID后缀的用户");
     } catch {
-      setError("Search failed");
+      setError("搜索失败");
     } finally {
       setLoading(false);
     }
@@ -47,16 +47,16 @@ export function WatermarkLookup() {
   return (
     <div className="rounded-lg border bg-card p-6 space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-1">Watermark Lookup</h3>
+        <h3 className="text-lg font-semibold mb-1">水印查找</h3>
         <p className="text-sm text-muted-foreground">
-          Upload a screenshot to reveal the watermark, then search by user ID to locate the account.
+          上传截图查看水印，然后通过用户ID查找账号
         </p>
       </div>
 
       {/* Image upload + enhancement */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Upload Screenshot</label>
+          <label className="block text-sm font-medium mb-2">上传截图</label>
           <input
             type="file"
             accept="image/*"
@@ -72,7 +72,7 @@ export function WatermarkLookup() {
               <img
                 ref={imgRef}
                 src={image}
-                alt="Uploaded screenshot"
+                alt="已上传截图"
                 style={{ filter: imageFilter, maxWidth: "100%" }}
               />
             </div>
@@ -80,7 +80,7 @@ export function WatermarkLookup() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium mb-1">
-                  Contrast: {contrast.toFixed(1)}x
+                  对比度: {contrast.toFixed(1)}x
                 </label>
                 <input
                   type="range"
@@ -94,7 +94,7 @@ export function WatermarkLookup() {
               </div>
               <div>
                 <label className="block text-xs font-medium mb-1">
-                  Brightness: {brightness.toFixed(1)}x
+                  亮度: {brightness.toFixed(1)}x
                 </label>
                 <input
                   type="range"
@@ -113,7 +113,7 @@ export function WatermarkLookup() {
                     checked={invert}
                     onChange={(e) => setInvert(e.target.checked)}
                   />
-                  Invert colors
+                  反色
                 </label>
               </div>
             </div>
@@ -123,7 +123,7 @@ export function WatermarkLookup() {
 
       {/* Search by ID suffix */}
       <div className="space-y-3">
-        <label className="block text-sm font-medium">User ID Suffix (from watermark)</label>
+        <label className="block text-sm font-medium">用户ID后缀（从水印获取）</label>
         <div className="flex gap-2">
           <input
             type="text"
@@ -138,7 +138,7 @@ export function WatermarkLookup() {
             disabled={loading || !suffix.trim()}
             className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50"
           >
-            {loading ? "Searching..." : "Search"}
+            {loading ? "搜索中..." : "搜索"}
           </button>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
@@ -147,7 +147,7 @@ export function WatermarkLookup() {
       {/* Results */}
       {results.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-medium">Found {results.length} user(s)</h4>
+          <h4 className="text-sm font-medium">找到 {results.length} 个用户</h4>
           {results.map((user) => (
             <Link
               key={user.id}
@@ -158,15 +158,15 @@ export function WatermarkLookup() {
                 <span className="font-medium">{user.email}</span>
                 {user.is_locked && (
                   <span className="rounded bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
-                    LOCKED
+                    已锁定
                   </span>
                 )}
               </div>
               <div className="mt-1 text-sm text-muted-foreground space-x-3">
                 <span>ID: <code className="font-mono text-xs">{user.id}</code></span>
-                {user.name && <span>Name: {user.name}</span>}
-                <span>Role: {user.role}</span>
-                {user.subscription_status && <span>Sub: {user.subscription_status}</span>}
+                {user.name && <span>姓名: {user.name}</span>}
+                <span>角色: {user.role}</span>
+                {user.subscription_status && <span>订阅: {user.subscription_status}</span>}
               </div>
             </Link>
           ))}

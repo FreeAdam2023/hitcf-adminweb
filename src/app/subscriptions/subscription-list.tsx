@@ -59,7 +59,7 @@ export function SubscriptionList() {
       });
       setData(res);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load subscriptions");
+      toast.error(e instanceof Error ? e.message : "加载订阅失败");
     } finally {
       setLoading(false);
     }
@@ -82,18 +82,18 @@ export function SubscriptionList() {
       setExtendDialog(null);
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to extend subscription");
+      toast.error(e instanceof Error ? e.message : "延长订阅失败");
     }
   }
 
   async function handleCancel(item: AdminSubscriptionItem) {
-    if (!confirm(`Cancel subscription for ${item.email}?`)) return;
+    if (!confirm(`确认取消 ${item.email} 的订阅？`)) return;
     try {
       const res = await cancelSubscription(item.user_id);
       toast.success(res.message);
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to cancel subscription");
+      toast.error(e instanceof Error ? e.message : "取消订阅失败");
     }
   }
 
@@ -108,7 +108,7 @@ export function SubscriptionList() {
       setActivateDialog(null);
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to activate subscription");
+      toast.error(e instanceof Error ? e.message : "激活订阅失败");
     }
   }
 
@@ -117,7 +117,7 @@ export function SubscriptionList() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <Input
-          placeholder="Search by email..."
+          placeholder="按邮箱搜索..."
           className="max-w-xs"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -126,7 +126,7 @@ export function SubscriptionList() {
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s} value={s}>{s === "all" ? "All Status" : s}</SelectItem>
+              <SelectItem key={s} value={s}>{s === "all" ? "全部状态" : s}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -134,7 +134,7 @@ export function SubscriptionList() {
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             {PLAN_OPTIONS.map((p) => (
-              <SelectItem key={p} value={p}>{p === "all" ? "All Plans" : p}</SelectItem>
+              <SelectItem key={p} value={p}>{p === "all" ? "全部套餐" : p}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -143,18 +143,18 @@ export function SubscriptionList() {
       {loading ? (
         <LoadingSpinner />
       ) : !data || data.items.length === 0 ? (
-        <EmptyState title="No subscriptions found" />
+        <EmptyState title="未找到订阅" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Period End</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>邮箱</TableHead>
+                <TableHead>套餐</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>到期时间</TableHead>
+                <TableHead>创建时间</TableHead>
+                <TableHead>操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -183,7 +183,7 @@ export function SubscriptionList() {
                         onClick={() => { setExtendDialog(item); setExtendDays("30"); }}
                         disabled={!item.status || item.status === "cancelled" || item.status === "expired"}
                       >
-                        Extend
+                        延期
                       </Button>
                       <Button
                         variant="outline"
@@ -191,14 +191,14 @@ export function SubscriptionList() {
                         onClick={() => handleCancel(item)}
                         disabled={!item.status || item.status === "cancelled" || item.status === "expired"}
                       >
-                        Cancel
+                        取消
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => { setActivateDialog(item); setActivatePlan("monthly"); setActivateDays("30"); }}
                       >
-                        Activate
+                        激活
                       </Button>
                     </div>
                   </TableCell>
@@ -214,11 +214,11 @@ export function SubscriptionList() {
       <Dialog open={!!extendDialog} onOpenChange={() => setExtendDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Extend Subscription</DialogTitle>
+            <DialogTitle>延长订阅</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{extendDialog?.email}</p>
           <div className="space-y-2">
-            <Label>Days to extend</Label>
+            <Label>延长天数</Label>
             <Input
               type="number"
               min={1}
@@ -228,8 +228,8 @@ export function SubscriptionList() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setExtendDialog(null)}>Cancel</Button>
-            <Button onClick={handleExtend}>Extend</Button>
+            <Button variant="outline" onClick={() => setExtendDialog(null)}>取消</Button>
+            <Button onClick={handleExtend}>延期</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -238,23 +238,23 @@ export function SubscriptionList() {
       <Dialog open={!!activateDialog} onOpenChange={() => setActivateDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Activate Subscription</DialogTitle>
+            <DialogTitle>激活订阅</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{activateDialog?.email}</p>
           <div className="space-y-3">
             <div className="space-y-2">
-              <Label>Plan</Label>
+              <Label>套餐</Label>
               <Select value={activatePlan} onValueChange={setActivatePlan}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="yearly">Yearly</SelectItem>
+                  <SelectItem value="monthly">月付</SelectItem>
+                  <SelectItem value="quarterly">季付</SelectItem>
+                  <SelectItem value="yearly">年付</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Days</Label>
+              <Label>天数</Label>
               <Input
                 type="number"
                 min={1}
@@ -265,8 +265,8 @@ export function SubscriptionList() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActivateDialog(null)}>Cancel</Button>
-            <Button onClick={handleActivate}>Activate</Button>
+            <Button variant="outline" onClick={() => setActivateDialog(null)}>取消</Button>
+            <Button onClick={handleActivate}>激活</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

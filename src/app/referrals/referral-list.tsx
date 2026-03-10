@@ -47,7 +47,7 @@ export function ReferralList() {
       setData(res.items);
       setTotal(res.total);
     } catch {
-      toast.error("Failed to load referrals");
+      toast.error("加载推荐数据失败");
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,10 @@ export function ReferralList() {
   const handleMarkFraud = async (id: string) => {
     try {
       await markReferralFraud(id);
-      toast.success("Referral marked as fraud");
+      toast.success("已标记为欺诈");
       load();
     } catch {
-      toast.error("Failed to mark as fraud");
+      toast.error("标记欺诈失败");
     }
   };
 
@@ -77,7 +77,7 @@ export function ReferralList() {
     <div className="space-y-4">
       <div className="flex gap-3">
         <Input
-          placeholder="Search by email..."
+          placeholder="按邮箱搜索..."
           className="max-w-xs"
           onChange={(e) => handleSearch(e.target.value)}
         />
@@ -86,10 +86,10 @@ export function ReferralList() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="fraud">Fraud</SelectItem>
+            <SelectItem value="all">全部状态</SelectItem>
+            <SelectItem value="pending">待完成</SelectItem>
+            <SelectItem value="completed">已完成</SelectItem>
+            <SelectItem value="fraud">欺诈</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -97,19 +97,19 @@ export function ReferralList() {
       {loading ? (
         <LoadingSpinner />
       ) : data.length === 0 ? (
-        <EmptyState title="No referrals found" />
+        <EmptyState title="未找到推荐记录" />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Referrer</TableHead>
-                <TableHead>Referee</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Reward</TableHead>
-                <TableHead>Flags</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>推荐人</TableHead>
+                <TableHead>被推荐人</TableHead>
+                <TableHead>推荐码</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>奖励</TableHead>
+                <TableHead>标记</TableHead>
+                <TableHead>日期</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -133,11 +133,11 @@ export function ReferralList() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={r.status === "completed" ? "default" : r.status === "pending" ? "secondary" : "destructive"}>
-                      {r.status}
+                      {r.status === "completed" ? "已完成" : r.status === "pending" ? "待完成" : "欺诈"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
-                    +{r.referrer_reward_days}d / +{r.referee_reward_days}d
+                    +{r.referrer_reward_days}天 / +{r.referee_reward_days}天
                   </TableCell>
                   <TableCell>
                     {r.fraud_flags.length > 0 ? (
@@ -157,7 +157,7 @@ export function ReferralList() {
                         className="text-red-600 hover:text-red-700"
                         onClick={() => handleMarkFraud(r.id)}
                       >
-                        Mark Fraud
+                        标记欺诈
                       </Button>
                     )}
                   </TableCell>

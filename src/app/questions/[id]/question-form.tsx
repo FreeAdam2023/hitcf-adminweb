@@ -57,8 +57,8 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!isEdit && !testSetId) errs.test_set_id = "Test set is required";
-    if (questionNumber < 1) errs.question_number = "Must be >= 1";
+    if (!isEdit && !testSetId) errs.test_set_id = "题库不能为空";
+    if (questionNumber < 1) errs.question_number = "必须 ≥ 1";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -97,15 +97,15 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
 
       if (isEdit) {
         await updateQuestion(initial.id, data);
-        toast.success("Question updated");
+        toast.success("题目已更新");
       } else {
         data.test_set_id = testSetId;
         await createQuestion(data);
-        toast.success("Question created");
+        toast.success("题目已创建");
       }
       router.push(testSetId ? `/questions?test_set_id=${testSetId}` : "/questions");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save question");
+      toast.error(err instanceof Error ? err.message : "保存题目失败");
     } finally {
       setSaving(false);
     }
@@ -116,14 +116,14 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Test Set */}
         <div className="space-y-2">
-          <Label>Test Set</Label>
+          <Label>题库</Label>
           <Select
             value={testSetId}
             onValueChange={(v) => { setTestSetId(v); clearFieldError("test_set_id"); }}
             disabled={isEdit}
           >
             <SelectTrigger className={cn(errors.test_set_id && "border-destructive")}>
-              <SelectValue placeholder="Select a test set" />
+              <SelectValue placeholder="选择题库" />
             </SelectTrigger>
             <SelectContent>
               {testSets.map((ts) => (
@@ -136,19 +136,19 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
 
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label>Type</Label>
+            <Label>类型</Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="listening">listening</SelectItem>
-                <SelectItem value="reading">reading</SelectItem>
-                <SelectItem value="speaking">speaking</SelectItem>
-                <SelectItem value="writing">writing</SelectItem>
+                <SelectItem value="listening">听力</SelectItem>
+                <SelectItem value="reading">阅读</SelectItem>
+                <SelectItem value="speaking">口语</SelectItem>
+                <SelectItem value="writing">写作</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="qnum">Question #</Label>
+            <Label htmlFor="qnum">题号</Label>
             <Input
               id="qnum"
               type="number"
@@ -160,7 +160,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
             {errors.question_number && <p className="text-xs text-destructive">{errors.question_number}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="level">Level</Label>
+            <Label htmlFor="level">级别</Label>
             <Input
               id="level"
               value={level}
@@ -171,7 +171,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="question_text">Question Text</Label>
+          <Label htmlFor="question_text">题目文本</Label>
           <Textarea
             id="question_text"
             value={questionText}
@@ -181,7 +181,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="passage">Passage</Label>
+          <Label htmlFor="passage">阅读文段</Label>
           <Textarea
             id="passage"
             value={passage}
@@ -191,7 +191,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="transcript">Transcript</Label>
+          <Label htmlFor="transcript">听力原文</Label>
           <Textarea
             id="transcript"
             value={transcript}
@@ -202,7 +202,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="audio_url">Audio URL</Label>
+            <Label htmlFor="audio_url">音频链接</Label>
             <Input
               id="audio_url"
               value={audioUrl}
@@ -210,7 +210,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="correct_answer">Correct Answer</Label>
+            <Label htmlFor="correct_answer">正确答案</Label>
             <Input
               id="correct_answer"
               value={correctAnswer}
@@ -223,9 +223,9 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
         {/* Dynamic Options */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Options</Label>
+            <Label>选项</Label>
             <Button type="button" variant="outline" size="sm" onClick={addOption}>
-              <Plus className="mr-1 h-3 w-3" /> Add Option
+              <Plus className="mr-1 h-3 w-3" /> 添加选项
             </Button>
           </div>
           {options.map((opt, idx) => (
@@ -234,13 +234,13 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
                 value={opt.key}
                 onChange={(e) => updateOption(idx, "key", e.target.value)}
                 className="w-16"
-                placeholder="Key"
+                placeholder="键"
               />
               <Input
                 value={opt.text}
                 onChange={(e) => updateOption(idx, "text", e.target.value)}
                 className="flex-1"
-                placeholder="Option text"
+                placeholder="选项文本"
               />
               <Button type="button" variant="ghost" size="sm" onClick={() => removeOption(idx)}>
                 <X className="h-4 w-4" />
@@ -251,10 +251,10 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
 
         <div className="flex gap-3">
           <Button type="submit" disabled={saving || (!isEdit && !testSetId)}>
-            {saving ? "Saving..." : isEdit ? "Update" : "Create"}
+            {saving ? "保存中..." : isEdit ? "保存" : "创建"}
           </Button>
           <Button type="button" variant="outline" onClick={() => router.push("/questions")}>
-            Cancel
+            取消
           </Button>
         </div>
       </form>
@@ -263,7 +263,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
       {isEdit && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Explanation</CardTitle>
+            <CardTitle className="text-base">解析</CardTitle>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -274,18 +274,18 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
                   setGenerating(true);
                   try {
                     await generateExplanation(initial.id);
-                    toast.success("Explanation generated");
+                    toast.success("解析已生成");
                     // Reload page to see new explanation
                     window.location.reload();
                   } catch (e: unknown) {
-                    toast.error(e instanceof Error ? e.message : "Generation failed");
+                    toast.error(e instanceof Error ? e.message : "生成失败");
                   } finally {
                     setGenerating(false);
                   }
                 }}
               >
                 <Sparkles className="mr-1 h-3 w-3" />
-                {generating ? "Generating..." : "Generate"}
+                {generating ? "生成中..." : "生成"}
               </Button>
               {explanation && (
                 <Button
@@ -293,18 +293,18 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
                   variant="outline"
                   size="sm"
                   onClick={async () => {
-                    if (!confirm("Delete this explanation?")) return;
+                    if (!confirm("删除此解析？")) return;
                     try {
                       await deleteExplanation(initial.id);
-                      toast.success("Explanation deleted");
+                      toast.success("解析已删除");
                       setExplanation(null);
                     } catch (e: unknown) {
-                      toast.error(e instanceof Error ? e.message : "Failed to delete explanation");
+                      toast.error(e instanceof Error ? e.message : "删除解析失败");
                     }
                   }}
                 >
                   <Trash2 className="mr-1 h-3 w-3" />
-                  Delete
+                  删除
                 </Button>
               )}
             </div>
@@ -314,40 +314,40 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
               <div className="space-y-3 text-sm">
                 {explanation.status && (
                   <div>
-                    <span className="font-medium">Status:</span>{" "}
+                    <span className="font-medium">状态:</span>{" "}
                     <span className="capitalize">{explanation.status}</span>
                     {explanation.generated_by && (
-                      <span className="text-muted-foreground"> (by {explanation.generated_by})</span>
+                      <span className="text-muted-foreground"> (由 {explanation.generated_by} 生成)</span>
                     )}
                   </div>
                 )}
                 {explanation.correct_reasoning && (
                   <div>
-                    <span className="font-medium">Correct Reasoning:</span>
+                    <span className="font-medium">正确推理:</span>
                     <p className="mt-1 text-muted-foreground whitespace-pre-wrap">{explanation.correct_reasoning}</p>
                   </div>
                 )}
                 {explanation.exam_skill && (
                   <div>
-                    <span className="font-medium">Exam Skill:</span>{" "}
+                    <span className="font-medium">考试技能:</span>{" "}
                     <span className="text-muted-foreground">{explanation.exam_skill}</span>
                   </div>
                 )}
                 {explanation.trap_pattern && (
                   <div>
-                    <span className="font-medium">Trap Pattern:</span>{" "}
+                    <span className="font-medium">陷阱类型:</span>{" "}
                     <span className="text-muted-foreground">{explanation.trap_pattern}</span>
                   </div>
                 )}
                 {explanation.similar_tip && (
                   <div>
-                    <span className="font-medium">Similar Tip:</span>
+                    <span className="font-medium">同类技巧:</span>
                     <p className="mt-1 text-muted-foreground whitespace-pre-wrap">{explanation.similar_tip}</p>
                   </div>
                 )}
                 {explanation.distractors && Object.keys(explanation.distractors).length > 0 && (
                   <div>
-                    <span className="font-medium">Distractors:</span>
+                    <span className="font-medium">干扰项:</span>
                     <div className="mt-1 space-y-1">
                       {Object.entries(explanation.distractors).map(([key, d]) => (
                         <div key={key} className="text-muted-foreground">
@@ -360,7 +360,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
                 )}
                 {explanation.vocabulary && explanation.vocabulary.length > 0 && (
                   <div>
-                    <span className="font-medium">Vocabulary:</span>
+                    <span className="font-medium">词汇:</span>
                     <div className="mt-1 space-y-1">
                       {explanation.vocabulary.map((v, i) => (
                         <div key={i} className="text-muted-foreground">
@@ -373,7 +373,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
                 )}
                 {explanation.sentence_translation && explanation.sentence_translation.length > 0 && (
                   <div>
-                    <span className="font-medium">Sentence Translations:</span>
+                    <span className="font-medium">句子翻译:</span>
                     <div className="mt-1 space-y-1">
                       {explanation.sentence_translation.map((s, i) => (
                         <div key={i} className="text-muted-foreground">
@@ -386,7 +386,7 @@ export function QuestionForm({ initial, defaultTestSetId }: QuestionFormProps) {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Explanation not yet generated.</p>
+              <p className="text-sm text-muted-foreground">解析尚未生成。</p>
             )}
           </CardContent>
         </Card>
