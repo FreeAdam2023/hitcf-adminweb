@@ -85,5 +85,12 @@ jobs:
           git add CHANGELOG.md
           git diff --cached --quiet && exit 0
           git commit -m "chore: update CHANGELOG"
-          # Uses GITHUB_TOKEN — requires PAT secret for repos with branch protection
           git push
+
+      - name: Sync CHANGELOG to dev
+        if: env.NO_CHANGES != 'true'
+        run: |
+          git fetch origin dev
+          git checkout dev
+          git merge main --no-edit -m "chore: sync CHANGELOG from main"
+          git push origin dev
