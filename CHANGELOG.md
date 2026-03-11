@@ -1,3 +1,13 @@
+## 2026-03-11 (9b390eb)
+
+### Bug Fixes
+- (ci): auto-sync CHANGELOG commit from main to dev (c13eb20)
+
+### CI/CD
+- update changelog workflow push comment (61712d0)
+
+---
+
 ## 2026-03-10 (31bef47)
 
 ### Features
