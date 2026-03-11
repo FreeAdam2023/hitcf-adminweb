@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
-import { fetchUserDetail } from "@/lib/api/admin";
+import { fetchUserDetail, activateSubscription, cancelSubscription } from "@/lib/api/admin";
 import type { UserDetail } from "@/lib/api/types";
 import {
   ArrowLeft, AlertCircle, BarChart3, PenTool, Mic, MessageSquare,
   BookMarked, Flag, CalendarDays, Globe, Monitor, Link2, CreditCard,
+  FlaskConical, XCircle,
 } from "lucide-react";
 
 const TYPE_COLORS: Record<string, string> = {
@@ -63,11 +65,12 @@ function formatRelative(d: string | null): string {
   return formatDate(d);
 }
 
-export default function UserDetailPage({ params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = use(params);
+export default function UserDetailPage({ params }: { params: { userId: string } }) {
+  const { userId } = params;
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,6 +86,34 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
   }, [userId]);
 
   useEffect(() => { load(); }, [load]);
+
+  const handleActivateTester = useCallback(async () => {
+    if (!confirm("确认激活为测试用户？将获得 100 年 Pro 权限。")) return;
+    setActionLoading(true);
+    try {
+      await activateSubscription(userId, { plan: "tester", days: 36500 });
+      toast.success("已激活为测试用户");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "操作失败");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [userId, load]);
+
+  const handleDeactivateTester = useCallback(async () => {
+    if (!confirm("确认取消测试用户权限？")) return;
+    setActionLoading(true);
+    try {
+      await cancelSubscription(userId);
+      toast.success("已取消测试用户权限");
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "操作失败");
+    } finally {
+      setActionLoading(false);
+    }
+  }, [userId, load]);
 
   if (loading) return <div className="flex h-64 items-center justify-center"><LoadingSpinner /></div>;
   if (error || !user) {
@@ -137,19 +168,44 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6 flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-xs text-muted-foreground">订阅</p>
-              {user.subscription ? (
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={user.subscription.status === "active" ? "default" : "secondary"}>
-                    {user.subscription.status}
-                  </Badge>
-                  <span className="text-sm">{user.subscription.plan}</span>
-                </div>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">订阅</p>
+                {user.subscription ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant={user.subscription.status === "active" ? "default" : "secondary"}>
+                      {user.subscription.status}
+                    </Badge>
+                    <span className="text-sm">{user.subscription.plan}</span>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">无</p>
+                )}
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              {user.subscription?.plan === "tester" && user.subscription?.status === "active" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={actionLoading}
+                  onClick={handleDeactivateTester}
+                >
+                  <XCircle className="mr-1 h-3.5 w-3.5" />
+                  取消测试
+                </Button>
               ) : (
-                <p className="text-sm text-muted-foreground mt-1">无</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={actionLoading}
+                  onClick={handleActivateTester}
+                >
+                  <FlaskConical className="mr-1 h-3.5 w-3.5" />
+                  激活测试用户
+                </Button>
               )}
             </div>
           </CardContent>
