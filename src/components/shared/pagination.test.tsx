@@ -15,23 +15,23 @@ describe("Pagination", () => {
     render(
       <Pagination page={2} totalPages={5} onPageChange={() => {}} />,
     );
-    expect(screen.getByText("2 / 5")).toBeInTheDocument();
+    expect(screen.getByText("第 2 / 5 页")).toBeInTheDocument();
   });
 
   it("should disable previous button on first page", () => {
     render(
       <Pagination page={1} totalPages={5} onPageChange={() => {}} />,
     );
-    expect(screen.getByLabelText("Previous page")).toBeDisabled();
-    expect(screen.getByLabelText("Next page")).not.toBeDisabled();
+    expect(screen.getByLabelText("上一页")).toBeDisabled();
+    expect(screen.getByLabelText("下一页")).not.toBeDisabled();
   });
 
   it("should disable next button on last page", () => {
     render(
       <Pagination page={5} totalPages={5} onPageChange={() => {}} />,
     );
-    expect(screen.getByLabelText("Previous page")).not.toBeDisabled();
-    expect(screen.getByLabelText("Next page")).toBeDisabled();
+    expect(screen.getByLabelText("上一页")).not.toBeDisabled();
+    expect(screen.getByLabelText("下一页")).toBeDisabled();
   });
 
   it("should call onPageChange when clicking next", async () => {
@@ -41,7 +41,7 @@ describe("Pagination", () => {
       <Pagination page={2} totalPages={5} onPageChange={onPageChange} />,
     );
 
-    await user.click(screen.getByLabelText("Next page"));
+    await user.click(screen.getByLabelText("下一页"));
     expect(onPageChange).toHaveBeenCalledWith(3);
   });
 
@@ -52,7 +52,7 @@ describe("Pagination", () => {
       <Pagination page={3} totalPages={5} onPageChange={onPageChange} />,
     );
 
-    await user.click(screen.getByLabelText("Previous page"));
+    await user.click(screen.getByLabelText("上一页"));
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
 });
