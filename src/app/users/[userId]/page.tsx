@@ -6,6 +6,14 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchUserDetail, activateSubscription, cancelSubscription } from "@/lib/api/admin";
@@ -15,6 +23,16 @@ import {
   BookMarked, Flag, CalendarDays, Globe, Monitor, Link2, CreditCard,
   FlaskConical, XCircle,
 } from "lucide-react";
+
+const DURATION_OPTIONS = [
+  { label: "1 个月", days: 30 },
+  { label: "3 个月", days: 90 },
+  { label: "半年", days: 180 },
+  { label: "1 年", days: 365 },
+  { label: "2 年", days: 730 },
+  { label: "5 年", days: 1825 },
+  { label: "10 年", days: 3650 },
+];
 
 const TYPE_COLORS: Record<string, string> = {
   listening: "bg-purple-100 text-purple-800",
@@ -71,6 +89,9 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [activateOpen, setActivateOpen] = useState(false);
+  const [deactivateOpen, setDeactivateOpen] = useState(false);
+  const [selectedDays, setSelectedDays] = useState(365);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -88,25 +109,25 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
   useEffect(() => { load(); }, [load]);
 
   const handleActivateTester = useCallback(async () => {
-    if (!confirm("确认激活为测试用户？将获得 100 年 Pro 权限。")) return;
     setActionLoading(true);
     try {
-      await activateSubscription(userId, { plan: "tester", days: 36500 });
-      toast.success("已激活为测试用户");
+      await activateSubscription(userId, { plan: "tester", days: selectedDays });
+      toast.success(`已激活为体验官（${DURATION_OPTIONS.find(o => o.days === selectedDays)?.label}）`);
+      setActivateOpen(false);
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "操作失败");
     } finally {
       setActionLoading(false);
     }
-  }, [userId, load]);
+  }, [userId, load, selectedDays]);
 
   const handleDeactivateTester = useCallback(async () => {
-    if (!confirm("确认取消测试用户权限？")) return;
     setActionLoading(true);
     try {
       await cancelSubscription(userId);
-      toast.success("已取消测试用户权限");
+      toast.success("已取消体验官权限");
+      setDeactivateOpen(false);
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "操作失败");
@@ -191,20 +212,20 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
                   size="sm"
                   variant="outline"
                   disabled={actionLoading}
-                  onClick={handleDeactivateTester}
+                  onClick={() => setDeactivateOpen(true)}
                 >
                   <XCircle className="mr-1 h-3.5 w-3.5" />
-                  取消测试
+                  取消体验官
                 </Button>
               ) : (
                 <Button
                   size="sm"
                   variant="outline"
                   disabled={actionLoading}
-                  onClick={handleActivateTester}
+                  onClick={() => { setSelectedDays(365); setActivateOpen(true); }}
                 >
                   <FlaskConical className="mr-1 h-3.5 w-3.5" />
-                  激活测试用户
+                  激活体验官
                 </Button>
               )}
             </div>
@@ -313,6 +334,72 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
           )}
         </CardContent>
       </Card>
+
+      {/* Activate Tester Dialog */}
+      <Dialog open={activateOpen} onOpenChange={setActivateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FlaskConical className="h-5 w-5 text-purple-600" />
+              激活体验官
+            </DialogTitle>
+            <DialogDescription>
+              为 <span className="font-medium text-foreground">{user.name || user.email}</span> 开通免费 Pro 权限
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <label className="text-sm font-medium">有效期</label>
+            <div className="grid grid-cols-4 gap-2">
+              {DURATION_OPTIONS.map((opt) => (
+                <button
+                  key={opt.days}
+                  onClick={() => setSelectedDays(opt.days)}
+                  className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    selectedDays === opt.days
+                      ? "border-purple-600 bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300"
+                      : "border-border hover:bg-accent"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setActivateOpen(false)} disabled={actionLoading}>
+              取消
+            </Button>
+            <Button onClick={handleActivateTester} disabled={actionLoading} className="bg-purple-600 hover:bg-purple-700">
+              {actionLoading ? "处理中..." : "确认激活"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Deactivate Tester Dialog */}
+      <Dialog open={deactivateOpen} onOpenChange={setDeactivateOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <XCircle className="h-5 w-5 text-destructive" />
+              取消体验官
+            </DialogTitle>
+            <DialogDescription>
+              确认取消 <span className="font-medium text-foreground">{user.name || user.email}</span> 的体验官权限？取消后将立即失去 Pro 访问。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeactivateOpen(false)} disabled={actionLoading}>
+              返回
+            </Button>
+            <Button variant="destructive" onClick={handleDeactivateTester} disabled={actionLoading}>
+              {actionLoading ? "处理中..." : "确认取消"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
