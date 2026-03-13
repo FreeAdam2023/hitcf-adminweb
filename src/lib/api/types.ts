@@ -93,6 +93,15 @@ export interface WordViewStats {
   daily_trend: Array<{ date: string; count: number }>;
 }
 
+export interface AnnouncementItem {
+  id: string;
+  title: Record<string, string>;
+  content: Record<string, string>;
+  type: string;
+  published_at: string;
+  created_by: string | null;
+}
+
 export interface AdminSavedWordItem {
   id: string;
   user_id: string;

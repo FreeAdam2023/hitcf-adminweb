@@ -29,6 +29,7 @@ import type {
   AdminSpeakingAttemptItem,
   VocabPoolStats,
   WordViewStats,
+  AnnouncementItem,
   AdminSavedWordItem,
   AdminNihaoWordItem,
   UserActivityData,
@@ -683,4 +684,32 @@ export function deleteOpsAsset(id: string) {
 
 export function fetchBannedWords() {
   return get<{ words: string[]; count: number }>("/api/admin/ops/banned-words");
+}
+
+// Announcements
+export function fetchAnnouncements(params?: { page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<AnnouncementItem>>(`/api/admin/announcements?${sp}`);
+}
+
+export function createAnnouncement(data: {
+  title: Record<string, string>;
+  content: Record<string, string>;
+  type: string;
+}) {
+  return post<{ id: string; message: string }>("/api/admin/announcements", data);
+}
+
+export function updateAnnouncement(id: string, data: {
+  title?: Record<string, string>;
+  content?: Record<string, string>;
+  type?: string;
+}) {
+  return put<{ message: string }>(`/api/admin/announcements/${id}`, data);
+}
+
+export function deleteAnnouncement(id: string) {
+  return del<{ message: string }>(`/api/admin/announcements/${id}`);
 }
