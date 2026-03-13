@@ -17,7 +17,7 @@ import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { fetchFeedback, updateFeedback } from "@/lib/api/admin";
 import type { FeedbackItem, PaginatedResponse } from "@/lib/api/types";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ImageIcon } from "lucide-react";
 
 const CATEGORIES = ["all", "bug", "feature", "content", "other"];
 const STATUSES = ["all", "pending", "resolved", "dismissed"];
@@ -93,6 +93,24 @@ function ExpandedRow({
             <p className="text-sm text-muted-foreground">
               页面: <span className="font-mono">{item.page_url}</span>
             </p>
+          )}
+          {item.screenshot && (
+            <div>
+              <p className="text-sm font-medium mb-1 flex items-center gap-1.5">
+                <ImageIcon className="h-3.5 w-3.5" />
+                截图:
+              </p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.screenshot}
+                alt="用户截图"
+                className="max-w-md max-h-80 rounded border border-border object-contain cursor-pointer"
+                onClick={(e) => {
+                  window.open(item.screenshot!, "_blank");
+                  e.stopPropagation();
+                }}
+              />
+            </div>
           )}
           <div className="flex items-end gap-3">
             <div className="space-y-1">
@@ -223,9 +241,12 @@ export function FeedbackList() {
                     <TableCell className="text-sm">{item.user_email}</TableCell>
                     <TableCell>{categoryBadge(item.category)}</TableCell>
                     <TableCell className="text-sm max-w-xs truncate">
-                      {item.content.length > 80
-                        ? item.content.slice(0, 80) + "..."
-                        : item.content}
+                      <span className="flex items-center gap-1.5">
+                        {item.screenshot && <ImageIcon className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />}
+                        {item.content.length > 80
+                          ? item.content.slice(0, 80) + "..."
+                          : item.content}
+                      </span>
                     </TableCell>
                     <TableCell>{statusBadge(item.status)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">

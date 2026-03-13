@@ -609,6 +609,7 @@ export interface FeedbackItem {
   category: string;
   content: string;
   page_url: string | null;
+  screenshot: string | null;
   status: string;
   admin_note: string | null;
   created_at: string;
