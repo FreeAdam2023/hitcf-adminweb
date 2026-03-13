@@ -28,6 +28,7 @@ import type {
   AuditLogItem,
   AdminSpeakingAttemptItem,
   VocabPoolStats,
+  WordViewStats,
   AdminSavedWordItem,
   AdminNihaoWordItem,
   UserActivityData,
@@ -382,6 +383,10 @@ export function fetchSpeakingAttempts(params: {
 // Vocabulary Admin
 export function fetchVocabStats() {
   return get<VocabPoolStats>("/api/admin/vocab/stats");
+}
+
+export function fetchWordViewStats(days = 30) {
+  return get<WordViewStats>(`/api/admin/vocab/view-stats?days=${days}`);
 }
 
 export function fetchAdminSavedWords(params: {

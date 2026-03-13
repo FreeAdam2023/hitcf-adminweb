@@ -83,6 +83,16 @@ export interface VocabPoolStats {
   top_saved_words: Array<{ word: string; count: number }>;
 }
 
+export interface WordViewStats {
+  days: number;
+  total_views: number;
+  unique_users: number;
+  by_source_type: Record<string, number>;
+  by_pool: Record<string, number>;
+  top_viewed_words: Array<{ word: string; count: number }>;
+  daily_trend: Array<{ date: string; count: number }>;
+}
+
 export interface AdminSavedWordItem {
   id: string;
   user_id: string;
