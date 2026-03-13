@@ -29,6 +29,7 @@ import {
   TrendingUp,
   Megaphone,
   Bell,
+  Gauge,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,7 @@ const navEntries: NavEntry[] = [
       { href: "/ops", label: "运营工作台", icon: Megaphone },
       { href: "/announcements", label: "消息通知", icon: Bell },
       { href: "/data", label: "数据操作", icon: Database },
+      { href: "/metrics", label: "性能监控", icon: Gauge },
       { href: "/audit", label: "审计日志", icon: Shield },
       { href: "/quick-links", label: "快捷链接", icon: ExternalLink },
     ],

@@ -64,6 +64,33 @@ export function fetchTraffic(days = 30) {
   return get<TrafficData>(`/api/admin/traffic?days=${days}`);
 }
 
+// Metrics
+export interface RouteMetrics {
+  total: number;
+  errors: number;
+  error_rate: string;
+  p50: number;
+  p95: number;
+  p99: number;
+}
+
+export interface MetricsSnapshot {
+  uptime_seconds: number;
+  total_requests: number;
+  total_errors: number;
+  routes: Record<string, RouteMetrics>;
+}
+
+export function fetchMetrics() {
+  return get<MetricsSnapshot>("/api/admin/metrics");
+}
+
+export function fetchSlowRoutes(threshold = 1.0) {
+  return get<{ threshold: number; routes: Array<RouteMetrics & { route: string }> }>(
+    `/api/admin/metrics/slow?threshold=${threshold}`,
+  );
+}
+
 // Users
 export function fetchUsers(params: { search?: string; page?: number; page_size?: number }) {
   const sp = new URLSearchParams();
