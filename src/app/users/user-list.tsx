@@ -138,6 +138,9 @@ export function UserList() {
                 <TableHead>姓名</TableHead>
                 <TableHead>角色</TableHead>
                 <TableHead>订阅</TableHead>
+                <TableHead className="text-center">做题</TableHead>
+                <TableHead className="text-center">收藏</TableHead>
+                <TableHead className="text-center">错题</TableHead>
                 <TableHead>注册时间</TableHead>
                 <TableHead>最后登录</TableHead>
               </TableRow>
@@ -189,12 +192,15 @@ export function UserList() {
                         {u.subscription_status || "无"}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-center">{u.activity?.attempts ?? 0}</TableCell>
+                    <TableCell className="text-center">{u.activity?.saved_words ?? 0}</TableCell>
+                    <TableCell className="text-center">{u.activity?.wrong_answers ?? 0}</TableCell>
                     <TableCell>{formatDate(u.created_at)}</TableCell>
                     <TableCell>{formatDate(u.last_login_at)}</TableCell>
                   </TableRow>
                   {expandedId === u.id && (
                     <TableRow key={`${u.id}-detail`}>
-                      <TableCell colSpan={7} className="bg-muted/30">
+                      <TableCell colSpan={10} className="bg-muted/30">
                         <div className="space-y-3 px-4 py-3 text-sm">
                           {/* Row 1: Basic info */}
                           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

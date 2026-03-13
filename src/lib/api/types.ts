@@ -150,6 +150,11 @@ export interface AdminUserItem {
   subscription_status: string | null;
   created_at: string;
   last_login_at: string | null;
+  activity: {
+    attempts: number;
+    saved_words: number;
+    wrong_answers: number;
+  } | null;
   tracking: UserTrackingInfo | null;
 }
 
@@ -159,6 +164,7 @@ export interface UserDetailActivity {
   speaking: number;
   conversations: number;
   vocab: number;
+  wrong_answers: number;
   reports: number;
   active_days: number;
 }

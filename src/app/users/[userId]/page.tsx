@@ -153,6 +153,7 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
     { label: "口语", value: user.activity.speaking, icon: Mic, color: "text-pink-600 bg-pink-50 dark:bg-pink-950" },
     { label: "AI对话", value: user.activity.conversations, icon: MessageSquare, color: "text-teal-600 bg-teal-50 dark:bg-teal-950" },
     { label: "词汇", value: user.activity.vocab, icon: BookMarked, color: "text-amber-600 bg-amber-50 dark:bg-amber-950" },
+    { label: "错题", value: user.activity.wrong_answers, icon: XCircle, color: "text-rose-600 bg-rose-50 dark:bg-rose-950" },
     { label: "举报", value: user.activity.reports, icon: Flag, color: "text-red-600 bg-red-50 dark:bg-red-950" },
     { label: "活跃天数", value: user.activity.active_days, icon: CalendarDays, color: "text-green-600 bg-green-50 dark:bg-green-950" },
   ];
@@ -236,7 +237,7 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
       {/* Activity Summary */}
       <div>
         <h2 className="text-lg font-semibold mb-3">活动统计</h2>
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
           {activityCards.map((c) => (
             <Card key={c.label} className={c.color}>
               <CardContent className="pt-4 pb-3 text-center">
