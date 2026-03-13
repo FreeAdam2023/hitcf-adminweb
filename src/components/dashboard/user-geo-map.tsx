@@ -68,6 +68,20 @@ const COUNTRY_TO_ISO: Record<string, string> = {
   "PE": "PER", "Peru": "PER",
 };
 
+// ISO alpha-3 → ISO numeric (used by world-atlas@2 topojson)
+const ISO_A3_TO_NUM: Record<string, string> = {
+  CHN: "156", CAN: "124", USA: "840", FRA: "250", JPN: "392",
+  KOR: "410", DEU: "276", GBR: "826", AUS: "036", IND: "356",
+  BRA: "076", RUS: "643", MEX: "484", SGP: "702", HKG: "344",
+  TWN: "158", VNM: "704", THA: "764", MYS: "458", PHL: "608",
+  IDN: "360", NZL: "554", ITA: "380", ESP: "724", NLD: "528",
+  BEL: "056", CHE: "756", SWE: "752", NOR: "578", DNK: "208",
+  FIN: "246", POL: "616", AUT: "040", IRL: "372", PRT: "620",
+  ARE: "784", SAU: "682", EGY: "818", ZAF: "710", NGA: "566",
+  MAR: "504", DZA: "012", TUN: "788", COL: "170", ARG: "032",
+  CHL: "152", PER: "604",
+};
+
 // Country flag emoji from ISO-2
 function countryFlag(code: string): string {
   // If it's already a 2-letter code
@@ -109,13 +123,13 @@ const MapChart = memo(function MapChart({ countrySet, countryCountMap }: {
         <Geographies geography={GEO_URL}>
           {({ geographies }) =>
             geographies.map((geo) => {
-              const isoA3 = geo.properties?.["ISO_A3"] || geo.id;
-              const isHighlighted = countrySet.has(isoA3);
+              const geoId = geo.id as string;
+              const isHighlighted = countrySet.has(geoId);
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={isHighlighted ? getFillColor(isoA3) : "#f3f4f6"}
+                  fill={isHighlighted ? getFillColor(geoId) : "#f3f4f6"}
                   stroke="#d1d5db"
                   strokeWidth={0.5}
                   style={{
@@ -151,14 +165,17 @@ export function UserGeoMap() {
   if (loading) return <Card><CardContent className="py-8"><LoadingSpinner /></CardContent></Card>;
   if (!data || data.length === 0) return null;
 
-  // Build ISO-A3 set and count map
+  // Build numeric code set and count map (world-atlas@2 uses ISO numeric IDs)
   const countrySet = new Set<string>();
   const countryCountMap = new Map<string, number>();
   for (const c of data) {
-    const iso = COUNTRY_TO_ISO[c.country];
-    if (iso) {
-      countrySet.add(iso);
-      countryCountMap.set(iso, (countryCountMap.get(iso) || 0) + c.count);
+    const alpha3 = COUNTRY_TO_ISO[c.country];
+    if (alpha3) {
+      const num = ISO_A3_TO_NUM[alpha3];
+      if (num) {
+        countrySet.add(num);
+        countryCountMap.set(num, (countryCountMap.get(num) || 0) + c.count);
+      }
     }
   }
 
