@@ -31,7 +31,7 @@ export interface AdminStats {
   active_subscription_count: number;
   test_set_count: number;
   question_count: number;
-  attempt_count: number;
+  answer_count: number;
   speaking_attempt_count: number;
   saved_word_count: number;
   nihao_word_count: number;

@@ -85,7 +85,7 @@ export default function DashboardPage() {
     { label: "活跃订阅", value: stats.active_subscription_count ?? 0, icon: CreditCard, iconColor: "text-emerald-600", bgColor: "bg-emerald-50 dark:bg-emerald-950", borderColor: "border-l-emerald-500" },
     { label: "题库套数", value: stats.test_set_count ?? 0, icon: BookOpen, iconColor: "text-violet-600", bgColor: "bg-violet-50 dark:bg-violet-950", borderColor: "border-l-violet-500" },
     { label: "题目总数", value: stats.question_count ?? 0, icon: FileText, iconColor: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950", borderColor: "border-l-orange-500" },
-    { label: "做题次数", value: stats.attempt_count ?? 0, icon: BarChart3, iconColor: "text-cyan-600", bgColor: "bg-cyan-50 dark:bg-cyan-950", borderColor: "border-l-cyan-500" },
+    { label: "总答题数", value: stats.answer_count ?? 0, icon: BarChart3, iconColor: "text-cyan-600", bgColor: "bg-cyan-50 dark:bg-cyan-950", borderColor: "border-l-cyan-500" },
     { label: "口语练习", value: stats.speaking_attempt_count ?? 0, icon: Mic, iconColor: "text-pink-600", bgColor: "bg-pink-50 dark:bg-pink-950", borderColor: "border-l-pink-500" },
     { label: "收藏单词", value: stats.saved_word_count ?? 0, icon: BookMarked, iconColor: "text-amber-600", bgColor: "bg-amber-50 dark:bg-amber-950", borderColor: "border-l-amber-500" },
     { label: "你好法语词汇", value: stats.nihao_word_count ?? 0, icon: BookOpen, iconColor: "text-teal-600", bgColor: "bg-teal-50 dark:bg-teal-950", borderColor: "border-l-teal-500" },
