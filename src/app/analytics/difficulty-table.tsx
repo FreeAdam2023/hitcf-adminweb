@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { TypeBadge } from "@/components/shared/type-badge";
 import {
   Table, TableHeader, TableRow, TableHead, TableBody, TableCell,
 } from "@/components/ui/table";
@@ -12,12 +13,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { fetchDifficultyRanking } from "@/lib/api/admin";
 import type { DifficultyItem, PaginatedResponse } from "@/lib/api/types";
 
-function typeVariant(type: string) {
-  if (type === "listening") return "default";
-  if (type === "reading") return "secondary";
-  if (type === "speaking") return "outline";
-  return "outline";
-}
 
 function truncateText(text: string, maxLen = 60) {
   if (!text) return "-";
@@ -71,7 +66,7 @@ export function DifficultyTable() {
                   {truncateText(item.question_text)}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={typeVariant(item.type)}>{item.type}</Badge>
+                  <TypeBadge type={item.type} />
                 </TableCell>
                 <TableCell>
                   {item.level ? <Badge variant="outline">{item.level}</Badge> : "-"}

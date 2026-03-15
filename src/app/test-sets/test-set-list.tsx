@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { TypeBadge } from "@/components/shared/type-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -90,15 +90,7 @@ export function TestSetList() {
     }
   };
 
-  const typeBadge = (type: string) => {
-    const colors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      listening: "default",
-      reading: "secondary",
-      speaking: "outline",
-      writing: "outline",
-    };
-    return <Badge variant={colors[type] || "secondary"}>{type}</Badge>;
-  };
+  const typeBadge = (type: string) => <TypeBadge type={type} />;
 
   const renderQuality = (ts: AdminTestSetItem) => {
     const q = ts.quality;

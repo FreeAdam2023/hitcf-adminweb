@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { TypeBadge } from "@/components/shared/type-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -212,7 +212,7 @@ export function QuestionList() {
                     {renderText(q.question_text, 60)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{q.type}</Badge>
+                    <TypeBadge type={q.type} />
                   </TableCell>
                   <TableCell>{q.level || "-"}</TableCell>
                   <TableCell className="text-center">
