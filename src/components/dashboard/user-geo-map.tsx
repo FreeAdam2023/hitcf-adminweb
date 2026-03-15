@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchUserGeo } from "@/lib/api/admin";
 import type { GeoCountry } from "@/lib/api/types";
-import { Globe } from "lucide-react";
+import { Globe, Building2, Flag } from "lucide-react";
 import {
   ComposableMap,
   Geographies,
@@ -151,9 +152,16 @@ const MapChart = memo(function MapChart({ countrySet, countryCountMap }: {
   );
 });
 
+interface CityItem {
+  city: string;
+  country: string;
+  count: number;
+}
+
 export function UserGeoMap() {
   const [data, setData] = useState<GeoCountry[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"country" | "city">("country");
 
   useEffect(() => {
     fetchUserGeo()
@@ -161,6 +169,25 @@ export function UserGeoMap() {
       .catch(() => setData([]))
       .finally(() => setLoading(false));
   }, []);
+
+  // Aggregate cities across all countries, deduped and counted
+  const cityList = useMemo<CityItem[]>(() => {
+    if (!data) return [];
+    const cityMap = new Map<string, CityItem>();
+    for (const c of data) {
+      for (const u of c.users) {
+        if (!u.city) continue;
+        const key = `${c.country}:${u.city}`;
+        const existing = cityMap.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          cityMap.set(key, { city: u.city, country: c.country, count: 1 });
+        }
+      }
+    }
+    return Array.from(cityMap.values()).sort((a, b) => b.count - a.count);
+  }, [data]);
 
   if (loading) return <Card><CardContent className="py-8"><LoadingSpinner /></CardContent></Card>;
   if (!data || data.length === 0) return null;
@@ -196,28 +223,64 @@ export function UserGeoMap() {
           <MapChart countrySet={countrySet} countryCountMap={countryCountMap} />
         </div>
 
-        {/* Country list */}
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {data.map((c) => (
-            <div
-              key={c.country}
-              className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
-            >
-              <span className="text-lg leading-none">{countryFlag(c.country)}</span>
-              <div className="flex-1 min-w-0">
-                <span className="font-medium">
+        {/* Toggle */}
+        <div className="mt-4 flex items-center gap-1">
+          <Button
+            variant={viewMode === "country" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("country")}
+          >
+            <Flag className="mr-1 h-3 w-3" />
+            按国家
+          </Button>
+          <Button
+            variant={viewMode === "city" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("city")}
+          >
+            <Building2 className="mr-1 h-3 w-3" />
+            按城市
+          </Button>
+        </div>
+
+        {/* Country view */}
+        {viewMode === "country" && (
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {data.map((c) => (
+              <div
+                key={c.country}
+                className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
+              >
+                <span className="text-lg leading-none">{countryFlag(c.country)}</span>
+                <span className="flex-1 font-medium truncate">
                   {COUNTRY_NAMES[c.country] || c.country}
                 </span>
-                {c.users.length > 0 && c.users[0].city && (
-                  <span className="text-xs text-muted-foreground ml-1">
-                    ({c.users.map((u) => u.city).filter(Boolean).join(", ")})
-                  </span>
-                )}
+                <Badge variant="secondary" className="shrink-0">{c.count}</Badge>
               </div>
-              <Badge variant="secondary" className="shrink-0">{c.count}</Badge>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* City view */}
+        {viewMode === "city" && (
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {cityList.map((item) => (
+              <div
+                key={`${item.country}:${item.city}`}
+                className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
+              >
+                <span className="text-lg leading-none">{countryFlag(item.country)}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium">{item.city}</span>
+                  <span className="text-xs text-muted-foreground ml-1">
+                    {COUNTRY_NAMES[item.country] || item.country}
+                  </span>
+                </div>
+                <Badge variant="secondary" className="shrink-0">{item.count}</Badge>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Legend */}
         <div className="flex items-center gap-2 mt-3 text-[10px] text-muted-foreground">
