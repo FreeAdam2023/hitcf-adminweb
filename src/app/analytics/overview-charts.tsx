@@ -77,7 +77,7 @@ export function OverviewCharts() {
     { label: "总用户", value: latestTotal.toLocaleString(), icon: Users, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/40" },
     { label: "今日新增", value: todayNewUsers.toLocaleString(), icon: UserPlus, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/40" },
     { label: "今日活跃", value: todayDAU.toLocaleString(), icon: Activity, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/40" },
-    { label: "30 天做题", value: totalAttempts30d.toLocaleString(), icon: TrendingUp, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/40" },
+    { label: "30 天答题", value: totalAttempts30d.toLocaleString(), icon: TrendingUp, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/40" },
   ];
 
   return (
