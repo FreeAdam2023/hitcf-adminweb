@@ -35,6 +35,8 @@ export interface AdminStats {
   speaking_attempt_count: number;
   saved_word_count: number;
   nihao_word_count: number;
+  word_lookup_count: number;
+  vocabulary_card_count: number;
   // Data quality
   questions_without_answer: number;
   questions_without_options: number;

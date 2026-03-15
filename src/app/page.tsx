@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchAdminStats, fetchAuditLogs, fetchBatchStatus, fetchAnalyticsOverview } from "@/lib/api/admin";
 import type { AdminStats, AuditLogItem, BatchStatus, PaginatedResponse, AnalyticsOverview } from "@/lib/api/types";
-import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked, ExternalLink, type LucideIcon } from "lucide-react";
+import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked, ExternalLink, Search, Layers, type LucideIcon } from "lucide-react";
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { UserGeoMap } from "@/components/dashboard/user-geo-map";
 import { CostOverview } from "@/components/dashboard/cost-overview";
@@ -89,6 +89,8 @@ export default function DashboardPage() {
     { label: "口语练习", value: stats.speaking_attempt_count ?? 0, icon: Mic, iconColor: "text-pink-600", bgColor: "bg-pink-50 dark:bg-pink-950", borderColor: "border-l-pink-500" },
     { label: "收藏单词", value: stats.saved_word_count ?? 0, icon: BookMarked, iconColor: "text-amber-600", bgColor: "bg-amber-50 dark:bg-amber-950", borderColor: "border-l-amber-500" },
     { label: "你好法语词汇", value: stats.nihao_word_count ?? 0, icon: BookOpen, iconColor: "text-teal-600", bgColor: "bg-teal-50 dark:bg-teal-950", borderColor: "border-l-teal-500" },
+    { label: "单词查询次数", value: stats.word_lookup_count ?? 0, icon: Search, iconColor: "text-indigo-600", bgColor: "bg-indigo-50 dark:bg-indigo-950", borderColor: "border-l-indigo-500" },
+    { label: "单词卡片数量", value: stats.vocabulary_card_count ?? 0, icon: Layers, iconColor: "text-rose-600", bgColor: "bg-rose-50 dark:bg-rose-950", borderColor: "border-l-rose-500" },
   ];
 
   const qualityCards = [
