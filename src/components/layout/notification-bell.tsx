@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Bell, UserPlus, CreditCard, Volume2, VolumeX } from "lucide-react";
+import { Bell, UserPlus, CreditCard, Volume2, VolumeX, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -178,8 +178,17 @@ export function NotificationBell() {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-0" align="end">
-          <div className="border-b px-4 py-3">
+          <div className="flex items-center justify-between border-b px-4 py-3">
             <h4 className="text-sm font-semibold">通知</h4>
+            {items.length > 0 && (
+              <button
+                onClick={() => setItems([])}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3 w-3" />
+                清空
+              </button>
+            )}
           </div>
           <div className="max-h-[360px] overflow-y-auto">
             {items.length === 0 ? (
