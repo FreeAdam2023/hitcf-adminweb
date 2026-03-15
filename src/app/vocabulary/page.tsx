@@ -10,14 +10,14 @@ export default function VocabularyPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Vocabulary Management"
-        description="Manage vocabulary pools and user saved words"
+        title="词汇管理"
+        description="管理词库与用户收藏词汇"
       />
       <Tabs defaultValue="overview">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="saved">User Saved Words</TabsTrigger>
-          <TabsTrigger value="nihao">Nihao Words</TabsTrigger>
+          <TabsTrigger value="overview">总览</TabsTrigger>
+          <TabsTrigger value="saved">用户收藏</TabsTrigger>
+          <TabsTrigger value="nihao">你好法语</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4">
           <VocabDashboard />

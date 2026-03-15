@@ -9,12 +9,12 @@ import { AudioPanel } from "./audio-panel";
 export default function DataOpsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Data Operations" description="Import, export, and manage audio files" />
+      <PageHeader title="数据操作" description="导入、导出及音频管理" />
       <Tabs defaultValue="import">
         <TabsList>
-          <TabsTrigger value="import">Import</TabsTrigger>
-          <TabsTrigger value="export">Export</TabsTrigger>
-          <TabsTrigger value="audio">Audio</TabsTrigger>
+          <TabsTrigger value="import">导入</TabsTrigger>
+          <TabsTrigger value="export">导出</TabsTrigger>
+          <TabsTrigger value="audio">音频</TabsTrigger>
         </TabsList>
         <TabsContent value="import" className="mt-4">
           <ImportPanel />

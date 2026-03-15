@@ -15,7 +15,7 @@ function NewQuestionInner() {
 export default function NewQuestionPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="New Question" description="Create a new question" />
+      <PageHeader title="新建题目" description="创建新题目" />
       <Suspense>
         <NewQuestionInner />
       </Suspense>

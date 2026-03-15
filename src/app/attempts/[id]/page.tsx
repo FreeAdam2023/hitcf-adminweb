@@ -51,13 +51,13 @@ export default function AttemptDetailPage({ params }: { params: { id: string } }
     return <div className="flex h-64 items-center justify-center"><LoadingSpinner /></div>;
   }
   if (!data) {
-    return <p className="text-center text-muted-foreground">Attempt not found.</p>;
+    return <p className="text-center text-muted-foreground">未找到答题记录</p>;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Attempt Detail"
+        title="答题详情"
         description={`${data.user_email} - ${data.test_set_name}`}
         actions={
           <Button variant="outline" asChild>

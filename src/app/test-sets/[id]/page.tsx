@@ -24,17 +24,17 @@ export default function EditTestSetPage({ params }: { params: { id: string } }) 
     return <div className="flex h-64 items-center justify-center"><LoadingSpinner /></div>;
   }
   if (!data) {
-    return <p className="text-center text-muted-foreground">Test set not found.</p>;
+    return <p className="text-center text-muted-foreground">未找到套题</p>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <PageHeader title="Edit Test Set" description={data.code} />
+        <PageHeader title="编辑套题" description={data.code} />
         <Button variant="outline" size="sm" asChild>
           <Link href={`/questions?test_set_id=${data.id}`}>
             <ExternalLink className="mr-1 h-4 w-4" />
-            View Questions ({data.question_count})
+            查看题目 ({data.question_count})
           </Link>
         </Button>
       </div>

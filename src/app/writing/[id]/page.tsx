@@ -64,7 +64,7 @@ export default function WritingDetailPage({ params }: { params: { id: string } }
     return <div className="flex h-64 items-center justify-center"><LoadingSpinner /></div>;
   }
   if (!data) {
-    return <p className="text-center text-muted-foreground">Submission not found.</p>;
+    return <p className="text-center text-muted-foreground">未找到写作提交</p>;
   }
 
   const fb = data.feedback;

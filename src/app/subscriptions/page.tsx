@@ -9,12 +9,12 @@ import { EventList } from "./event-list";
 export default function SubscriptionsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Subscriptions" description="Manage subscriptions and revenue" />
+      <PageHeader title="订阅管理" description="管理订阅与收入" />
       <Tabs defaultValue="list">
         <TabsList>
-          <TabsTrigger value="list">Subscribers</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="events">Stripe Events</TabsTrigger>
+          <TabsTrigger value="list">订阅用户</TabsTrigger>
+          <TabsTrigger value="revenue">收入统计</TabsTrigger>
+          <TabsTrigger value="events">Stripe 事件</TabsTrigger>
         </TabsList>
         <TabsContent value="list" className="mt-4">
           <SubscriptionList />

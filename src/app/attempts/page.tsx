@@ -4,7 +4,7 @@ import { AttemptList } from "./attempt-list";
 export default function AttemptsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Attempts" description="View user attempt records" />
+      <PageHeader title="答题记录" description="查看用户答题记录" />
       <AttemptList />
     </div>
   );

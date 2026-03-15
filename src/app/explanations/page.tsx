@@ -6,7 +6,7 @@ import { ExplanationDashboard } from "./explanation-dashboard";
 export default function ExplanationsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Explanations" description="Generate and manage question explanations" />
+      <PageHeader title="题目解析" description="生成与管理题目解析" />
       <ExplanationDashboard />
     </div>
   );

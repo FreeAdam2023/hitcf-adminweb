@@ -9,7 +9,7 @@ import { WatermarkLookup } from "./watermark-lookup";
 export default function UsersPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Users" description="Manage platform users" />
+      <PageHeader title="用户管理" description="管理平台用户" />
       <Tabs defaultValue="users">
         <TabsList>
           <TabsTrigger value="users" className="gap-1.5">
