@@ -148,7 +148,7 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
   }
 
   const activityCards = [
-    { label: "做题", value: user.activity.attempts, icon: BarChart3, color: "text-blue-600 bg-blue-50 dark:bg-blue-950" },
+    { label: "答题", value: user.activity.answers, icon: BarChart3, color: "text-blue-600 bg-blue-50 dark:bg-blue-950" },
     { label: "写作", value: user.activity.writing, icon: PenTool, color: "text-orange-600 bg-orange-50 dark:bg-orange-950" },
     { label: "口语", value: user.activity.speaking, icon: Mic, color: "text-pink-600 bg-pink-50 dark:bg-pink-950" },
     { label: "AI对话", value: user.activity.conversations, icon: MessageSquare, color: "text-teal-600 bg-teal-50 dark:bg-teal-950" },

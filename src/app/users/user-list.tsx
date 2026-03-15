@@ -138,7 +138,7 @@ export function UserList() {
                 <TableHead>姓名</TableHead>
                 <TableHead>角色</TableHead>
                 <TableHead>订阅</TableHead>
-                <TableHead className="text-center">做题</TableHead>
+                <TableHead className="text-center">答题</TableHead>
                 <TableHead className="text-center">收藏</TableHead>
                 <TableHead className="text-center">错题</TableHead>
                 <TableHead>注册时间</TableHead>
@@ -192,7 +192,7 @@ export function UserList() {
                         {u.subscription_status || "无"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center">{u.activity?.attempts ?? 0}</TableCell>
+                    <TableCell className="text-center">{u.activity?.answers ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.saved_words ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.wrong_answers ?? 0}</TableCell>
                     <TableCell>{formatDate(u.created_at)}</TableCell>

@@ -153,7 +153,7 @@ export interface AdminUserItem {
   created_at: string;
   last_login_at: string | null;
   activity: {
-    attempts: number;
+    answers: number;
     saved_words: number;
     wrong_answers: number;
   } | null;
@@ -161,7 +161,7 @@ export interface AdminUserItem {
 }
 
 export interface UserDetailActivity {
-  attempts: number;
+  answers: number;
   writing: number;
   speaking: number;
   conversations: number;
