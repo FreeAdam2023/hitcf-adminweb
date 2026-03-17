@@ -740,3 +740,53 @@ export function updateAnnouncement(id: string, data: {
 export function deleteAnnouncement(id: string) {
   return del<{ message: string }>(`/api/admin/announcements/${id}`);
 }
+
+// ── Anomaly Alerts ──────────────────────────────────────────
+
+export interface AnomalyAlertItem {
+  id: string;
+  user_id: string;
+  user_email: string;
+  alert_type: string;
+  severity: string;
+  count: number;
+  window_seconds: number;
+  details: Record<string, unknown>;
+  status: string;
+  admin_note: string | null;
+  created_at: string;
+}
+
+export interface AnomalySummary {
+  total_open: number;
+  by_type_severity: Array<{
+    alert_type: string;
+    severity: string;
+    count: number;
+  }>;
+}
+
+export function fetchAnomalies(params?: {
+  status?: string;
+  alert_type?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set("status", params.status);
+  if (params?.alert_type) sp.set("alert_type", params.alert_type);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  const qs = sp.toString();
+  return get<PaginatedResponse<AnomalyAlertItem>>(
+    `/api/admin/anomalies${qs ? `?${qs}` : ""}`,
+  );
+}
+
+export function fetchAnomalySummary() {
+  return get<AnomalySummary>("/api/admin/anomalies/summary");
+}
+
+export function updateAnomaly(id: string, data: { status?: string; admin_note?: string }) {
+  return put<{ ok: boolean }>(`/api/admin/anomalies/${id}`, data);
+}
