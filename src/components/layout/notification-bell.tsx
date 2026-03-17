@@ -46,33 +46,147 @@ function playDing() {
   }
 }
 
-function playChaChing() {
+/** Metallic coin-drop sound effect (multiple harmonics + noise burst) */
+function playCoinDrop(ctx: AudioContext, startTime: number) {
+  // — Coin 1: high metallic ping —
+  const f1 = [2637, 3520, 4186]; // E7, A7, C8 harmonics
+  f1.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, startTime);
+    gain.gain.setValueAtTime(0.15 / (i + 1), startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
+    osc.start(startTime);
+    osc.stop(startTime + 0.15);
+  });
+
+  // — Coin 2: second coin hit (slightly delayed, lower) —
+  const t2 = startTime + 0.12;
+  const f2 = [2093, 3136, 3951];
+  f2.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, t2);
+    gain.gain.setValueAtTime(0.12 / (i + 1), t2);
+    gain.gain.exponentialRampToValueAtTime(0.001, t2 + 0.18);
+    osc.start(t2);
+    osc.stop(t2 + 0.18);
+  });
+
+  // — Coin 3: landing clink —
+  const t3 = startTime + 0.28;
+  const osc3 = ctx.createOscillator();
+  const gain3 = ctx.createGain();
+  osc3.connect(gain3);
+  gain3.connect(ctx.destination);
+  osc3.type = "triangle";
+  osc3.frequency.setValueAtTime(4698, t3); // D8
+  gain3.gain.setValueAtTime(0.1, t3);
+  gain3.gain.exponentialRampToValueAtTime(0.001, t3 + 0.1);
+  osc3.start(t3);
+  osc3.stop(t3 + 0.1);
+
+  // — Metallic shimmer (noise burst through bandpass) —
+  const bufferSize = ctx.sampleRate * 0.15;
+  const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.3;
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = noiseBuffer;
+  const bandpass = ctx.createBiquadFilter();
+  bandpass.type = "bandpass";
+  bandpass.frequency.setValueAtTime(6000, startTime);
+  bandpass.Q.setValueAtTime(8, startTime);
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.08, startTime);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
+  noise.connect(bandpass);
+  bandpass.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noise.start(startTime);
+  noise.stop(startTime + 0.15);
+
+  // — Resonant "bag" thud —
+  const t4 = startTime + 0.35;
+  const oscBag = ctx.createOscillator();
+  const gainBag = ctx.createGain();
+  oscBag.connect(gainBag);
+  gainBag.connect(ctx.destination);
+  oscBag.type = "sine";
+  oscBag.frequency.setValueAtTime(200, t4);
+  oscBag.frequency.exponentialRampToValueAtTime(80, t4 + 0.15);
+  gainBag.gain.setValueAtTime(0.12, t4);
+  gainBag.gain.exponentialRampToValueAtTime(0.001, t4 + 0.15);
+  oscBag.start(t4);
+  oscBag.stop(t4 + 0.15);
+
+  // — Rising chime (success feel) —
+  const t5 = startTime + 0.45;
+  const chimeFreqs = [1047, 1319, 1568]; // C6, E6, G6 major chord arpeggio
+  chimeFreqs.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    const t = t5 + i * 0.08;
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.001, startTime);
+    gain.gain.setValueAtTime(0.2, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    osc.start(t);
+    osc.stop(t + 0.4);
+  });
+}
+
+/** Speak amount with a female voice using Web Speech API */
+function speakAmount(amount: number) {
+  try {
+    if (!window.speechSynthesis) return;
+    const text = `到账 ${amount.toFixed(2)} 美元`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "zh-CN";
+    utterance.rate = 0.95;
+    utterance.pitch = 1.3; // higher pitch for feminine voice
+
+    // Try to find a Chinese female voice
+    const voices = speechSynthesis.getVoices();
+    const zhFemale = voices.find(
+      (v) =>
+        v.lang.startsWith("zh") &&
+        (v.name.toLowerCase().includes("female") ||
+          v.name.includes("Tingting") ||
+          v.name.includes("Sinji") ||
+          v.name.includes("Meijia") ||
+          v.name.includes("Lili")),
+    );
+    const zhVoice = zhFemale || voices.find((v) => v.lang.startsWith("zh"));
+    if (zhVoice) utterance.voice = zhVoice;
+
+    speechSynthesis.speak(utterance);
+  } catch {
+    // speech not available
+  }
+}
+
+/** Full payment notification: coin drop → voice announcement */
+function playPaymentSound(amount: number) {
   try {
     const ctx = new AudioContext();
-    // First note
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.type = "sine";
-    osc1.frequency.setValueAtTime(1047, ctx.currentTime); // C6
-    gain1.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc1.start(ctx.currentTime);
-    osc1.stop(ctx.currentTime + 0.3);
-    // Second note (higher, delayed)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.type = "sine";
-    osc2.frequency.setValueAtTime(1319, ctx.currentTime + 0.15); // E6
-    gain2.gain.setValueAtTime(0.001, ctx.currentTime);
-    gain2.gain.setValueAtTime(0.35, ctx.currentTime + 0.15);
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-    osc2.start(ctx.currentTime + 0.15);
-    osc2.stop(ctx.currentTime + 0.6);
-    setTimeout(() => ctx.close(), 1000);
+    playCoinDrop(ctx, ctx.currentTime);
+    // Speak after coin sound finishes (~1s)
+    setTimeout(() => {
+      speakAmount(amount);
+      setTimeout(() => ctx.close(), 500);
+    }, 1000);
   } catch {
     // audio not available
   }
@@ -85,6 +199,18 @@ export function NotificationBell() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const knownIdsRef = useRef<Set<string>>(new Set());
   const isFirstLoad = useRef(true);
+
+  // Preload voices (some browsers need this)
+  useEffect(() => {
+    speechSynthesis?.getVoices();
+    const handleVoicesChanged = () => speechSynthesis?.getVoices();
+    speechSynthesis?.addEventListener?.("voiceschanged", handleVoicesChanged);
+    return () =>
+      speechSynthesis?.removeEventListener?.(
+        "voiceschanged",
+        handleVoicesChanged,
+      );
+  }, []);
 
   // Build a unique key for deduplication
   const notifKey = (n: NotificationItem) => `${n.type}:${n.user_id}:${n.time}`;
@@ -104,13 +230,13 @@ export function NotificationBell() {
 
       // Detect new items
       let hasNewRegistration = false;
-      let hasNewSubscription = false;
+      let subAmount = 0;
       for (const n of notifications) {
         const key = notifKey(n);
         if (!knownIdsRef.current.has(key)) {
           knownIdsRef.current.add(key);
           if (n.type === "subscription") {
-            hasNewSubscription = true;
+            subAmount += n.amount ?? 0;
             toast.success(`💰 ${n.message}`, { duration: 6000 });
           } else if (n.type === "registration") {
             hasNewRegistration = true;
@@ -120,8 +246,8 @@ export function NotificationBell() {
       }
 
       // Play sounds (subscription takes priority)
-      if (hasNewSubscription) {
-        playChaChing();
+      if (subAmount > 0) {
+        playPaymentSound(subAmount);
       } else if (hasNewRegistration) {
         playDing();
       }
@@ -192,7 +318,9 @@ export function NotificationBell() {
           </div>
           <div className="max-h-[360px] overflow-y-auto">
             {items.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-muted-foreground">暂无通知</p>
+              <p className="px-4 py-6 text-center text-sm text-muted-foreground">
+                暂无通知
+              </p>
             ) : (
               items.map((n, i) => (
                 <Link
@@ -208,7 +336,9 @@ export function NotificationBell() {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm truncate">{n.message}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{formatRelative(n.time)}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatRelative(n.time)}
+                    </p>
                   </div>
                 </Link>
               ))

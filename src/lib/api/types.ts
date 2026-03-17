@@ -211,6 +211,7 @@ export interface NotificationItem {
   user_id: string;
   email: string;
   time: string;
+  amount?: number;
 }
 
 export interface QuestionReportItem {
