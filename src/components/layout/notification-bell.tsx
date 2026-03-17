@@ -14,6 +14,7 @@ import { fetchNotifications } from "@/lib/api/admin";
 import type { NotificationItem } from "@/lib/api/types";
 
 const POLL_INTERVAL = 120_000; // 2 minutes
+const CLEARED_AT_KEY = "hitcf_notif_cleared_at";
 
 function formatRelative(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -217,11 +218,16 @@ export function NotificationBell() {
 
   const handleNewNotifications = useCallback(
     (notifications: NotificationItem[]) => {
-      setItems(notifications);
+      // Filter out notifications older than the last clear time
+      const clearedAt = localStorage.getItem(CLEARED_AT_KEY);
+      const filtered = clearedAt
+        ? notifications.filter((n) => new Date(n.time).getTime() > Number(clearedAt))
+        : notifications;
+      setItems(filtered);
 
       if (isFirstLoad.current) {
         // First load — populate known set, no sound
-        notifications.forEach((n) => knownIdsRef.current.add(notifKey(n)));
+        filtered.forEach((n) => knownIdsRef.current.add(notifKey(n)));
         isFirstLoad.current = false;
         return;
       }
@@ -231,7 +237,7 @@ export function NotificationBell() {
       // Detect new items
       let hasNewRegistration = false;
       let subAmount = 0;
-      for (const n of notifications) {
+      for (const n of filtered) {
         const key = notifKey(n);
         if (!knownIdsRef.current.has(key)) {
           knownIdsRef.current.add(key);
@@ -308,7 +314,10 @@ export function NotificationBell() {
             <h4 className="text-sm font-semibold">通知</h4>
             {items.length > 0 && (
               <button
-                onClick={() => setItems([])}
+                onClick={() => {
+                  localStorage.setItem(CLEARED_AT_KEY, String(Date.now()));
+                  setItems([]);
+                }}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="h-3 w-3" />
