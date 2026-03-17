@@ -31,17 +31,17 @@ export function ComparisonMatrix() {
         setColumns(data.columns);
         setRows(data.rows);
       } catch {
-        toast.error("Failed to load comparison data");
+        toast.error("加载对比数据失败");
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading comparison...</p>;
+  if (loading) return <p className="text-sm text-muted-foreground">加载中...</p>;
   if (columns.length === 0) return (
     <div className="rounded-lg border p-8 text-center text-muted-foreground">
-      No competitors added yet. Add some competitors first to see the comparison.
+      暂无竞品数据，请先添加竞品。
     </div>
   );
 
@@ -51,7 +51,7 @@ export function ComparisonMatrix() {
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="px-4 py-3 text-left font-medium sticky left-0 bg-muted/50 z-10 min-w-[160px]">
-              Feature
+              功能
             </th>
             {columns.map((col) => (
               <th
@@ -100,7 +100,7 @@ export function ComparisonMatrix() {
       {/* Summary row */}
       <div className="border-t bg-muted/30 px-4 py-3">
         <div className="flex items-center gap-6 text-sm">
-          <span className="font-medium">Average Score:</span>
+          <span className="font-medium">平均分:</span>
           {columns.map((col) => {
             const scores = rows
               .map((r) => (r[col.id] as ComparisonCell)?.score ?? 0)

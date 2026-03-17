@@ -29,7 +29,7 @@ export function MonitorPanel() {
       const res = await fetchCompetitors({ page_size: 50 });
       setItems(res.items);
     } catch {
-      toast.error("Failed to load");
+      toast.error("加载失败");
     } finally {
       setLoading(false);
     }
@@ -41,10 +41,10 @@ export function MonitorPanel() {
     setChecking(id);
     try {
       const snapshot = await checkCompetitor(id);
-      toast.success(snapshot.is_up ? "Site is UP" : "Site is DOWN");
+      toast.success(snapshot.is_up ? "网站在线" : "网站宕机");
       load();
     } catch {
-      toast.error("Check failed");
+      toast.error("检测失败");
     } finally {
       setChecking(null);
     }
@@ -54,15 +54,15 @@ export function MonitorPanel() {
     setCheckingAll(true);
     try {
       const result = await checkAllCompetitors();
-      const downCount = result.results.filter((r) => !r.is_up).length;
+      const downCount = result.results.filter((r: { is_up: boolean }) => !r.is_up).length;
       if (downCount > 0) {
-        toast.error(`${downCount} of ${result.checked} sites are DOWN`);
+        toast.error(`${result.checked} 个站点中有 ${downCount} 个宕机`);
       } else {
-        toast.success(`All ${result.checked} monitored sites are UP`);
+        toast.success(`全部 ${result.checked} 个监控站点均在线`);
       }
       load();
     } catch {
-      toast.error("Batch check failed");
+      toast.error("批量检测失败");
     } finally {
       setCheckingAll(false);
     }
@@ -73,7 +73,7 @@ export function MonitorPanel() {
   const downCount = monitored.filter((i) => i.last_check && !i.last_check.is_up).length;
   const unchecked = monitored.filter((i) => !i.last_check).length;
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
+  if (loading) return <p className="text-sm text-muted-foreground">加载中...</p>;
 
   return (
     <div className="space-y-6">
@@ -81,24 +81,24 @@ export function MonitorPanel() {
       <div className="grid grid-cols-4 gap-4">
         <div className="rounded-lg border p-4 text-center">
           <div className="text-2xl font-bold">{monitored.length}</div>
-          <div className="text-sm text-muted-foreground">Monitored</div>
+          <div className="text-sm text-muted-foreground">监控中</div>
         </div>
         <div className="rounded-lg border p-4 text-center">
           <div className="text-2xl font-bold text-green-600">{upCount}</div>
-          <div className="text-sm text-muted-foreground">Online</div>
+          <div className="text-sm text-muted-foreground">在线</div>
         </div>
         <div className="rounded-lg border p-4 text-center">
           <div className="text-2xl font-bold text-red-600">{downCount}</div>
-          <div className="text-sm text-muted-foreground">Down</div>
+          <div className="text-sm text-muted-foreground">宕机</div>
         </div>
         <div className="rounded-lg border p-4 text-center">
           <div className="text-2xl font-bold text-gray-400">{unchecked}</div>
-          <div className="text-sm text-muted-foreground">Unchecked</div>
+          <div className="text-sm text-muted-foreground">未检测</div>
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Monitor-Enabled Competitors</h3>
+        <h3 className="text-sm font-medium">已启用监控的竞品</h3>
         <Button
           onClick={handleCheckAll}
           disabled={checkingAll || monitored.length === 0}
@@ -106,13 +106,13 @@ export function MonitorPanel() {
           variant="outline"
         >
           <RefreshCw className={`mr-1 h-4 w-4 ${checkingAll ? "animate-spin" : ""}`} />
-          {checkingAll ? "Checking..." : "Check All"}
+          {checkingAll ? "检测中..." : "全部检测"}
         </Button>
       </div>
 
       {monitored.length === 0 ? (
         <div className="rounded-lg border p-8 text-center text-muted-foreground">
-          No competitors have monitoring enabled. Edit a competitor and enable monitoring.
+          暂无启用监控的竞品，请编辑竞品并启用监控。
         </div>
       ) : (
         <div className="space-y-2">
@@ -133,12 +133,12 @@ export function MonitorPanel() {
                     <span className="font-medium">{item.name}</span>
                     {item.last_check && (
                       <Badge variant={item.last_check.is_up ? "default" : "destructive"}>
-                        {item.last_check.is_up ? `${item.last_check.status_code} OK` : item.last_check.notes || "DOWN"}
+                        {item.last_check.is_up ? `${item.last_check.status_code} OK` : item.last_check.notes || "宕机"}
                       </Badge>
                     )}
                     {item.last_check?.changes_detected && (
                       <Badge variant="secondary">
-                        <Activity className="mr-1 h-3 w-3" /> Changes detected
+                        <Activity className="mr-1 h-3 w-3" /> 检测到变化
                       </Badge>
                     )}
                   </div>
@@ -147,10 +147,10 @@ export function MonitorPanel() {
                       {item.url}
                     </a>
                     {item.last_check && (
-                      <span className="ml-3">Last checked: {formatDate(item.last_check.checked_at)}</span>
+                      <span className="ml-3">上次检测: {formatDate(item.last_check.checked_at)}</span>
                     )}
                     {item.last_check?.notes && (
-                      <span className="ml-3 text-muted-foreground">Title: {item.last_check.notes}</span>
+                      <span className="ml-3 text-muted-foreground">标题: {item.last_check.notes}</span>
                     )}
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export function MonitorPanel() {
       {items.filter((i) => !i.monitor_enabled).length > 0 && (
         <>
           <h3 className="text-sm font-medium text-muted-foreground">
-            Not Monitored ({items.filter((i) => !i.monitor_enabled).length})
+            未监控 ({items.filter((i) => !i.monitor_enabled).length})
           </h3>
           <div className="space-y-1">
             {items.filter((i) => !i.monitor_enabled).map((item) => (
