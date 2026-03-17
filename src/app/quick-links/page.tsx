@@ -46,6 +46,12 @@ const linkGroups: LinkGroup[] = [
         icon: Mail,
       },
       {
+        label: "Zoho Admin Console",
+        href: "https://www.zoho.com/mail/admin-console.html",
+        description: "Zoho 后端管理控制台",
+        icon: Mail,
+      },
+      {
         label: "Resend Dashboard",
         href: "https://resend.com/emails",
         description: "查看系统发送的邮件记录",
