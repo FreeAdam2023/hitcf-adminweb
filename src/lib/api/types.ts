@@ -987,3 +987,37 @@ export interface OpsGenerateResult {
   variation_group: string;
   drafts: OpsContentDraft[];
 }
+
+// Scrape Data
+export interface ScrapeSource {
+  source: string;
+  label: string;
+  ce_count: number;
+  co_count: number;
+  total_files: number;
+  last_uploaded: string | null;
+}
+
+export interface ScrapeTest {
+  test_num: number;
+  file_count: number;
+  total_size: number;
+  has_data_json: boolean;
+  question_count: number;
+}
+
+export interface ScrapePreviewQuestion {
+  question_number: number;
+  question_text: string | null;
+  options_count: number;
+  has_image: boolean;
+  has_audio: boolean;
+}
+
+export interface ScrapePreview {
+  source: string;
+  type: string;
+  test_num: number;
+  question_count: number;
+  questions: ScrapePreviewQuestion[];
+}

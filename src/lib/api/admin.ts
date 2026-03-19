@@ -856,3 +856,30 @@ export function fetchAudioReviewList(params?: {
 export function fetchAudioReviewTestSets() {
   return get<AudioReviewTestSet[]>("/api/admin/audio-review/test-sets");
 }
+
+// ── Scrape Data ──────────────────────────────────────────────
+
+import type {
+  ScrapeSource,
+  ScrapeTest,
+  ScrapePreview,
+} from "./types";
+
+export function fetchScrapeSources() {
+  return get<{ sources: ScrapeSource[] }>("/api/admin/scrape-data/sources");
+}
+
+export function fetchScrapeTests(source: string, type: string) {
+  const sp = new URLSearchParams();
+  sp.set("source", source);
+  sp.set("type", type);
+  return get<{ tests: ScrapeTest[] }>(`/api/admin/scrape-data/tests?${sp}`);
+}
+
+export function fetchScrapePreview(source: string, type: string, test: number) {
+  const sp = new URLSearchParams();
+  sp.set("source", source);
+  sp.set("type", type);
+  sp.set("test", String(test));
+  return get<ScrapePreview>(`/api/admin/scrape-data/preview?${sp}`);
+}
