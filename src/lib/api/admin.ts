@@ -805,6 +805,9 @@ export interface AudioReviewQuestion {
   labeled_count: number;
   audio_review_status: string | null;
   has_user_report: boolean;
+  audio_quality_grade: string | null;
+  audio_quality_snr: number | null;
+  audio_quality_bw: number | null;
 }
 
 export interface AudioReviewProgress {
@@ -812,6 +815,12 @@ export interface AudioReviewProgress {
   total_segments: number;
   labeled_segments: number;
   label_pct: number;
+  quality_counts: {
+    good: number;
+    moderate: number;
+    severe: number;
+    unscanned: number;
+  };
 }
 
 export interface AudioReviewListResponse {
@@ -831,12 +840,14 @@ export interface AudioReviewTestSet {
 export function fetchAudioReviewList(params?: {
   test_set_code?: string;
   status?: string;
+  quality?: string;
   page?: number;
   page_size?: number;
 }) {
   const sp = new URLSearchParams();
   if (params?.test_set_code) sp.set("test_set_code", params.test_set_code);
   if (params?.status) sp.set("status", params.status);
+  if (params?.quality) sp.set("quality", params.quality);
   if (params?.page) sp.set("page", String(params.page));
   if (params?.page_size) sp.set("page_size", String(params.page_size));
   return get<AudioReviewListResponse>(`/api/admin/audio-review?${sp}`);
