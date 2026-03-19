@@ -23,13 +23,6 @@ import {
 import { AlertCircle, RotateCcw, Flag, Play, Pause, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const STATUS_STYLES: Record<string, { label: string; color: string }> = {
-  reviewed: { label: "已审核", color: "bg-green-100 text-green-800" },
-  partial: { label: "部分标记", color: "bg-blue-100 text-blue-800" },
-  unlabeled: { label: "未标记", color: "bg-gray-100 text-gray-800" },
-  no_timestamps: { label: "无时间戳", color: "bg-red-100 text-red-800" },
-};
-
 const QUALITY_STYLES: Record<string, { label: string; color: string }> = {
   severe: { label: "严重", color: "bg-red-100 text-red-800" },
   moderate: { label: "一般", color: "bg-yellow-100 text-yellow-800" },
