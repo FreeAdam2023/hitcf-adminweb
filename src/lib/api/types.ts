@@ -222,6 +222,7 @@ export interface QuestionReportItem {
   question_number: number | null;
   question_type: string;
   question_text: string;
+  test_set_name: string;
   issue_type: string;
   description: string | null;
   status: string;

@@ -121,11 +121,12 @@ export function ReportList() {
                       <Badge variant="secondary" className={issue.color}>{issue.label}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="max-w-[200px]">
-                        <span className="text-xs text-muted-foreground">
-                          {r.question_type} #{r.question_number}
+                      <div className="max-w-[250px]">
+                        <span className="text-xs font-medium">
+                          {r.test_set_name || r.question_type}
                         </span>
-                        <p className="text-sm truncate">{r.question_text || "-"}</p>
+                        <span className="text-xs text-muted-foreground"> · Q{r.question_number}</span>
+                        {r.question_text && <p className="text-xs text-muted-foreground truncate mt-0.5">{r.question_text}</p>}
                       </div>
                     </TableCell>
                     <TableCell className="text-sm">{r.user_email}</TableCell>

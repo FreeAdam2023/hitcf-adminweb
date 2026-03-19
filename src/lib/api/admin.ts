@@ -790,3 +790,58 @@ export function fetchAnomalySummary() {
 export function updateAnomaly(id: string, data: { status?: string; admin_note?: string }) {
   return put<{ ok: boolean }>(`/api/admin/anomalies/${id}`, data);
 }
+
+// ── Audio Review ──────────────────────────────────────────────
+
+export interface AudioReviewQuestion {
+  id: string;
+  test_set_code: string;
+  test_set_name: string;
+  question_number: number;
+  level: string | null;
+  has_image: boolean;
+  correct_answer: string | null;
+  segment_count: number;
+  labeled_count: number;
+  audio_review_status: string | null;
+  has_user_report: boolean;
+}
+
+export interface AudioReviewProgress {
+  total_questions: number;
+  total_segments: number;
+  labeled_segments: number;
+  label_pct: number;
+}
+
+export interface AudioReviewListResponse {
+  items: AudioReviewQuestion[];
+  total: number;
+  page: number;
+  page_size: number;
+  progress: AudioReviewProgress;
+}
+
+export interface AudioReviewTestSet {
+  code: string;
+  name: string;
+  order: number;
+}
+
+export function fetchAudioReviewList(params?: {
+  test_set_code?: string;
+  status?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params?.test_set_code) sp.set("test_set_code", params.test_set_code);
+  if (params?.status) sp.set("status", params.status);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  return get<AudioReviewListResponse>(`/api/admin/audio-review?${sp}`);
+}
+
+export function fetchAudioReviewTestSets() {
+  return get<AudioReviewTestSet[]>("/api/admin/audio-review/test-sets");
+}

@@ -31,6 +31,7 @@ import {
   Bell,
   Gauge,
   ShieldAlert,
+  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ const navEntries: NavEntry[] = [
       { href: "/attempts", label: "答题记录", icon: ClipboardList },
       { href: "/writing", label: "写作", icon: PenTool },
       { href: "/vocabulary", label: "词汇", icon: BookMarked },
+      { href: "/audio-review", label: "音频审核", icon: Headphones },
     ],
   },
   {
