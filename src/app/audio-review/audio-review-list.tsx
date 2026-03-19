@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -36,14 +36,26 @@ const QUALITY_STYLES: Record<string, { label: string; color: string }> = {
 
 export function AudioReviewList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<AudioReviewListResponse | null>(null);
   const [testSets, setTestSets] = useState<AudioReviewTestSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tsFilter, setTsFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [qualityFilter, setQualityFilter] = useState("all");
-  const [page, setPage] = useState(1);
+  const [tsFilter, setTsFilter] = useState(searchParams.get("ts") || "all");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
+  const [qualityFilter, setQualityFilter] = useState(searchParams.get("quality") || "all");
+  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+
+  // Sync filters to URL
+  useEffect(() => {
+    const sp = new URLSearchParams();
+    if (tsFilter !== "all") sp.set("ts", tsFilter);
+    if (qualityFilter !== "all") sp.set("quality", qualityFilter);
+    if (statusFilter !== "all") sp.set("status", statusFilter);
+    if (page > 1) sp.set("page", String(page));
+    const qs = sp.toString();
+    router.replace(`/audio-review${qs ? `?${qs}` : ""}`, { scroll: false });
+  }, [tsFilter, qualityFilter, statusFilter, page, router]);
 
   useEffect(() => {
     fetchAudioReviewTestSets().then(setTestSets).catch(() => {});
