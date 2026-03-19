@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -15,10 +15,12 @@ import { EmptyState } from "@/components/shared/empty-state";
 import {
   fetchAudioReviewList,
   fetchAudioReviewTestSets,
+  fetchAudioReviewDetail,
+  updateAudioQualityGrade,
   type AudioReviewListResponse,
   type AudioReviewTestSet,
 } from "@/lib/api/admin";
-import { AlertCircle, RotateCcw, Flag } from "lucide-react";
+import { AlertCircle, RotateCcw, Flag, Play, Pause, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const STATUS_STYLES: Record<string, { label: string; color: string }> = {
@@ -45,6 +47,33 @@ export function AudioReviewList() {
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
   const [qualityFilter, setQualityFilter] = useState(searchParams.get("quality") || "all");
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handlePlay = async (e: React.MouseEvent, qId: string) => {
+    e.stopPropagation();
+    if (playingId === qId) {
+      audioRef.current?.pause();
+      setPlayingId(null);
+      return;
+    }
+    try {
+      const detail = await fetchAudioReviewDetail(qId);
+      if (!detail.audio_sas_url) return;
+      if (audioRef.current) audioRef.current.pause();
+      const audio = new Audio(detail.audio_sas_url);
+      audioRef.current = audio;
+      audio.onended = () => setPlayingId(null);
+      audio.play();
+      setPlayingId(qId);
+    } catch { /* ignore */ }
+  };
+
+  const handleQualityPass = async (e: React.MouseEvent, qId: string) => {
+    e.stopPropagation();
+    await updateAudioQualityGrade(qId, "good");
+    load();
+  };
 
   // Sync filters to URL
   useEffect(() => {
@@ -186,24 +215,36 @@ export function AudioReviewList() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8"></TableHead>
                 <TableHead>套题</TableHead>
                 <TableHead>题号</TableHead>
                 <TableHead>等级</TableHead>
                 <TableHead>音质</TableHead>
                 <TableHead className="text-right">SNR</TableHead>
                 <TableHead className="text-right">带宽</TableHead>
-                <TableHead>句段</TableHead>
                 <TableHead>已标记</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead></TableHead>
+                <TableHead>操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.items.map((q) => {
-                const st = STATUS_STYLES[q.audio_review_status || ""] || { label: q.audio_review_status || "-", color: "" };
                 const qs = QUALITY_STYLES[q.audio_quality_grade || ""] || null;
                 return (
                   <TableRow key={q.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/audio-review/${q.id}`)}>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={(e) => handlePlay(e, q.id)}
+                      >
+                        {playingId === q.id ? (
+                          <Pause className="h-3.5 w-3.5" />
+                        ) : (
+                          <Play className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </TableCell>
                     <TableCell className="text-sm">{q.test_set_name}</TableCell>
                     <TableCell className="font-medium">Q{q.question_number}</TableCell>
                     <TableCell className="text-xs">{q.level || "-"}</TableCell>
@@ -220,15 +261,23 @@ export function AudioReviewList() {
                     <TableCell className="tabular-nums text-right text-xs">
                       {q.audio_quality_bw != null ? `${(q.audio_quality_bw / 1000).toFixed(1)}kHz` : "-"}
                     </TableCell>
-                    <TableCell className="tabular-nums">{q.segment_count}</TableCell>
                     <TableCell className="tabular-nums">{q.labeled_count}/{q.segment_count}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={st.color}>{st.label}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {q.has_user_report && (
-                        <Flag className="h-4 w-4 text-orange-500" />
-                      )}
+                      <div className="flex items-center gap-1">
+                        {q.audio_quality_grade && q.audio_quality_grade !== "good" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs text-green-700 hover:bg-green-50"
+                            onClick={(e) => handleQualityPass(e, q.id)}
+                          >
+                            <Check className="mr-0.5 h-3 w-3" /> 通过
+                          </Button>
+                        )}
+                        {q.has_user_report && (
+                          <Flag className="h-4 w-4 text-orange-500" />
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

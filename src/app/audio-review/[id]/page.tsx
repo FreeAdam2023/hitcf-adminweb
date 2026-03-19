@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchAudioReviewDetail,
   saveAudioReviewTimestamps,
+  updateAudioQualityGrade,
   type AudioReviewDetail,
   type AudioReviewDetailSegment,
 } from "@/lib/api/admin";
@@ -21,11 +22,13 @@ import {
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import {
   ArrowLeft,
+  Check,
   Play,
   Pause,
   Save,
   Trash2,
   Volume2,
+  AlertTriangle,
 } from "lucide-react";
 
 const VOICE_LABELS = [
@@ -197,10 +200,37 @@ export default function AudioReviewDetailPage() {
             )}
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving || saved}>
-          <Save className="mr-1 h-4 w-4" />
-          {saved ? "已保存" : saving ? "保存中..." : "保存"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {grade && grade !== "good" && (
+            <Button
+              variant="outline"
+              className="text-green-700 border-green-300 hover:bg-green-50"
+              onClick={async () => {
+                await updateAudioQualityGrade(id, "good");
+                load();
+              }}
+            >
+              <Check className="mr-1 h-4 w-4" /> 音质通过
+            </Button>
+          )}
+          {grade && grade !== "severe" && (
+            <Button
+              variant="outline"
+              className="text-red-700 border-red-300 hover:bg-red-50"
+              size="sm"
+              onClick={async () => {
+                await updateAudioQualityGrade(id, "severe");
+                load();
+              }}
+            >
+              <AlertTriangle className="mr-1 h-3.5 w-3.5" /> 标记严重
+            </Button>
+          )}
+          <Button onClick={handleSave} disabled={saving || saved}>
+            <Save className="mr-1 h-4 w-4" />
+            {saved ? "已保存" : saving ? "保存中..." : "保存"}
+          </Button>
+        </div>
       </div>
 
       {/* Audio player */}

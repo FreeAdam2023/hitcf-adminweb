@@ -895,6 +895,13 @@ export function fetchAudioReviewDetail(id: string) {
   return get<AudioReviewDetail>(`/api/admin/audio-review/${id}`);
 }
 
+export function updateAudioQualityGrade(id: string, grade: string) {
+  return put<{ ok: boolean; grade: string }>(
+    `/api/admin/audio-review/${id}/quality`,
+    { grade },
+  );
+}
+
 export function saveAudioReviewTimestamps(
   id: string,
   data: {
