@@ -96,7 +96,7 @@ export default function DashboardPage() {
   const qualityCards = [
     { label: "缺答案", value: stats.questions_without_answer ?? 0, base: stats.listening_reading_count ?? 0, scope: "听力+阅读", icon: AlertTriangle, iconColor: "text-amber-600", bgColor: "bg-amber-50 dark:bg-amber-950", href: "/questions" },
     { label: "缺选项", value: stats.questions_without_options ?? 0, base: stats.listening_reading_count ?? 0, scope: "听力+阅读", icon: ListChecks, iconColor: "text-red-600", bgColor: "bg-red-50 dark:bg-red-950", href: "/questions" },
-    { label: "缺音频", value: stats.questions_without_audio ?? 0, base: stats.listening_count ?? 0, scope: "听力", icon: Volume2, iconColor: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950", href: "/data" },
+    { label: "缺音频", value: stats.questions_without_audio ?? 0, base: stats.listening_count ?? 0, scope: "听力", icon: Volume2, iconColor: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950", href: "/audio-review" },
     { label: "有解析", value: stats.questions_with_explanation ?? 0, base: stats.listening_reading_count ?? 0, scope: "听力+阅读", icon: Lightbulb, iconColor: "text-green-600", bgColor: "bg-green-50 dark:bg-green-950", href: "/explanations" },
   ];
 
@@ -316,10 +316,10 @@ export default function DashboardPage() {
               <CardTitle className="text-sm font-medium">快捷入口</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
-              <Link href="/data">
+              <Link href="/audio-review">
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <Volume2 className="mr-2 h-3 w-3 text-orange-500" />
-                  {stats.questions_without_audio ?? 0} 题缺音频
+                  音频审核
                 </Button>
               </Link>
               <Link href="/explanations">

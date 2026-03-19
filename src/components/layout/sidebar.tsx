@@ -15,7 +15,6 @@ import {
   ClipboardList,
   BarChart3,
   PenTool,
-  Database,
   Shield,
   LogOut,
   BookMarked,
@@ -95,7 +94,6 @@ const navEntries: NavEntry[] = [
     children: [
       { href: "/ops", label: "运营工作台", icon: Megaphone },
       { href: "/announcements", label: "消息通知", icon: Bell },
-      { href: "/data", label: "数据操作", icon: Database },
       { href: "/metrics", label: "性能监控", icon: Gauge },
       { href: "/anomalies", label: "异常检测", icon: ShieldAlert },
       { href: "/audit", label: "审计日志", icon: Shield },
