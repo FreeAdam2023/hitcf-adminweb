@@ -857,6 +857,57 @@ export function fetchAudioReviewTestSets() {
   return get<AudioReviewTestSet[]>("/api/admin/audio-review/test-sets");
 }
 
+export interface AudioReviewDetailSegment {
+  text: string;
+  start: number;
+  end: number;
+  sentence_index: number | null;
+  en: string | null;
+  zh: string | null;
+  ar: string | null;
+  is_key: boolean | null;
+  voice_label: string | null;
+}
+
+export interface AudioReviewDetail {
+  id: string;
+  test_set_code: string;
+  test_set_name: string;
+  question_number: number;
+  level: string | null;
+  has_image: boolean;
+  audio_url: string | null;
+  audio_sas_url: string | null;
+  image_sas_url: string | null;
+  transcript: string | null;
+  correct_answer: string | null;
+  audio_quality: Record<string, unknown> | null;
+  options: { key: string; text: string }[];
+  audio_timestamps: AudioReviewDetailSegment[];
+  explanation: {
+    question_text_zh: string | null;
+    question_text_en: string | null;
+    option_translations: Record<string, unknown> | null;
+  };
+}
+
+export function fetchAudioReviewDetail(id: string) {
+  return get<AudioReviewDetail>(`/api/admin/audio-review/${id}`);
+}
+
+export function saveAudioReviewTimestamps(
+  id: string,
+  data: {
+    timestamps: AudioReviewDetailSegment[];
+    audio_review_status?: string;
+  },
+) {
+  return put<{ ok: boolean; segment_count: number }>(
+    `/api/admin/audio-review/${id}/timestamps`,
+    data,
+  );
+}
+
 // ── Scrape Data ──────────────────────────────────────────────
 
 import type {

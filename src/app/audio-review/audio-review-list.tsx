@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -34,6 +35,7 @@ const QUALITY_STYLES: Record<string, { label: string; color: string }> = {
 };
 
 export function AudioReviewList() {
+  const router = useRouter();
   const [data, setData] = useState<AudioReviewListResponse | null>(null);
   const [testSets, setTestSets] = useState<AudioReviewTestSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -189,7 +191,7 @@ export function AudioReviewList() {
                 const st = STATUS_STYLES[q.audio_review_status || ""] || { label: q.audio_review_status || "-", color: "" };
                 const qs = QUALITY_STYLES[q.audio_quality_grade || ""] || null;
                 return (
-                  <TableRow key={q.id}>
+                  <TableRow key={q.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/audio-review/${q.id}`)}>
                     <TableCell className="text-sm">{q.test_set_name}</TableCell>
                     <TableCell className="font-medium">Q{q.question_number}</TableCell>
                     <TableCell className="text-xs">{q.level || "-"}</TableCell>
