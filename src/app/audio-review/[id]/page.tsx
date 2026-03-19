@@ -32,8 +32,10 @@ const VOICE_LABELS = [
   { value: "", label: "未标记" },
   { value: "female_announcer", label: "女播音" },
   { value: "male_announcer", label: "男播音" },
-  { value: "female", label: "女声" },
-  { value: "male", label: "男声" },
+  { value: "female", label: "成年女声" },
+  { value: "male", label: "成年男声" },
+  { value: "child_female", label: "女童" },
+  { value: "child_male", label: "男童" },
   { value: "narrator", label: "旁白" },
 ];
 
