@@ -40,16 +40,12 @@ const SOURCE_LABELS: Record<string, string> = {
   reussir: "Reussir",
 };
 
-// Known total test counts per source for progress calculation
-const SOURCE_TOTALS: Record<string, { ce: number; co: number }> = {
-  opal: { ce: 52, co: 53 },
-  preptcf: { ce: 40, co: 40 },
-};
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -202,52 +198,30 @@ export function ScrapeDataView() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {(() => {
-                    const totals = SOURCE_TOTALS[src.source];
-                    const scraped = src.ce_count + src.co_count;
-                    const total = totals ? totals.ce + totals.co : 0;
-                    const pct = total > 0 ? Math.round((scraped / total) * 100) : 0;
-                    return (
-                      <div className="space-y-3">
-                        {total > 0 && (
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-muted-foreground">采集进度</span>
-                              <span className="font-medium">{scraped}/{total} 套 ({pct}%)</span>
-                            </div>
-                            <div className="h-2 rounded-full bg-muted">
-                              <div
-                                className="h-full rounded-full bg-primary transition-all"
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                        <div className="grid grid-cols-2 gap-y-2 text-sm">
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <FileText className="h-3.5 w-3.5" />
-                            阅读 (CE)
-                          </div>
-                          <div className="font-medium text-right">
-                            {src.ce_count}{totals ? `/${totals.ce}` : ""}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Headphones className="h-3.5 w-3.5" />
-                            听力 (CO)
-                          </div>
-                          <div className="font-medium text-right">
-                            {src.co_count}{totals ? `/${totals.co}` : ""}
-                          </div>
-                          <div className="text-muted-foreground">文件总数</div>
-                          <div className="font-medium text-right">{src.total_files}</div>
-                          <div className="text-muted-foreground">数据大小</div>
-                          <div className="font-medium text-right">{formatSize(src.total_size)}</div>
-                          <div className="text-muted-foreground">最近上传</div>
-                          <div className="text-right text-xs">{formatDate(src.last_uploaded)}</div>
-                        </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-muted-foreground">已采集</span>
+                      <span className="font-medium">{src.ce_count + src.co_count} 套</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-y-2 text-sm">
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <FileText className="h-3.5 w-3.5" />
+                        阅读 (CE)
                       </div>
-                    );
-                  })()}
+                      <div className="font-medium text-right">{src.ce_count}</div>
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Headphones className="h-3.5 w-3.5" />
+                        听力 (CO)
+                      </div>
+                      <div className="font-medium text-right">{src.co_count}</div>
+                      <div className="text-muted-foreground">文件总数</div>
+                      <div className="font-medium text-right">{src.total_files}</div>
+                      <div className="text-muted-foreground">数据大小</div>
+                      <div className="font-medium text-right">{formatSize(src.total_size)}</div>
+                      <div className="text-muted-foreground">最近上传</div>
+                      <div className="text-right text-xs">{formatDate(src.last_uploaded)}</div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             );

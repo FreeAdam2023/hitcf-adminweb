@@ -15,6 +15,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 import { Pagination } from "@/components/shared/pagination";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -160,7 +161,11 @@ export function SubscriptionList() {
             <TableBody>
               {data.items.map((item) => (
                 <TableRow key={item.user_id}>
-                  <TableCell className="font-medium">{item.email}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/users/${item.user_id}`} className="text-primary hover:underline">
+                      {item.email}
+                    </Link>
+                  </TableCell>
                   <TableCell>
                     {item.plan ? <Badge variant="secondary">{item.plan}</Badge> : "-"}
                   </TableCell>
