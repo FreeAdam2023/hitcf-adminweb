@@ -20,7 +20,9 @@ import { toast } from "sonner";
 const ISSUE_LABELS: Record<string, { label: string; color: string }> = {
   wrong_answer: { label: "答案错误", color: "bg-red-100 text-red-800" },
   bad_audio: { label: "音频问题", color: "bg-orange-100 text-orange-800" },
+  bad_audio_quality: { label: "音频质量差", color: "bg-orange-100 text-orange-800" },
   wrong_option: { label: "选项错误", color: "bg-amber-100 text-amber-800" },
+  bad_transcript: { label: "原文/字幕有误", color: "bg-purple-100 text-purple-800" },
   other: { label: "其他", color: "bg-gray-100 text-gray-800" },
 };
 

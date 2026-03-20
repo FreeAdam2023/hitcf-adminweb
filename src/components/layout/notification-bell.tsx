@@ -148,11 +148,10 @@ function playCoinDrop(ctx: AudioContext, startTime: number) {
   });
 }
 
-/** Speak amount with a female voice using Web Speech API */
-function speakAmount(amount: number) {
+/** Speak announcement with a female voice using Web Speech API */
+function speakAnnouncement(text: string) {
   try {
     if (!window.speechSynthesis) return;
-    const text = `到账 ${amount.toFixed(2)} 美元`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "zh-CN";
     utterance.rate = 0.95;
@@ -178,16 +177,38 @@ function speakAmount(amount: number) {
   }
 }
 
-/** Full payment notification: coin drop → voice announcement */
-function playPaymentSound(amount: number) {
+/** Full payment notification: coin drop + voice for paid; chime + voice for trial */
+function playPaymentSound(amount: number, status?: string) {
+  const isTrial = status === "trialing";
   try {
     const ctx = new AudioContext();
-    playCoinDrop(ctx, ctx.currentTime);
-    // Speak after coin sound finishes (~1s)
-    setTimeout(() => {
-      speakAmount(amount);
-      setTimeout(() => ctx.close(), 500);
-    }, 1000);
+    if (isTrial) {
+      // Lighter chime for trial (no coin drop — no money yet)
+      const chimeFreqs = [1047, 1319, 1568]; // C6, E6, G6
+      chimeFreqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        const t = ctx.currentTime + i * 0.1;
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+      setTimeout(() => {
+        speakAnnouncement("新用户开通试用");
+        setTimeout(() => ctx.close(), 500);
+      }, 600);
+    } else {
+      playCoinDrop(ctx, ctx.currentTime);
+      setTimeout(() => {
+        speakAnnouncement(`收款 ${amount.toFixed(2)} 美元`);
+        setTimeout(() => ctx.close(), 500);
+      }, 1000);
+    }
   } catch {
     // audio not available
   }
