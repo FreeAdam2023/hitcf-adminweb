@@ -240,6 +240,8 @@ export function ScrapeDataView() {
                           </div>
                           <div className="text-muted-foreground">文件总数</div>
                           <div className="font-medium text-right">{src.total_files}</div>
+                          <div className="text-muted-foreground">数据大小</div>
+                          <div className="font-medium text-right">{formatSize(src.total_size)}</div>
                           <div className="text-muted-foreground">最近上传</div>
                           <div className="text-right text-xs">{formatDate(src.last_uploaded)}</div>
                         </div>

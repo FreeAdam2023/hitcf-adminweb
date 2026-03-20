@@ -995,6 +995,7 @@ export interface ScrapeSource {
   ce_count: number;
   co_count: number;
   total_files: number;
+  total_size: number;
   last_uploaded: string | null;
 }
 
