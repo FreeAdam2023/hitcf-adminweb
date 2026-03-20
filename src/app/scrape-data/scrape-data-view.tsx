@@ -34,6 +34,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Merge preptcf + reussir into one display group
+const MERGED_SOURCES: Record<string, string[]> = {
+  "reussir-tcf": ["preptcf", "reussir"],
+};
+const MERGED_LABELS: Record<string, string> = {
+  "reussir-tcf": "Réussir TCF Canada",
+};
+
 const SOURCE_LABELS: Record<string, string> = {
   preptcf: "PrepTCF Canada",
   opal: "OPAL",
@@ -64,8 +72,9 @@ function formatDate(dateStr: string | null): string {
 }
 
 export function ScrapeDataView() {
-  // Sources
+  // Sources (raw from API + merged for display)
   const [sources, setSources] = useState<ScrapeSource[]>([]);
+  const [displaySources, setDisplaySources] = useState<ScrapeSource[]>([]);
   const [sourcesLoading, setSourcesLoading] = useState(true);
   const [sourcesError, setSourcesError] = useState<string | null>(null);
 
@@ -91,6 +100,32 @@ export function ScrapeDataView() {
     try {
       const res = await fetchScrapeSources();
       setSources(res.sources);
+
+      // Merge sources that belong to the same group
+      const merged: ScrapeSource[] = [];
+      const consumed = new Set<string>();
+      for (const [groupKey, members] of Object.entries(MERGED_SOURCES)) {
+        const group = res.sources.filter((s: ScrapeSource) => members.includes(s.source));
+        if (group.length > 0) {
+          group.forEach((s: ScrapeSource) => consumed.add(s.source));
+          merged.push({
+            source: groupKey,
+            label: MERGED_LABELS[groupKey] || groupKey,
+            ce_count: group.reduce((a: number, s: ScrapeSource) => a + s.ce_count, 0),
+            co_count: group.reduce((a: number, s: ScrapeSource) => a + s.co_count, 0),
+            ee_count: group.reduce((a: number, s: ScrapeSource) => a + s.ee_count, 0),
+            eo_count: group.reduce((a: number, s: ScrapeSource) => a + s.eo_count, 0),
+            total_files: group.reduce((a: number, s: ScrapeSource) => a + s.total_files, 0),
+            total_size: group.reduce((a: number, s: ScrapeSource) => a + s.total_size, 0),
+            last_uploaded: group.map((s: ScrapeSource) => s.last_uploaded).filter(Boolean).sort().pop() || null,
+          });
+        }
+      }
+      // Add non-merged sources
+      for (const s of res.sources) {
+        if (!consumed.has(s.source)) merged.push(s);
+      }
+      setDisplaySources(merged);
     } catch (err) {
       setSourcesError(err instanceof Error ? err.message : "加载数据源失败");
     } finally {
@@ -102,6 +137,20 @@ export function ScrapeDataView() {
     loadSources();
   }, [loadSources]);
 
+  // Resolve merged source → actual backend source for API calls
+  const resolveBackendSource = useCallback((displaySource: string, type: string): string => {
+    const members = MERGED_SOURCES[displaySource];
+    if (!members) return displaySource;
+    // Find which member has data for this type
+    for (const member of members) {
+      const raw = sources.find((s) => s.source === member);
+      if (!raw) continue;
+      const count = type === "ce" ? raw.ce_count : type === "co" ? raw.co_count : type === "ee" ? raw.ee_count : raw.eo_count;
+      if (count > 0) return member;
+    }
+    return members[0];
+  }, [sources]);
+
   // Load tests when source or type changes
   const loadTests = useCallback(async () => {
     if (!selectedSource) return;
@@ -110,14 +159,15 @@ export function ScrapeDataView() {
     setPreview(null);
     setPreviewTestNum(null);
     try {
-      const res = await fetchScrapeTests(selectedSource, testType);
+      const backend = resolveBackendSource(selectedSource, testType);
+      const res = await fetchScrapeTests(backend, testType);
       setTests(res.tests);
     } catch (err) {
       setTestsError(err instanceof Error ? err.message : "加载测试列表失败");
     } finally {
       setTestsLoading(false);
     }
-  }, [selectedSource, testType]);
+  }, [selectedSource, testType, resolveBackendSource]);
 
   useEffect(() => {
     if (selectedSource) {
@@ -138,14 +188,15 @@ export function ScrapeDataView() {
     setPreviewError(null);
     setPreviewTestNum(testNum);
     try {
-      const res = await fetchScrapePreview(selectedSource, testType, testNum);
+      const backend = resolveBackendSource(selectedSource, testType);
+      const res = await fetchScrapePreview(backend, testType, testNum);
       setPreview(res);
     } catch (err) {
       setPreviewError(err instanceof Error ? err.message : "加载预览失败");
     } finally {
       setPreviewLoading(false);
     }
-  }, [selectedSource, testType, previewTestNum]);
+  }, [selectedSource, testType, previewTestNum, resolveBackendSource]);
 
   const handleSelectSource = (source: string) => {
     if (selectedSource === source) {
@@ -178,7 +229,7 @@ export function ScrapeDataView() {
         <EmptyState title="暂无数据源" description="尚未配置任何外部数据源" />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sources.map((src) => {
+          {displaySources.map((src) => {
             const isActive = selectedSource === src.source;
             return (
               <Card
@@ -192,7 +243,7 @@ export function ScrapeDataView() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">
-                      {SOURCE_LABELS[src.source] || src.label}
+                      {MERGED_LABELS[src.source] || SOURCE_LABELS[src.source] || src.label}
                     </CardTitle>
                     <Database className="h-4 w-4 text-muted-foreground" />
                   </div>
@@ -201,19 +252,29 @@ export function ScrapeDataView() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-muted-foreground">已采集</span>
-                      <span className="font-medium">{src.ce_count + src.co_count} 套</span>
+                      <span className="font-medium">{src.ce_count + src.co_count + src.ee_count + src.eo_count} 套</span>
                     </div>
                     <div className="grid grid-cols-2 gap-y-2 text-sm">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <FileText className="h-3.5 w-3.5" />
                         阅读 (CE)
                       </div>
-                      <div className="font-medium text-right">{src.ce_count}</div>
+                      <div className="font-medium text-right">{src.ce_count || "-"}</div>
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Headphones className="h-3.5 w-3.5" />
                         听力 (CO)
                       </div>
-                      <div className="font-medium text-right">{src.co_count}</div>
+                      <div className="font-medium text-right">{src.co_count || "-"}</div>
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <FileText className="h-3.5 w-3.5" />
+                        写作 (EE)
+                      </div>
+                      <div className="font-medium text-right">{src.ee_count || "-"}</div>
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Headphones className="h-3.5 w-3.5" />
+                        口语 (EO)
+                      </div>
+                      <div className="font-medium text-right">{src.eo_count || "-"}</div>
                       <div className="text-muted-foreground">文件总数</div>
                       <div className="font-medium text-right">{src.total_files}</div>
                       <div className="text-muted-foreground">数据大小</div>
@@ -234,7 +295,7 @@ export function ScrapeDataView() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              {SOURCE_LABELS[selectedSource] || selectedSource} - 测试列表
+              {MERGED_LABELS[selectedSource] || SOURCE_LABELS[selectedSource] || selectedSource} - 测试列表
             </h2>
             <Button
               variant="ghost"
@@ -259,6 +320,14 @@ export function ScrapeDataView() {
               <TabsTrigger value="co">
                 <Headphones className="mr-1.5 h-3.5 w-3.5" />
                 听力 (CO)
+              </TabsTrigger>
+              <TabsTrigger value="ee">
+                <FileText className="mr-1.5 h-3.5 w-3.5" />
+                写作 (EE)
+              </TabsTrigger>
+              <TabsTrigger value="eo">
+                <Headphones className="mr-1.5 h-3.5 w-3.5" />
+                口语 (EO)
               </TabsTrigger>
             </TabsList>
 
