@@ -48,6 +48,13 @@ const SOURCE_LABELS: Record<string, string> = {
   reussir: "Reussir",
 };
 
+// Known total counts per source per type (from local scrape data)
+// Used to calculate data completeness percentage
+const KNOWN_TOTALS: Record<string, Partial<Record<string, number>>> = {
+  "reussir-tcf": { ce: 42, co: 42 },
+  opal: { ce: 39, co: 39, ee: 2, eo: 2 },
+};
+
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -250,38 +257,86 @@ export function ScrapeDataView() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-muted-foreground">已采集</span>
-                      <span className="font-medium">{src.ce_count + src.co_count + src.ee_count + src.eo_count} 套</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-y-2 text-sm">
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <FileText className="h-3.5 w-3.5" />
-                        阅读 (CE)
-                      </div>
-                      <div className="font-medium text-right">{src.ce_count || "-"}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Headphones className="h-3.5 w-3.5" />
-                        听力 (CO)
-                      </div>
-                      <div className="font-medium text-right">{src.co_count || "-"}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <FileText className="h-3.5 w-3.5" />
-                        写作 (EE)
-                      </div>
-                      <div className="font-medium text-right">{src.ee_count || "-"}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Headphones className="h-3.5 w-3.5" />
-                        口语 (EO)
-                      </div>
-                      <div className="font-medium text-right">{src.eo_count || "-"}</div>
-                      <div className="text-muted-foreground">文件总数</div>
-                      <div className="font-medium text-right">{src.total_files}</div>
-                      <div className="text-muted-foreground">数据大小</div>
-                      <div className="font-medium text-right">{formatSize(src.total_size)}</div>
-                      <div className="text-muted-foreground">最近上传</div>
-                      <div className="text-right text-xs">{formatDate(src.last_uploaded)}</div>
-                    </div>
+                    {(() => {
+                      const totals = KNOWN_TOTALS[src.source];
+                      const types = [
+                        { key: "ce", label: "阅读 (CE)", icon: FileText, count: src.ce_count },
+                        { key: "co", label: "听力 (CO)", icon: Headphones, count: src.co_count },
+                        { key: "ee", label: "写作 (EE)", icon: FileText, count: src.ee_count },
+                        { key: "eo", label: "口语 (EO)", icon: Headphones, count: src.eo_count },
+                      ];
+                      const totalCollected = types.reduce((a, t) => a + t.count, 0);
+                      const totalKnown = totals ? types.reduce((a, t) => a + (totals[t.key] ?? t.count), 0) : null;
+                      const overallPct = totalKnown ? Math.round((totalCollected / totalKnown) * 100) : null;
+
+                      return (
+                        <>
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-muted-foreground">已采集</span>
+                            <span className="font-medium">
+                              {totalCollected}{totalKnown ? ` / ${totalKnown}` : ""} 套
+                              {overallPct !== null && (
+                                <span className={cn("ml-1.5", overallPct === 100 ? "text-green-600" : "text-amber-600")}>
+                                  {overallPct}%
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                          {overallPct !== null && (
+                            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                              <div
+                                className={cn("h-full rounded-full transition-all", overallPct === 100 ? "bg-green-500" : "bg-amber-500")}
+                                style={{ width: `${Math.min(overallPct, 100)}%` }}
+                              />
+                            </div>
+                          )}
+                          <div className="space-y-1.5 text-sm">
+                            {types.map((t) => {
+                              const Icon = t.icon;
+                              const total = totals?.[t.key];
+                              const pct = total ? Math.round((t.count / total) * 100) : null;
+                              return (
+                                <div key={t.key} className="space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                                      <Icon className="h-3.5 w-3.5" />
+                                      {t.label}
+                                    </div>
+                                    <div className="font-medium text-right">
+                                      {t.count || "-"}
+                                      {total ? (
+                                        <span className="text-muted-foreground font-normal">/{total}</span>
+                                      ) : null}
+                                      {pct !== null && (
+                                        <span className={cn("ml-1 text-xs", pct === 100 ? "text-green-600" : "text-amber-600")}>
+                                          {pct}%
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {total && (
+                                    <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+                                      <div
+                                        className={cn("h-full rounded-full", pct === 100 ? "bg-green-500" : "bg-amber-500")}
+                                        style={{ width: `${Math.min(pct ?? 0, 100)}%` }}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="grid grid-cols-2 gap-y-2 text-sm pt-1 border-t">
+                            <div className="text-muted-foreground">文件总数</div>
+                            <div className="font-medium text-right">{src.total_files}</div>
+                            <div className="text-muted-foreground">数据大小</div>
+                            <div className="font-medium text-right">{formatSize(src.total_size)}</div>
+                            <div className="text-muted-foreground">最近上传</div>
+                            <div className="text-right text-xs">{formatDate(src.last_uploaded)}</div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 </CardContent>
               </Card>
