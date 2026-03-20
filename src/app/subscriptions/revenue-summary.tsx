@@ -6,7 +6,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchSubscriptionRevenue } from "@/lib/api/admin";
 import type { SubscriptionRevenue } from "@/lib/api/types";
-import { DollarSign, Users, UserCheck, UserX, AlertTriangle } from "lucide-react";
+import {
+  DollarSign,
+  Users,
+  UserCheck,
+  UserX,
+  AlertTriangle,
+  TrendingUp,
+} from "lucide-react";
+
+const PLAN_LABELS: Record<string, string> = {
+  monthly: "月付",
+  quarterly: "季付",
+  yearly: "年付",
+  tester: "测试",
+  referral: "推荐奖励",
+};
+
+const PLAN_COLORS: Record<string, string> = {
+  monthly: "bg-blue-500",
+  quarterly: "bg-violet-500",
+  yearly: "bg-emerald-500",
+  tester: "bg-gray-400",
+  referral: "bg-amber-500",
+};
+
+const PLAN_PRICES: Record<string, string> = {
+  monthly: "$19.90/月",
+  quarterly: "$39.90/季",
+  yearly: "$99.90/年",
+};
 
 export function RevenueSummary() {
   const [data, setData] = useState<SubscriptionRevenue | null>(null);
@@ -22,25 +51,75 @@ export function RevenueSummary() {
   if (loading) return <LoadingSpinner />;
   if (!data) return null;
 
-  const cards = [
-    { label: "活跃", value: data.total_active, icon: UserCheck, color: "text-green-600" },
-    { label: "试用中", value: data.total_trialing, icon: Users, color: "text-blue-600" },
-    { label: "已取消", value: data.total_cancelled, icon: UserX, color: "text-muted-foreground" },
-    { label: "逾期", value: data.total_past_due, icon: AlertTriangle, color: "text-red-600" },
-    { label: "预估MRR", value: `$${data.estimated_mrr.toLocaleString()}`, icon: DollarSign, color: "text-green-600" },
+  const totalSubs = data.total_active + data.total_trialing;
+
+  const statCards = [
+    {
+      label: "活跃订阅",
+      value: data.total_active,
+      icon: UserCheck,
+      iconBg: "bg-emerald-100 dark:bg-emerald-900/40",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      desc: "付费用户",
+    },
+    {
+      label: "试用中",
+      value: data.total_trialing,
+      icon: Users,
+      iconBg: "bg-blue-100 dark:bg-blue-900/40",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      desc: "免费试用期",
+    },
+    {
+      label: "已取消",
+      value: data.total_cancelled,
+      icon: UserX,
+      iconBg: "bg-gray-100 dark:bg-gray-800",
+      iconColor: "text-gray-500",
+      desc: "主动取消",
+    },
+    {
+      label: "逾期",
+      value: data.total_past_due,
+      icon: AlertTriangle,
+      iconBg: "bg-red-100 dark:bg-red-900/40",
+      iconColor: "text-red-600 dark:text-red-400",
+      desc: "付款失败",
+    },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        {cards.map((c) => (
+      {/* MRR highlight card */}
+      <Card className="border-none bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg">
+        <CardContent className="flex items-center justify-between py-6">
+          <div>
+            <p className="text-sm font-medium text-emerald-100">预估月经常性收入 (MRR)</p>
+            <p className="mt-1 text-4xl font-bold tracking-tight">
+              ${data.estimated_mrr.toFixed(2)}
+            </p>
+            <p className="mt-1 text-sm text-emerald-100">
+              {totalSubs} 位活跃 / 试用用户
+            </p>
+          </div>
+          <div className="rounded-full bg-white/20 p-4">
+            <TrendingUp className="h-8 w-8" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((c) => (
           <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{c.label}</CardTitle>
-              <c.icon className={`h-4 w-4 ${c.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{typeof c.value === "number" ? c.value.toLocaleString() : c.value}</div>
+            <CardContent className="flex items-center gap-4 pt-6">
+              <div className={`rounded-lg p-2.5 ${c.iconBg}`}>
+                <c.icon className={`h-5 w-5 ${c.iconColor}`} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold tabular-nums">{c.value}</p>
+                <p className="text-sm text-muted-foreground">{c.label}</p>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -49,25 +128,51 @@ export function RevenueSummary() {
       {/* Plan Distribution */}
       {Object.keys(data.by_plan).length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">按套餐分布</CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">套餐分布</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
+            {/* Donut-style summary bar */}
+            <div className="mb-4 flex h-3 overflow-hidden rounded-full bg-muted">
+              {Object.entries(data.by_plan).map(([plan, count]) => {
+                const pct = totalSubs > 0 ? (count / totalSubs) * 100 : 0;
+                if (pct === 0) return null;
+                return (
+                  <div
+                    key={plan}
+                    className={`${PLAN_COLORS[plan] || "bg-gray-400"} transition-all`}
+                    style={{ width: `${pct}%` }}
+                    title={`${PLAN_LABELS[plan] || plan}: ${count} (${Math.round(pct)}%)`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Plan details */}
             <div className="space-y-3">
               {Object.entries(data.by_plan).map(([plan, count]) => {
-                const total = data.total_active + data.total_trialing;
-                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                const pct = totalSubs > 0 ? Math.round((count / totalSubs) * 100) : 0;
                 return (
-                  <div key={plan}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="font-medium">{plan}</span>
-                      <span className="text-muted-foreground">{count} ({pct}%)</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted">
-                      <div
-                        className="h-2 rounded-full bg-primary"
-                        style={{ width: `${pct}%` }}
-                      />
+                  <div key={plan} className="flex items-center gap-3">
+                    <div className={`h-3 w-3 rounded-full shrink-0 ${PLAN_COLORS[plan] || "bg-gray-400"}`} />
+                    <div className="flex flex-1 items-center justify-between">
+                      <div>
+                        <span className="text-sm font-medium">
+                          {PLAN_LABELS[plan] || plan}
+                        </span>
+                        {PLAN_PRICES[plan] && (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {PLAN_PRICES[plan]}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sm font-semibold tabular-nums">{count}</span>
+                        <span className="ml-1.5 text-xs text-muted-foreground">{pct}%</span>
+                      </div>
                     </div>
                   </div>
                 );
