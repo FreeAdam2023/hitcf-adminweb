@@ -34,6 +34,14 @@ const PLAN_LABELS: Record<string, string> = {
   tester: "测试",
 };
 
+const STATUS_LABELS: Record<string, string> = {
+  active: "活跃",
+  trialing: "试用中",
+  cancelled: "已取消",
+  past_due: "逾期",
+  expired: "已过期",
+};
+
 function statusVariant(s: string | null) {
   if (s === "active") return "default";
   if (s === "trialing") return "secondary";
@@ -134,7 +142,7 @@ export function SubscriptionList() {
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s} value={s}>{s === "all" ? "全部状态" : s}</SelectItem>
+              <SelectItem key={s} value={s}>{s === "all" ? "全部状态" : STATUS_LABELS[s] || s}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -180,7 +188,7 @@ export function SubscriptionList() {
                     {item.cancel_at_period_end ? (
                       <Badge variant="outline" className="border-amber-500 text-amber-600">已取消·到期前</Badge>
                     ) : item.status ? (
-                      <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
+                      <Badge variant={statusVariant(item.status)}>{STATUS_LABELS[item.status] || item.status}</Badge>
                     ) : "-"}
                   </TableCell>
                   <TableCell>
