@@ -10,17 +10,17 @@ export default function SubscriptionsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="订阅管理" description="管理订阅与收入" />
-      <Tabs defaultValue="list">
+      <Tabs defaultValue="revenue">
         <TabsList>
-          <TabsTrigger value="list">订阅用户</TabsTrigger>
           <TabsTrigger value="revenue">收入统计</TabsTrigger>
+          <TabsTrigger value="list">订阅用户</TabsTrigger>
           <TabsTrigger value="events">Stripe 事件</TabsTrigger>
         </TabsList>
-        <TabsContent value="list" className="mt-4">
-          <SubscriptionList />
-        </TabsContent>
         <TabsContent value="revenue" className="mt-4">
           <RevenueSummary />
+        </TabsContent>
+        <TabsContent value="list" className="mt-4">
+          <SubscriptionList />
         </TabsContent>
         <TabsContent value="events" className="mt-4">
           <EventList />

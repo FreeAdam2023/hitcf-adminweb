@@ -47,35 +47,48 @@ export function RevenueSummary() {
       </div>
 
       {/* Plan Distribution */}
-      {Object.keys(data.by_plan).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">按套餐分布</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {Object.entries(data.by_plan).map(([plan, count]) => {
-                const total = data.total_active + data.total_trialing;
-                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                return (
-                  <div key={plan}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="font-medium">{plan}</span>
-                      <span className="text-muted-foreground">{count} ({pct}%)</span>
+      {Object.keys(data.by_plan).length > 0 && (() => {
+        const planEntries = Object.entries(data.by_plan);
+        const planTotal = planEntries.reduce((s, [, c]) => s + c, 0);
+        const COLORS = ["bg-indigo-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500"];
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">套餐分布</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Stacked bar */}
+              <div className="h-4 rounded-full bg-muted flex overflow-hidden">
+                {planEntries.map(([plan, count], i) => {
+                  const pct = planTotal > 0 ? (count / planTotal) * 100 : 0;
+                  return (
+                    <div
+                      key={plan}
+                      className={`h-full ${COLORS[i % COLORS.length]}`}
+                      style={{ width: `${pct}%` }}
+                      title={`${plan}: ${count} (${Math.round(pct)}%)`}
+                    />
+                  );
+                })}
+              </div>
+              {/* Legend */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                {planEntries.map(([plan, count], i) => {
+                  const pct = planTotal > 0 ? Math.round((count / planTotal) * 100) : 0;
+                  return (
+                    <div key={plan} className="flex items-center gap-2 text-sm">
+                      <span className={`h-3 w-3 rounded-sm shrink-0 ${COLORS[i % COLORS.length]}`} />
+                      <span className="flex-1 truncate">{plan}</span>
+                      <span className="font-medium tabular-nums">{count}</span>
+                      <span className="text-muted-foreground text-xs">({pct}%)</span>
                     </div>
-                    <div className="h-2 rounded-full bg-muted">
-                      <div
-                        className="h-2 rounded-full bg-primary"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
     </div>
   );
 }
