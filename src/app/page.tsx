@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchAdminStats, fetchAuditLogs, fetchBatchStatus, fetchAnalyticsOverview } from "@/lib/api/admin";
 import type { AdminStats, AuditLogItem, BatchStatus, PaginatedResponse, AnalyticsOverview } from "@/lib/api/types";
-import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked, ExternalLink, Search, Layers, type LucideIcon } from "lucide-react";
+import { Users, CreditCard, BookOpen, FileText, BarChart3, AlertTriangle, ListChecks, Volume2, Lightbulb, AlertCircle, ArrowRight, Shield, Loader2, Mic, BookMarked, ExternalLink, Search, Layers, Rocket, Server, Megaphone, CheckCircle2, Circle, type LucideIcon } from "lucide-react";
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { UserGeoMap } from "@/components/dashboard/user-geo-map";
 import { CostOverview } from "@/components/dashboard/cost-overview";
@@ -336,6 +336,9 @@ export default function DashboardPage() {
       {/* Cost Overview */}
       <CostOverview />
 
+      {/* Operations Milestones */}
+      <OperationsMilestones stats={stats} analytics={analytics} />
+
       {/* External Services */}
       <div>
         <h2 className="mb-3 text-lg font-semibold">外部服务</h2>
@@ -370,6 +373,130 @@ export default function DashboardPage() {
             </a>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Operations Milestones ── */
+
+interface Milestone {
+  icon: LucideIcon;
+  iconColor: string;
+  title: string;
+  target: string;
+  current: number;
+  threshold: number;
+  unit: string;
+  reached: boolean;
+  advice: string;
+}
+
+function OperationsMilestones({ stats, analytics }: { stats: AdminStats; analytics: AnalyticsOverview | null }) {
+  const users = stats.user_count ?? 0;
+  const subs = stats.active_subscription_count ?? 0;
+  const peakDau = analytics?.dau?.length ? Math.max(...analytics.dau.map((d: { dau: number }) => d.dau)) : 0;
+
+  const milestones: Milestone[] = [
+    {
+      icon: Rocket,
+      iconColor: "text-blue-500",
+      title: "产品验证 (PMF)",
+      target: "10+ 付费用户",
+      current: subs,
+      threshold: 10,
+      unit: "付费用户",
+      reached: subs >= 10,
+      advice: "专注产品打磨和用户反馈，不急投广告。通过社区种草、小红书、微信群获取种子用户。",
+    },
+    {
+      icon: Megaphone,
+      iconColor: "text-amber-500",
+      title: "开始小规模投流",
+      target: "50+ 注册用户 & 5+ 付费",
+      current: users,
+      threshold: 50,
+      unit: "注册用户",
+      reached: users >= 50 && subs >= 5,
+      advice: "可以开始小预算测试广告（$5-10/天）。优先投 Google Ads 长尾词（tcf canada practice, clb 7 preparation），ROI 好再加预算。",
+    },
+    {
+      icon: Users,
+      iconColor: "text-violet-500",
+      title: "规模化投放",
+      target: "DAU 100+ & 留存率 > 40%",
+      current: peakDau,
+      threshold: 100,
+      unit: "峰值 DAU",
+      reached: peakDau >= 100,
+      advice: "DAU 破百说明产品留存好，可以加大投放。考虑小红书信息流、Google Display、Facebook 华人社区广告。月预算建议 $500-2000。",
+    },
+    {
+      icon: Server,
+      iconColor: "text-red-500",
+      title: "服务器升级",
+      target: "DAU 500+ 或 200+ 并发",
+      current: peakDau,
+      threshold: 500,
+      unit: "峰值 DAU",
+      reached: peakDau >= 500,
+      advice: "Azure Web App 升级到 P1v3 (4 vCPU, 8GB)。MongoDB Atlas 升级到 M10+。考虑加 Redis 缓存热点数据、CDN 加速静态资源。预估月成本 $150-300。",
+    },
+    {
+      icon: CreditCard,
+      iconColor: "text-emerald-500",
+      title: "盈亏平衡",
+      target: "30+ 付费用户 (覆盖 ~$300/月运营成本)",
+      current: subs,
+      threshold: 30,
+      unit: "付费用户",
+      reached: subs >= 30,
+      advice: "月均订阅 ~$10/用户，30 个付费用户即可覆盖服务器 + API + 域名等基础成本。达到后可考虑全职投入。",
+    },
+  ];
+
+  return (
+    <div>
+      <h2 className="mb-3 text-lg font-semibold flex items-center gap-2">
+        <Rocket className="h-5 w-5 text-blue-500" />
+        运营里程碑
+      </h2>
+      <div className="space-y-3">
+        {milestones.map((m) => (
+          <Card key={m.title} className={m.reached ? "border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20" : "border-l-4 border-l-muted"}>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  {m.reached
+                    ? <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    : <Circle className="h-5 w-5 text-muted-foreground/40" />
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <m.icon className={`h-4 w-4 ${m.iconColor}`} />
+                    <span className="font-medium text-sm">{m.title}</span>
+                    <Badge variant={m.reached ? "default" : "outline"} className="text-[10px]">
+                      {m.reached ? "已达成" : m.target}
+                    </Badge>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 rounded-full bg-muted max-w-[200px]">
+                      <div
+                        className={`h-1.5 rounded-full transition-all ${m.reached ? "bg-green-500" : "bg-primary"}`}
+                        style={{ width: `${Math.min((m.current / m.threshold) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {m.current}/{m.threshold} {m.unit}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{m.advice}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
