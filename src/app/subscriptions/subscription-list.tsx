@@ -177,7 +177,9 @@ export function SubscriptionList() {
                     {item.plan ? <Badge variant="secondary">{PLAN_LABELS[item.plan] || item.plan}</Badge> : "-"}
                   </TableCell>
                   <TableCell>
-                    {item.status ? (
+                    {item.cancel_at_period_end ? (
+                      <Badge variant="outline" className="border-amber-500 text-amber-600">已取消·到期前</Badge>
+                    ) : item.status ? (
                       <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
                     ) : "-"}
                   </TableCell>

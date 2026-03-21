@@ -71,12 +71,20 @@ export function RevenueSummary() {
       desc: "免费试用期",
     },
     {
+      label: "已取消·到期前",
+      value: data.total_cancelling ?? 0,
+      icon: UserX,
+      iconBg: "bg-amber-100 dark:bg-amber-900/40",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      desc: "取消但仍可用",
+    },
+    {
       label: "已取消",
       value: data.total_cancelled,
       icon: UserX,
       iconBg: "bg-gray-100 dark:bg-gray-800",
       iconColor: "text-gray-500",
-      desc: "主动取消",
+      desc: "已到期",
     },
     {
       label: "逾期",
@@ -109,7 +117,7 @@ export function RevenueSummary() {
       </Card>
 
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {statCards.map((c) => (
           <Card key={c.label}>
             <CardContent className="flex items-center gap-4 pt-6">

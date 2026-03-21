@@ -359,6 +359,7 @@ export interface AdminSubscriptionItem {
   status: string | null;
   current_period_end: string | null;
   trial_end: string | null;
+  cancel_at_period_end?: boolean;
   stripe_customer_id: string | null;
   created_at: string;
 }
@@ -366,6 +367,7 @@ export interface AdminSubscriptionItem {
 export interface SubscriptionRevenue {
   total_active: number;
   total_trialing: number;
+  total_cancelling: number;
   total_cancelled: number;
   total_past_due: number;
   by_plan: Record<string, number>;
