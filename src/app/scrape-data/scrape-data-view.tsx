@@ -51,7 +51,7 @@ const SOURCE_LABELS: Record<string, string> = {
 // Known total counts per source per type (from local scrape data)
 // Used to calculate data completeness percentage
 const KNOWN_TOTALS: Record<string, Partial<Record<string, number>>> = {
-  "reussir-tcf": { ce: 42, co: 42 },
+  "reussir-tcf": { ce: 42, co: 42, ee: 52, eo: 53 },
   opal: { ce: 52, co: 53, ee: 30, eo: 25 },
 };
 
