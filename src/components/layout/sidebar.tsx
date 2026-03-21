@@ -32,6 +32,9 @@ import {
   ShieldAlert,
   Headphones,
   Database,
+  Search,
+  Bot,
+  Rocket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -100,6 +103,14 @@ const navEntries: NavEntry[] = [
       { href: "/scrape-data", label: "数据采集", icon: Database },
       { href: "/audit", label: "审计日志", icon: Shield },
       { href: "/quick-links", label: "快捷链接", icon: ExternalLink },
+    ],
+  },
+  {
+    label: "增长",
+    icon: Rocket,
+    children: [
+      { href: "/seo", label: "SEO 优化", icon: Search },
+      { href: "/geo", label: "GEO 优化", icon: Bot },
     ],
   },
 ];
