@@ -25,7 +25,14 @@ import {
 import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
 const STATUS_OPTIONS = ["all", "active", "trialing", "cancelled", "past_due", "expired"];
-const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly"];
+const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester"];
+const PLAN_LABELS: Record<string, string> = {
+  all: "全部套餐",
+  monthly: "月付",
+  quarterly: "季付",
+  yearly: "年付",
+  tester: "测试",
+};
 
 function statusVariant(s: string | null) {
   if (s === "active") return "default";
@@ -135,7 +142,7 @@ export function SubscriptionList() {
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             {PLAN_OPTIONS.map((p) => (
-              <SelectItem key={p} value={p}>{p === "all" ? "全部套餐" : p}</SelectItem>
+              <SelectItem key={p} value={p}>{PLAN_LABELS[p] || p}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -167,7 +174,7 @@ export function SubscriptionList() {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {item.plan ? <Badge variant="secondary">{item.plan}</Badge> : "-"}
+                    {item.plan ? <Badge variant="secondary">{PLAN_LABELS[item.plan] || item.plan}</Badge> : "-"}
                   </TableCell>
                   <TableCell>
                     {item.status ? (
