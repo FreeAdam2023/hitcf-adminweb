@@ -336,8 +336,15 @@ export function NotificationBell() {
             {items.length > 0 && (
               <button
                 onClick={() => {
-                  localStorage.setItem(CLEARED_AT_KEY, String(Date.now()));
+                  // Use the latest notification time as clear marker to avoid
+                  // timezone mismatch between backend naive UTC and local Date.now()
+                  const maxTime = items.reduce((max, n) => {
+                    const t = new Date(n.time).getTime();
+                    return t > max ? t : max;
+                  }, Date.now());
+                  localStorage.setItem(CLEARED_AT_KEY, String(maxTime + 1000));
                   setItems([]);
+                  knownIdsRef.current.clear();
                 }}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
