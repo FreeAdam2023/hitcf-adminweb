@@ -52,6 +52,7 @@ export function RevenueSummary() {
   if (!data) return null;
 
   const totalSubs = data.total_active + data.total_trialing;
+  const planTotal = Object.values(data.by_plan).reduce((s, c) => s + c, 0);
 
   const statCards = [
     {
@@ -146,7 +147,7 @@ export function RevenueSummary() {
             {/* Donut-style summary bar */}
             <div className="mb-4 flex h-3 overflow-hidden rounded-full bg-muted">
               {Object.entries(data.by_plan).map(([plan, count]) => {
-                const pct = totalSubs > 0 ? (count / totalSubs) * 100 : 0;
+                const pct = planTotal > 0 ? (count / planTotal) * 100 : 0;
                 if (pct === 0) return null;
                 return (
                   <div
@@ -162,7 +163,7 @@ export function RevenueSummary() {
             {/* Plan details */}
             <div className="space-y-3">
               {Object.entries(data.by_plan).map(([plan, count]) => {
-                const pct = totalSubs > 0 ? Math.round((count / totalSubs) * 100) : 0;
+                const pct = planTotal > 0 ? Math.round((count / planTotal) * 100) : 0;
                 return (
                   <div key={plan} className="flex items-center gap-3">
                     <div className={`h-3 w-3 rounded-full shrink-0 ${PLAN_COLORS[plan] || "bg-gray-400"}`} />
