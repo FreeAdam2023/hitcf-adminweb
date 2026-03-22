@@ -149,6 +149,18 @@ const linkGroups: LinkGroup[] = [
         description: "开发环境 API 文档",
         icon: FileText,
       },
+      {
+        label: "Google Analytics 4",
+        href: "https://analytics.google.com/analytics/web/#/p536498074/reports/intelligenthome",
+        description: "网站流量与用户行为分析",
+        icon: BarChart3,
+      },
+      {
+        label: "Google Search Console",
+        href: "https://search.google.com/search-console?resource_id=sc-domain%3Ahitcf.com",
+        description: "SEO 搜索表现与索引",
+        icon: BarChart3,
+      },
     ],
   },
   {
