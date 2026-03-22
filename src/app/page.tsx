@@ -351,6 +351,7 @@ export default function DashboardPage() {
             { name: "GitHub", desc: "代码 & CI/CD", url: "https://github.com", color: "bg-gray-800" },
             { name: "Resend", desc: "邮件服务", url: "https://resend.com/emails", color: "bg-gray-700" },
             { name: "xAI Console", desc: "Grok API (口语AI)", url: "https://console.x.ai", color: "bg-gray-900" },
+            { name: "Google Analytics 4", desc: "流量与用户行为", url: "https://analytics.google.com/analytics/web/#/p536498074/reports/intelligenthome", color: "bg-amber-600" },
             { name: "Google Search Console", desc: "SEO & 索引", url: "https://search.google.com/search-console?resource_id=sc-domain%3Ahitcf.com", color: "bg-blue-500" },
             { name: "Bing Webmaster", desc: "SEO & 索引", url: "https://www.bing.com/webmasters?siteUrl=https%3A%2F%2Fhitcf.com", color: "bg-teal-600" },
             { name: "HiTCF Prod", desc: "hitcf.com (线上)", url: "https://hitcf.com", color: "bg-indigo-600" },
