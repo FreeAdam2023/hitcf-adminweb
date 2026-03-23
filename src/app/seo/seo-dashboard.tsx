@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, createContext, useContext } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,11 @@ import {
   Globe,
   ShieldCheck,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { fetchSeoAudit } from "@/lib/api/admin";
+import type { SeoAuditResponse } from "@/lib/api/types";
 
 /* ──────────────────── Types ──────────────────── */
 
@@ -44,17 +47,24 @@ interface SeoCheckItem {
   description: string;
 }
 
-interface SchemaItem {
-  name: string;
-  implemented: boolean;
-  description: string;
+/* ──────────────────── Shared audit context ──────────────────── */
+
+interface AuditCtx {
+  data: SeoAuditResponse | null;
+  loading: boolean;
+  error: string | null;
+  refresh: () => void;
 }
 
-interface HreflangLocale {
-  code: string;
-  label: string;
-  coverage: "full" | "partial" | "none";
-  notes: string;
+const AuditContext = createContext<AuditCtx>({
+  data: null,
+  loading: false,
+  error: null,
+  refresh: () => {},
+});
+
+function useAudit() {
+  return useContext(AuditContext);
 }
 
 /* ──────────────────── Constants ──────────────────── */
@@ -73,22 +83,15 @@ const SEO_CHECKLIST: SeoCheckItem[] = [
   { label: "每页独立 OG 图片", done: true, description: "动态 OG 图片已通过 opengraph-image.tsx 生成" },
 ];
 
-const SCHEMA_ITEMS: SchemaItem[] = [
-  { name: "WebSite", implemented: true, description: "网站基本信息 + SearchAction 搜索框" },
-  { name: "SoftwareApplication", implemented: true, description: "应用信息 (评分、价格、系统要求)" },
-  { name: "FAQPage", implemented: true, description: "常见问题 — AI 搜索引擎偏爱的格式" },
-  { name: "Organization", implemented: true, description: "组织信息 (名称、logo、社交链接)" },
-  { name: "BreadcrumbList", implemented: true, description: "面包屑导航 JSON-LD — 自动生成于所有使用面包屑的页面" },
-  { name: "Article", implemented: true, description: "博客文章 JSON-LD — 标题、日期、作者、关键词" },
-  { name: "Course", implemented: true, description: "TCF 备考课程 — 教育级别 A1-C2, 四项技能" },
-  { name: "Review", implemented: true, description: "真实用户评价 (momo, 2026-03-22) + AggregateRating 5/5" },
-];
-
-const HREFLANG_LOCALES: HreflangLocale[] = [
-  { code: "zh", label: "中文", coverage: "full", notes: "主要语言，100% 覆盖" },
-  { code: "en", label: "English", coverage: "full", notes: "完整翻译，100% 覆盖" },
-  { code: "fr", label: "Fran\u00e7ais", coverage: "full", notes: "完整翻译，100% 覆盖" },
-  { code: "ar", label: "\u0627\u0644\u0639\u0631\u0628\u064a\u0629", coverage: "full", notes: "完整翻译，RTL 支持，100% 覆盖" },
+const KNOWN_SCHEMAS = [
+  { name: "WebSite", description: "网站基本信息 + SearchAction 搜索框" },
+  { name: "SoftwareApplication", description: "应用信息 (评分、价格、系统要求)" },
+  { name: "FAQPage", description: "常见问题 — AI 搜索引擎偏爱的格式" },
+  { name: "Organization", description: "组织信息 (名称、logo、社交链接)" },
+  { name: "BreadcrumbList", description: "面包屑导航 JSON-LD" },
+  { name: "Article", description: "博客文章 JSON-LD — 标题、日期、作者" },
+  { name: "Course", description: "TCF 备考课程 — 教育级别 A1-C2" },
+  { name: "Review", description: "真实用户评价 + AggregateRating" },
 ];
 
 const DEFAULT_KEYWORDS: KeywordEntry[] = [
@@ -102,18 +105,6 @@ const DEFAULT_KEYWORDS: KeywordEntry[] = [
 const STORAGE_KEY_KEYWORDS = "hitcf-admin-seo-keywords";
 
 /* ──────────────────── Helpers ──────────────────── */
-
-function calcHealthScore(): { score: number; details: { label: string; score: number; max: number }[] } {
-  const details = [
-    { label: "Meta 标签", score: 8, max: 10 },
-    { label: "结构化数据", score: SCHEMA_ITEMS.filter((s) => s.implemented).length, max: SCHEMA_ITEMS.length },
-    { label: "Hreflang", score: HREFLANG_LOCALES.filter((l) => l.coverage === "full").length * 5, max: HREFLANG_LOCALES.length * 5 },
-    { label: "SEO 清单", score: SEO_CHECKLIST.filter((c) => c.done).length, max: SEO_CHECKLIST.length },
-  ];
-  const total = details.reduce((s, d) => s + d.score, 0);
-  const max = details.reduce((s, d) => s + d.max, 0);
-  return { score: Math.round((total / max) * 100), details };
-}
 
 function getScoreColor(score: number): string {
   if (score >= 80) return "text-green-600";
@@ -130,7 +121,47 @@ function getScoreBg(score: number): string {
 /* ──────────────────── Health Tab ──────────────────── */
 
 function HealthPanel() {
-  const { score, details } = calcHealthScore();
+  const { data, loading } = useAudit();
+
+  const liveSchemas = data?.schema_summary ?? [];
+  const liveHreflangs = data?.hreflang_summary ?? [];
+  const pages = data?.pages ?? [];
+
+  // Meta score: ratio of pages with good title + desc
+  const metaGood = pages.filter((p) => p.title_status === "good" && p.desc_status === "good").length;
+  const metaMax = Math.max(pages.length, 1);
+  const metaScore = Math.round((metaGood / metaMax) * 10);
+
+  // Schema score: how many known schemas are found
+  const schemaFound = KNOWN_SCHEMAS.filter((s) => liveSchemas.includes(s.name)).length;
+  const schemaMax = KNOWN_SCHEMAS.length;
+
+  // Hreflang score: 5 per language
+  const hreflangScore = liveHreflangs.length * 5;
+  const hreflangMax = 4 * 5; // 4 expected languages
+
+  // Checklist score
+  const checkDone = SEO_CHECKLIST.filter((c) => c.done).length;
+  const checkMax = SEO_CHECKLIST.length;
+
+  const details = [
+    { label: "Meta 标签", score: metaScore, max: 10 },
+    { label: "结构化数据", score: schemaFound, max: schemaMax },
+    { label: "Hreflang", score: hreflangScore, max: hreflangMax },
+    { label: "SEO 清单", score: checkDone, max: checkMax },
+  ];
+  const total = details.reduce((s, d) => s + d.score, 0);
+  const max = details.reduce((s, d) => s + d.max, 0);
+  const score = max > 0 ? Math.round((total / max) * 100) : 0;
+
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Overall Score */}
@@ -148,6 +179,11 @@ function HealthPanel() {
                   ? "SEO 基础不错，但仍有改善空间"
                   : "SEO 需要较多改善，请参考下方清单"}
             </p>
+            {data && (
+              <p className="text-xs text-muted-foreground mt-2">
+                基于 {data.total_pages} 个页面的实时审计数据
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -155,7 +191,7 @@ function HealthPanel() {
       {/* Score Breakdown */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {details.map((d) => {
-          const pct = Math.round((d.score / d.max) * 100);
+          const pct = d.max > 0 ? Math.round((d.score / d.max) * 100) : 0;
           return (
             <Card key={d.label}>
               <CardHeader className="pb-2">
@@ -199,6 +235,12 @@ function HealthPanel() {
                 </div>
               </li>
             ))}
+            {SEO_CHECKLIST.every((c) => c.done) && (
+              <li className="flex items-start gap-2 text-sm text-green-600">
+                <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>SEO 清单已全部完成</span>
+              </li>
+            )}
           </ul>
         </CardContent>
       </Card>
@@ -207,16 +249,6 @@ function HealthPanel() {
 }
 
 /* ──────────────────── Meta Audit Tab ──────────────────── */
-
-interface MetaPageInfo {
-  url: string;
-  title: string;
-  titleLen: number;
-  description: string;
-  descLen: number;
-  titleStatus: "good" | "warning" | "error";
-  descStatus: "good" | "warning" | "error";
-}
 
 function StatusIcon({ status }: { status: "good" | "warning" | "error" }) {
   if (status === "good") return <CheckCircle2 className="h-4 w-4 text-green-500" />;
@@ -231,38 +263,20 @@ function StatusBadge({ status }: { status: "good" | "warning" | "error" }) {
 }
 
 function MetaAuditPanel() {
-  const [pages, setPages] = useState<MetaPageInfo[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { data, loading, refresh } = useAudit();
+  const pages = data?.pages ?? [];
 
-  // Pre-fill with known pages (since fetching sitemap cross-origin may be blocked)
-  const knownPages: MetaPageInfo[] = [
-    { url: "https://hitcf.com/en", title: "HiTCF \u2014 Practice Your Way to CLB 7+ | TCF Canada Online Practice | HiTCF", titleLen: 72, description: "8,500+ TCF Canada practice questions covering listening, reading, speaking & writing. Practice mode + exam mode + wrong answer notebook \u2014 systematically prepare for CLB 7+.", descLen: 172, titleStatus: "good", descStatus: "good" },
-    { url: "https://hitcf.com/zh", title: "HiTCF \u2014 CLB 7+\uff0c\u7ec3\u51fa\u6765\u7684 | TCF Canada \u5728\u7ebf\u7ec3\u4e60 | HiTCF", titleLen: 45, description: "8500+ \u9053 TCF Canada \u7ec3\u4e60\u9898\uff0c\u8986\u76d6\u542c\u529b\u3001\u9605\u8bfb\u3001\u53e3\u8bed\u3001\u5199\u4f5c\u3002\u7ec3\u4e60\u6a21\u5f0f + \u8003\u8bd5\u6a21\u5f0f + \u9519\u9898\u672c\uff0c\u52a9\u4f60\u7cfb\u7edf\u5907\u8003\u51b2\u523a CLB 7+\u3002", descLen: 68, titleStatus: "good", descStatus: "good" },
-    { url: "https://hitcf.com/fr", title: "HiTCF \u2014 Entra\u00eenez-vous pour atteindre le NCLC 7 | Entra\u00eenement en ligne TCF Canada | HiTCF", titleLen: 90, description: "Plus de 8 500 questions d'entra\u00eenement TCF Canada couvrant compr\u00e9hension orale, compr\u00e9hension \u00e9crite, expression orale et \u00e9crite. Mode entra\u00eenement + mode examen + cahier d'erreurs.", descLen: 195, titleStatus: "good", descStatus: "good" },
-    { url: "https://hitcf.com/ar", title: "HiTCF \u2014 \u062a\u062f\u0631\u0651\u0628 \u0644\u062a\u0635\u0644 \u0625\u0644\u0649 CLB 7+ | \u062a\u062f\u0631\u064a\u0628 TCF Canada \u0639\u0628\u0631 \u0627\u0644\u0625\u0646\u062a\u0631\u0646\u062a | HiTCF", titleLen: 69, description: "\u0623\u0643\u062b\u0631 \u0645\u0646 8500 \u0633\u0624\u0627\u0644 \u062a\u062f\u0631\u064a\u0628\u064a \u0639\u0644\u0649 TCF Canada \u062a\u0634\u0645\u0644 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0639 \u0648\u0627\u0644\u0642\u0631\u0627\u0621\u0629 \u0648\u0627\u0644\u062a\u062d\u062f\u062b \u0648\u0627\u0644\u0643\u062a\u0627\u0628\u0629. \u0648\u0636\u0639 \u0627\u0644\u062a\u062f\u0631\u064a\u0628 + \u0648\u0636\u0639 \u0627\u0644\u0627\u0645\u062a\u062d\u0627\u0646 + \u062f\u0641\u062a\u0631 \u0627\u0644\u0623\u062e\u0637\u0627\u0621 \u2014 \u062d\u0636\u0651\u0631 \u0644\u0640 CLB 7+.", descLen: 136, titleStatus: "good", descStatus: "good" },
-    { url: "https://hitcf.com/zh/tests", title: "TCF Canada \u9898\u5e93 \u00b7 8500+ \u9053\u542c\u529b\u9605\u8bfb\u53e3\u8bed\u5199\u4f5c\u7ec3\u4e60\u9898 | HiTCF", titleLen: 38, description: "TCF Canada \u542c\u529b\u3001\u9605\u8bfb\u3001\u53e3\u8bed\u3001\u5199\u4f5c\u5168\u771f\u6a21\u62df\u9898\u5e93\u300244 \u5957\u542c\u529b\u542b\u97f3\u9891 + \u9010\u53e5\u7cbe\u542c\uff0c44 \u5957\u9605\u8bfb\uff0c\u8986\u76d6 A1-C2 \u5168\u7b49\u7ea7\u3002", descLen: 58, titleStatus: "good", descStatus: "good" },
-    { url: "https://hitcf.com/zh/pricing", title: "\u8ba2\u9605\u65b9\u6848 \u00b7 \u5e74\u4ed8\u4eab 14 \u5929\u514d\u8d39\u8bd5\u7528\u5168\u90e8 TCF \u9898\u5e93 + \u8bcd\u6c47\u5de5\u5177 | HiTCF", titleLen: 43, description: "HiTCF \u8ba2\u9605\u65b9\u6848\uff1a\u514d\u8d39\u9898\u5957\u76f4\u63a5\u7ec3\u4e60\uff0cPro \u7248\u89e3\u9501\u5168\u90e8 8,500+ \u9053\u9898\u3001\u8003\u8bd5\u6a21\u5f0f\u3001\u9519\u9898\u672c\u3001\u751f\u8bcd\u672c\u3001\u7ffb\u5361\u590d\u4e60\u3001\u542c\u5199\u7ec3\u4e60\u548c Anki \u5bfc\u51fa\u3002\u5e74\u4ed8 14 \u5929\u514d\u8d39\u8bd5\u7528\uff0c\u968f\u65f6\u53d6\u6d88\u3002", descLen: 89, titleStatus: "good", descStatus: "good" },
-  ];
+  const goodCount = data?.good_count ?? 0;
+  const warnCount = data?.warning_count ?? 0;
+  const errCount = pages.filter((p) => !!p.error).length;
 
-  useEffect(() => {
-    setPages(knownPages);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const refresh = useCallback(() => {
-    setLoading(true);
-    // Simulate refresh (in real scenario, could attempt sitemap fetch)
-    setTimeout(() => {
-      setPages(knownPages);
-      setLoading(false);
-      toast.success("Meta 数据已刷新");
-    }, 800);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const goodCount = pages.filter((p) => p.titleStatus === "good" && p.descStatus === "good").length;
-  const warnCount = pages.filter((p) => p.titleStatus === "warning" || p.descStatus === "warning").length;
-  const errCount = pages.filter((p) => p.titleStatus === "error" || p.descStatus === "error").length;
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -308,7 +322,7 @@ function MetaAuditPanel() {
         </CardHeader>
         <CardContent>
           <p className="text-xs text-muted-foreground mb-3">
-            Title 理想长度: 30-60 字符 | Description 理想长度: 120-160 字符
+            Title 理想长度: 30-60 字符 | Description 理想长度: 120-160 字符 | 数据来自实时爬取
           </p>
           <Table>
             <TableHeader>
@@ -316,16 +330,26 @@ function MetaAuditPanel() {
                 <TableHead>页面</TableHead>
                 <TableHead>Title (长度)</TableHead>
                 <TableHead>Description (长度)</TableHead>
+                <TableHead>Schemas</TableHead>
                 <TableHead className="text-center">状态</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {pages.map((p) => {
-                const overall = p.titleStatus === "error" || p.descStatus === "error"
-                  ? "error"
-                  : p.titleStatus === "warning" || p.descStatus === "warning"
-                    ? "warning"
-                    : "good";
+                if (p.error) {
+                  return (
+                    <TableRow key={p.url}>
+                      <TableCell>
+                        <span className="text-xs font-mono text-red-600">{p.url.replace("https://hitcf.com", "") || "/"}</span>
+                      </TableCell>
+                      <TableCell colSpan={3} className="text-xs text-red-500">{p.error}</TableCell>
+                      <TableCell className="text-center"><StatusBadge status="error" /></TableCell>
+                    </TableRow>
+                  );
+                }
+                const titleStatus = p.title_status ?? "warning";
+                const descStatus = p.desc_status ?? "warning";
+                const overall = titleStatus === "warning" || descStatus === "warning" ? "warning" : "good";
                 return (
                   <TableRow key={p.url}>
                     <TableCell>
@@ -343,8 +367,8 @@ function MetaAuditPanel() {
                       <div className="max-w-[200px]">
                         <p className="text-xs truncate">{p.title}</p>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <StatusIcon status={p.titleStatus} />
-                          <span className="text-[10px] text-muted-foreground">{p.titleLen} 字符</span>
+                          <StatusIcon status={titleStatus} />
+                          <span className="text-[10px] text-muted-foreground">{p.title_len} 字符</span>
                         </div>
                       </div>
                     </TableCell>
@@ -352,9 +376,18 @@ function MetaAuditPanel() {
                       <div className="max-w-[250px]">
                         <p className="text-xs truncate">{p.description}</p>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <StatusIcon status={p.descStatus} />
-                          <span className="text-[10px] text-muted-foreground">{p.descLen} 字符</span>
+                          <StatusIcon status={descStatus} />
+                          <span className="text-[10px] text-muted-foreground">{p.desc_len} 字符</span>
                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {(p.schemas ?? []).map((s) => (
+                          <Badge key={s} variant="outline" className="text-[10px] px-1.5 py-0">
+                            {s}
+                          </Badge>
+                        ))}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -374,15 +407,38 @@ function MetaAuditPanel() {
 /* ──────────────────── Schema Tab ──────────────────── */
 
 function SchemaPanel() {
-  const implemented = SCHEMA_ITEMS.filter((s) => s.implemented).length;
+  const { data, loading } = useAudit();
+  const liveSchemas = data?.schema_summary ?? [];
+
+  // Merge known schemas with live data
+  const schemaItems = KNOWN_SCHEMAS.map((s) => ({
+    ...s,
+    implemented: liveSchemas.includes(s.name),
+  }));
+  // Add any unexpected schemas from live crawl
+  const extra = liveSchemas.filter((s) => !KNOWN_SCHEMAS.some((k) => k.name === s));
+  for (const name of extra) {
+    schemaItems.push({ name, description: "在爬取中发现的额外 Schema", implemented: true });
+  }
+
+  const implemented = schemaItems.filter((s) => s.implemented).length;
+
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Card className="border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-950">
         <CardContent className="flex items-center gap-4 p-4">
           <ShieldCheck className="h-10 w-10 text-blue-600" />
           <div>
-            <div className="text-2xl font-bold">{implemented}/{SCHEMA_ITEMS.length}</div>
-            <p className="text-sm text-muted-foreground">结构化数据 Schema 覆盖</p>
+            <div className="text-2xl font-bold">{implemented}/{schemaItems.length}</div>
+            <p className="text-sm text-muted-foreground">结构化数据 Schema 覆盖（实时检测）</p>
           </div>
         </CardContent>
       </Card>
@@ -393,7 +449,7 @@ function SchemaPanel() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {SCHEMA_ITEMS.map((item) => (
+            {schemaItems.map((item) => (
               <div key={item.name} className="flex items-center gap-3 p-3 rounded-lg border">
                 {item.implemented
                   ? <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
@@ -402,7 +458,7 @@ function SchemaPanel() {
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-medium">{item.name}</span>
                     <Badge variant={item.implemented ? "default" : "outline"}>
-                      {item.implemented ? "已实现" : "待添加"}
+                      {item.implemented ? "已检测到" : "未检测到"}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
@@ -412,6 +468,42 @@ function SchemaPanel() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Per-page schema breakdown */}
+      {data && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">各页面 Schema 分布</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>页面</TableHead>
+                  <TableHead>检测到的 Schemas</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.pages.filter((p) => !p.error).map((p) => (
+                  <TableRow key={p.url}>
+                    <TableCell className="text-xs font-mono">{p.url.replace("https://hitcf.com", "") || "/"}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {(p.schemas ?? []).map((s) => (
+                          <Badge key={s} variant="outline" className="text-[10px] px-1.5 py-0">{s}</Badge>
+                        ))}
+                        {(p.schemas ?? []).length === 0 && (
+                          <span className="text-xs text-muted-foreground">无</span>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
@@ -419,15 +511,39 @@ function SchemaPanel() {
 /* ──────────────────── Hreflang Tab ──────────────────── */
 
 function HreflangPanel() {
-  const fullCount = HREFLANG_LOCALES.filter((l) => l.coverage === "full").length;
+  const { data, loading } = useAudit();
+  const liveHreflangs = data?.hreflang_summary ?? [];
+
+  const EXPECTED = [
+    { code: "zh", label: "中文" },
+    { code: "en", label: "English" },
+    { code: "fr", label: "Fran\u00e7ais" },
+    { code: "ar", label: "\u0627\u0644\u0639\u0631\u0628\u064a\u0629" },
+    { code: "x-default", label: "x-default" },
+  ];
+
+  const locales = EXPECTED.map((e) => ({
+    ...e,
+    found: liveHreflangs.includes(e.code),
+  }));
+  const foundCount = locales.filter((l) => l.found).length;
+
+  if (loading && !data) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Card className="border-l-4 border-l-violet-500 bg-violet-50 dark:bg-violet-950">
         <CardContent className="flex items-center gap-4 p-4">
           <Globe className="h-10 w-10 text-violet-600" />
           <div>
-            <div className="text-2xl font-bold">{fullCount}/{HREFLANG_LOCALES.length} 语言</div>
-            <p className="text-sm text-muted-foreground">hreflang 完整覆盖</p>
+            <div className="text-2xl font-bold">{foundCount}/{EXPECTED.length} 语言</div>
+            <p className="text-sm text-muted-foreground">hreflang 覆盖（实时检测）</p>
           </div>
         </CardContent>
       </Card>
@@ -442,23 +558,21 @@ function HreflangPanel() {
               <TableRow>
                 <TableHead>语言代码</TableHead>
                 <TableHead>语言名称</TableHead>
-                <TableHead>覆盖状态</TableHead>
-                <TableHead>备注</TableHead>
+                <TableHead>检测状态</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {HREFLANG_LOCALES.map((locale) => (
+              {locales.map((locale) => (
                 <TableRow key={locale.code}>
                   <TableCell>
                     <span className="font-mono text-sm">{locale.code}</span>
                   </TableCell>
                   <TableCell>{locale.label}</TableCell>
                   <TableCell>
-                    <Badge variant={locale.coverage === "full" ? "default" : locale.coverage === "partial" ? "secondary" : "destructive"}>
-                      {locale.coverage === "full" ? "完整" : locale.coverage === "partial" ? "部分" : "未覆盖"}
+                    <Badge variant={locale.found ? "default" : "destructive"}>
+                      {locale.found ? "已检测到" : "未检测到"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{locale.notes}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -466,20 +580,43 @@ function HreflangPanel() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">hreflang 标签示例</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <pre className="rounded-lg bg-muted p-4 text-xs overflow-x-auto">
-{`<link rel="alternate" hreflang="zh" href="https://hitcf.com/zh" />
-<link rel="alternate" hreflang="en" href="https://hitcf.com/en" />
-<link rel="alternate" hreflang="fr" href="https://hitcf.com/fr" />
-<link rel="alternate" hreflang="ar" href="https://hitcf.com/ar" />
-<link rel="alternate" hreflang="x-default" href="https://hitcf.com/en" />`}
-          </pre>
-        </CardContent>
-      </Card>
+      {/* Per-page hreflang breakdown */}
+      {data && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">各页面 hreflang 标签</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>页面</TableHead>
+                  <TableHead>hreflang 标签</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.pages.filter((p) => !p.error).map((p) => (
+                  <TableRow key={p.url}>
+                    <TableCell className="text-xs font-mono">{p.url.replace("https://hitcf.com", "") || "/"}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {(p.hreflangs ?? []).map((h) => (
+                          <Badge key={h.lang} variant="outline" className="text-[10px] px-1.5 py-0">
+                            {h.lang}
+                          </Badge>
+                        ))}
+                        {(p.hreflangs ?? []).length === 0 && (
+                          <span className="text-xs text-muted-foreground">无</span>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
@@ -710,6 +847,42 @@ interface SeoDashboardProps {
 }
 
 export function SeoDashboard({ tab }: SeoDashboardProps) {
+  const [data, setData] = useState<SeoAuditResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await fetchSeoAudit();
+      setData(result);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "加载失败";
+      setError(msg);
+      toast.error(`SEO 审计加载失败: ${msg}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Auto-fetch on mount for tabs that need live data
+    if (["health", "meta", "schema", "hreflang"].includes(tab)) {
+      load();
+    }
+  }, [tab, load]);
+
+  const ctx: AuditCtx = { data, loading, error, refresh: load };
+
+  return (
+    <AuditContext.Provider value={ctx}>
+      {renderTab(tab)}
+    </AuditContext.Provider>
+  );
+}
+
+function renderTab(tab: string) {
   switch (tab) {
     case "health":
       return <HealthPanel />;

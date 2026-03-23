@@ -53,6 +53,7 @@ import type {
   LTVData,
   EventsData,
   TrafficData,
+  SeoAuditResponse,
 } from "./types";
 
 // Dashboard
@@ -940,4 +941,11 @@ export function fetchScrapePreview(source: string, type: string, test: number) {
   sp.set("type", type);
   sp.set("test", String(test));
   return get<ScrapePreview>(`/api/admin/scrape-data/preview?${sp}`);
+}
+
+// SEO Audit
+export function fetchSeoAudit(urls?: string) {
+  const sp = new URLSearchParams();
+  if (urls) sp.set("urls", urls);
+  return get<SeoAuditResponse>(`/api/admin/seo/audit?${sp}`);
 }

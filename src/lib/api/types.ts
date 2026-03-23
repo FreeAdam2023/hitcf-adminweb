@@ -1033,3 +1033,30 @@ export interface ScrapePreview {
   question_count: number;
   questions: ScrapePreviewQuestion[];
 }
+
+// SEO Audit
+export interface SeoAuditPage {
+  url: string;
+  title?: string;
+  title_len?: number;
+  title_status?: "good" | "warning";
+  description?: string;
+  desc_len?: number;
+  desc_status?: "good" | "warning";
+  robots?: string;
+  canonical?: string;
+  og?: Record<string, string>;
+  twitter?: Record<string, string>;
+  hreflangs?: { lang: string; href: string }[];
+  schemas?: string[];
+  error?: string;
+}
+
+export interface SeoAuditResponse {
+  pages: SeoAuditPage[];
+  schema_summary: string[];
+  hreflang_summary: string[];
+  total_pages: number;
+  good_count: number;
+  warning_count: number;
+}
