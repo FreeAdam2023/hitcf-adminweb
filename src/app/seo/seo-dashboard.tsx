@@ -68,9 +68,9 @@ const SEO_CHECKLIST: SeoCheckItem[] = [
   { label: "结构化数据", done: true, description: "WebSite, SoftwareApplication, FAQPage, Organization schema 已添加" },
   { label: "Canonical URL", done: true, description: "所有页面设置了 canonical URL，避免重复内容" },
   { label: "hreflang 标签", done: true, description: "4 种语言 (zh/en/fr/ar) 的 hreflang 标签已添加" },
-  { label: "Google Analytics", done: false, description: "尚未接入 GA4，无法追踪用户行为数据" },
-  { label: "BreadcrumbList schema", done: false, description: "面包屑结构化数据有助于搜索结果展示" },
-  { label: "每页独立 OG 图片", done: false, description: "当前共用 OG 图片，独立图片可提高社交分享点击率" },
+  { label: "Google Analytics", done: true, description: "GA4 已接入 (G-DTDE8V6XLH)，支持自定义事件追踪" },
+  { label: "BreadcrumbList schema", done: true, description: "面包屑 JSON-LD 结构化数据已添加至所有导航页面" },
+  { label: "每页独立 OG 图片", done: true, description: "动态 OG 图片已通过 opengraph-image.tsx 生成" },
 ];
 
 const SCHEMA_ITEMS: SchemaItem[] = [
@@ -78,10 +78,10 @@ const SCHEMA_ITEMS: SchemaItem[] = [
   { name: "SoftwareApplication", implemented: true, description: "应用信息 (评分、价格、系统要求)" },
   { name: "FAQPage", implemented: true, description: "常见问题 — AI 搜索引擎偏爱的格式" },
   { name: "Organization", implemented: true, description: "组织信息 (名称、logo、社交链接)" },
-  { name: "BreadcrumbList", implemented: false, description: "面包屑导航 — 改善搜索结果显示层级" },
-  { name: "Article", implemented: false, description: "博客/教程文章 — 适用于未来内容营销" },
-  { name: "Course", implemented: false, description: "课程信息 — 适用于 TCF 备考指南" },
-  { name: "Review", implemented: false, description: "用户评价 — 增加星级展示" },
+  { name: "BreadcrumbList", implemented: true, description: "面包屑导航 JSON-LD — 自动生成于所有使用面包屑的页面" },
+  { name: "Article", implemented: true, description: "博客文章 JSON-LD — 标题、日期、作者、关键词" },
+  { name: "Course", implemented: true, description: "TCF 备考课程 — 教育级别 A1-C2, 四项技能" },
+  { name: "Review", implemented: true, description: "用户评价 + AggregateRating 4.8/5 星级展示" },
 ];
 
 const HREFLANG_LOCALES: HreflangLocale[] = [
