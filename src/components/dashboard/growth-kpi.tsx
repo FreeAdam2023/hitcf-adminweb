@@ -34,7 +34,7 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
     if (stats.user_count < m) {
       nextMilestone = m;
       const remaining = m - stats.user_count;
-      const dailyRate = new7d / 7;
+      const dailyRate = new7d > 0 ? new7d / 7 : new24h > 0 ? new24h : 0;
       daysToMilestone = dailyRate > 0 ? Math.round(remaining / dailyRate) : null;
       break;
     }
