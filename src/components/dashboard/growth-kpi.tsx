@@ -17,7 +17,13 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
     fetchSubscriptionRevenue().then(setRevenue).catch(() => {});
   }, []);
 
-  const wowPositive = stats.wow_rate >= 0;
+  const new24h = stats.new_24h ?? 0;
+  const new7d = stats.new_7d ?? 0;
+  const wowRate = stats.wow_rate ?? 0;
+  const dauVal = stats.dau ?? 0;
+  const wauVal = stats.wau ?? 0;
+
+  const wowPositive = wowRate >= 0;
   const WowIcon = wowPositive ? TrendingUp : TrendingDown;
 
   // Milestone calculation
@@ -28,7 +34,7 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
     if (stats.user_count < m) {
       nextMilestone = m;
       const remaining = m - stats.user_count;
-      const dailyRate = stats.new_7d / 7;
+      const dailyRate = new7d / 7;
       daysToMilestone = dailyRate > 0 ? Math.round(remaining / dailyRate) : null;
       break;
     }
@@ -66,31 +72,31 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
         />
         <KPICell
           label="今日新增"
-          value={`+${stats.new_24h}`}
+          value={`+${new24h}`}
           icon={<UserPlus className="h-4 w-4 text-emerald-600" />}
           valueColor="text-emerald-600"
         />
         <KPICell
           label="本周新增"
-          value={stats.new_7d}
+          value={new7d}
           icon={<UserPlus className="h-4 w-4 text-blue-600" />}
         />
         <KPICell
           label="周环比"
-          value={`${wowPositive ? "↑" : "↓"}${Math.abs(stats.wow_rate).toFixed(0)}%`}
+          value={`${wowPositive ? "↑" : "↓"}${Math.abs(wowRate).toFixed(0)}%`}
           icon={<WowIcon className={`h-4 w-4 ${wowPositive ? "text-emerald-600" : "text-red-600"}`} />}
           valueColor={wowPositive ? "text-emerald-600" : "text-red-600"}
         />
         {/* Row 2: Engagement */}
         <KPICell
           label="今日活跃"
-          value={stats.dau}
+          value={dauVal}
           icon={<Activity className="h-4 w-4 text-orange-600" />}
           valueColor="text-orange-600"
         />
         <KPICell
           label="本周活跃"
-          value={stats.wau}
+          value={wauVal}
           icon={<Activity className="h-4 w-4 text-amber-600" />}
           valueColor="text-amber-600"
         />
