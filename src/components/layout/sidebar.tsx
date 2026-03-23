@@ -87,6 +87,7 @@ const navEntries: NavEntry[] = [
     icon: TrendingUp,
     children: [
       { href: "/analytics", label: "总览", icon: BarChart3 },
+      { href: "/paid-users", label: "付费用户", icon: CreditCard },
       { href: "/referrals", label: "推荐奖励", icon: Gift },
       { href: "/feedback", label: "用户反馈", icon: MessageSquare },
       { href: "/reports", label: "举报", icon: Flag },

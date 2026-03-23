@@ -14,6 +14,9 @@ import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tool
 import { UserGeoMap } from "@/components/dashboard/user-geo-map";
 import { CostOverview } from "@/components/dashboard/cost-overview";
 import { TrafficOverview } from "@/components/dashboard/traffic-overview";
+import { GrowthKPI } from "@/components/dashboard/growth-kpi";
+import { ChurnAlert } from "@/components/dashboard/churn-alert";
+import { FunnelMini } from "@/components/dashboard/funnel-mini";
 
 interface StatCard {
   label: string;
@@ -81,10 +84,6 @@ export default function DashboardPage() {
   }
 
   const overviewCards: StatCard[] = [
-    { label: "总用户", value: stats.user_count ?? 0, icon: Users, iconColor: "text-blue-600", bgColor: "bg-blue-50 dark:bg-blue-950", borderColor: "border-l-blue-500" },
-    { label: "今日活跃", value: stats.dau ?? 0, icon: BarChart3, iconColor: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950", borderColor: "border-l-orange-500" },
-    { label: "本周活跃", value: stats.wau ?? 0, icon: BarChart3, iconColor: "text-amber-600", bgColor: "bg-amber-50 dark:bg-amber-950", borderColor: "border-l-amber-500" },
-    { label: "付费用户", value: stats.active_subscription_count ?? 0, icon: CreditCard, iconColor: "text-emerald-600", bgColor: "bg-emerald-50 dark:bg-emerald-950", borderColor: "border-l-emerald-500" },
     { label: "题库套数", value: stats.test_set_count ?? 0, icon: BookOpen, iconColor: "text-violet-600", bgColor: "bg-violet-50 dark:bg-violet-950", borderColor: "border-l-violet-500" },
     { label: "题目总数", value: stats.question_count ?? 0, icon: FileText, iconColor: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-950", borderColor: "border-l-orange-500" },
     { label: "总答题数", value: stats.answer_count ?? 0, icon: BarChart3, iconColor: "text-cyan-600", bgColor: "bg-cyan-50 dark:bg-cyan-950", borderColor: "border-l-cyan-500" },
@@ -107,6 +106,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="仪表盘" description="平台数据总览" />
+
+      {/* Growth KPI Panel */}
+      <GrowthKPI stats={stats} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <FunnelMini />
+        <ChurnAlert />
+      </div>
 
       {/* Overview Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

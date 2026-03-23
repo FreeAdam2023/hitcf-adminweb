@@ -37,6 +37,10 @@ export interface AdminStats {
   nihao_word_count: number;
   word_lookup_count: number;
   vocabulary_card_count: number;
+  // Growth metrics
+  new_24h: number;
+  new_7d: number;
+  wow_rate: number;
   // Active users (actually practiced)
   dau: number;
   wau: number;
