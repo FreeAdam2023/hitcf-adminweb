@@ -81,7 +81,7 @@ const SCHEMA_ITEMS: SchemaItem[] = [
   { name: "BreadcrumbList", implemented: true, description: "面包屑导航 JSON-LD — 自动生成于所有使用面包屑的页面" },
   { name: "Article", implemented: true, description: "博客文章 JSON-LD — 标题、日期、作者、关键词" },
   { name: "Course", implemented: true, description: "TCF 备考课程 — 教育级别 A1-C2, 四项技能" },
-  { name: "Review", implemented: false, description: "用户评价 — 需要真实评价数据后再添加" },
+  { name: "Review", implemented: true, description: "真实用户评价 (momo, 2026-03-22) + AggregateRating 5/5" },
 ];
 
 const HREFLANG_LOCALES: HreflangLocale[] = [
