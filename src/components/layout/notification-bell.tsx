@@ -289,15 +289,19 @@ export function NotificationBell() {
       .catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Keep a ref to avoid re-creating the interval on every render
+  const handleNewRef = useRef(handleNewNotifications);
+  useEffect(() => { handleNewRef.current = handleNewNotifications; });
+
   // Poll every 2 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       fetchNotifications()
-        .then((res) => handleNewNotifications(res.notifications))
+        .then((res) => handleNewRef.current(res.notifications))
         .catch(() => {});
     }, POLL_INTERVAL);
     return () => clearInterval(interval);
-  }, [handleNewNotifications]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const newCount = items.filter((n) => {
     const age = Date.now() - new Date(n.time).getTime();
