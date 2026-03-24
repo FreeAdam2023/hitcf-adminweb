@@ -54,6 +54,10 @@ import type {
   EventsData,
   TrafficData,
   SeoAuditResponse,
+  GscResponse,
+  GscKeywordRow,
+  GscPageRow,
+  GscTrendRow,
 } from "./types";
 
 // Dashboard
@@ -948,4 +952,20 @@ export function fetchSeoAudit(urls?: string) {
   const sp = new URLSearchParams();
   if (urls) sp.set("urls", urls);
   return get<SeoAuditResponse>(`/api/admin/seo/audit?${sp}`);
+}
+
+// GSC (Google Search Console)
+export function fetchGscKeywords(days = 28, limit = 50) {
+  return get<GscResponse<GscKeywordRow>>(`/api/admin/gsc/keywords?days=${days}&limit=${limit}`);
+}
+
+export function fetchGscPages(days = 28, limit = 20) {
+  return get<GscResponse<GscPageRow>>(`/api/admin/gsc/pages?days=${days}&limit=${limit}`);
+}
+
+export function fetchGscTrend(days = 28, keyword?: string) {
+  const sp = new URLSearchParams();
+  sp.set("days", String(days));
+  if (keyword) sp.set("keyword", keyword);
+  return get<GscResponse<GscTrendRow>>(`/api/admin/gsc/trend?${sp}`);
 }

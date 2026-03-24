@@ -1034,6 +1034,38 @@ export interface ScrapePreview {
   questions: ScrapePreviewQuestion[];
 }
 
+// GSC (Google Search Console)
+export interface GscKeywordRow {
+  keyword: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GscPageRow {
+  page: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GscTrendRow {
+  date: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface GscResponse<T> {
+  start_date: string;
+  end_date: string;
+  total: number;
+  rows: T[];
+}
+
 // SEO Audit
 export interface SeoAuditPage {
   url: string;

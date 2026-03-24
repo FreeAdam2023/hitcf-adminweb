@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, createContext, useContext } from "rea
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,9 +17,6 @@ import {
   XCircle,
   AlertTriangle,
   ExternalLink,
-  Plus,
-  Trash2,
-  Save,
   RefreshCw,
   Globe,
   ShieldCheck,
@@ -28,18 +24,10 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { fetchSeoAudit } from "@/lib/api/admin";
-import type { SeoAuditResponse } from "@/lib/api/types";
+import { fetchSeoAudit, fetchGscKeywords, fetchGscPages, fetchGscTrend } from "@/lib/api/admin";
+import type { SeoAuditResponse, GscKeywordRow, GscPageRow, GscTrendRow } from "@/lib/api/types";
 
 /* ──────────────────── Types ──────────────────── */
-
-interface KeywordEntry {
-  id: string;
-  keyword: string;
-  targetPage: string;
-  position: string;
-  notes: string;
-}
 
 interface SeoCheckItem {
   label: string;
@@ -94,15 +82,6 @@ const KNOWN_SCHEMAS = [
   { name: "Review", description: "真实用户评价 + AggregateRating" },
 ];
 
-const DEFAULT_KEYWORDS: KeywordEntry[] = [
-  { id: "1", keyword: "tcf canada practice", targetPage: "https://hitcf.com", position: "", notes: "核心关键词" },
-  { id: "2", keyword: "clb 7 preparation", targetPage: "https://hitcf.com", position: "", notes: "移民目标分数" },
-  { id: "3", keyword: "tcf listening", targetPage: "https://hitcf.com/zh/tests", position: "", notes: "听力练习" },
-  { id: "4", keyword: "nclc tcf canada", targetPage: "https://hitcf.com", position: "", notes: "法语移民关键词" },
-  { id: "5", keyword: "hitcf", targetPage: "https://hitcf.com", position: "", notes: "品牌词" },
-];
-
-const STORAGE_KEY_KEYWORDS = "hitcf-admin-seo-keywords";
 
 /* ──────────────────── Helpers ──────────────────── */
 
@@ -671,132 +650,159 @@ function ChecklistPanel() {
 /* ──────────────────── Keywords Tab ──────────────────── */
 
 function KeywordsPanel() {
-  const [keywords, setKeywords] = useState<KeywordEntry[]>([]);
+  const [keywords, setKeywords] = useState<GscKeywordRow[]>([]);
+  const [pages, setPages] = useState<GscPageRow[]>([]);
+  const [trend, setTrend] = useState<GscTrendRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [days, setDays] = useState(28);
+  const [dateRange, setDateRange] = useState("");
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY_KEYWORDS);
-    if (stored) {
-      try {
-        setKeywords(JSON.parse(stored));
-      } catch {
-        setKeywords(DEFAULT_KEYWORDS);
-      }
-    } else {
-      setKeywords(DEFAULT_KEYWORDS);
+  const load = useCallback(async (d: number) => {
+    setLoading(true);
+    try {
+      const [kwRes, pgRes, trRes] = await Promise.all([
+        fetchGscKeywords(d, 50),
+        fetchGscPages(d, 20),
+        fetchGscTrend(d),
+      ]);
+      setKeywords(kwRes.rows);
+      setPages(pgRes.rows);
+      setTrend(trRes.rows);
+      setDateRange(`${kwRes.start_date} ~ ${kwRes.end_date}`);
+    } catch (err) {
+      toast.error(`GSC 数据加载失败: ${err instanceof Error ? err.message : "未知错误"}`);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const save = useCallback((updated: KeywordEntry[]) => {
-    setKeywords(updated);
-    localStorage.setItem(STORAGE_KEY_KEYWORDS, JSON.stringify(updated));
-  }, []);
+  useEffect(() => {
+    load(days);
+  }, [days, load]);
 
-  const handleChange = (id: string, field: keyof KeywordEntry, value: string) => {
-    const updated = keywords.map((k) => (k.id === id ? { ...k, [field]: value } : k));
-    save(updated);
-  };
+  const totalClicks = keywords.reduce((s, k) => s + k.clicks, 0);
+  const totalImpressions = keywords.reduce((s, k) => s + k.impressions, 0);
+  const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
-  const addKeyword = () => {
-    const newEntry: KeywordEntry = {
-      id: Date.now().toString(),
-      keyword: "",
-      targetPage: "https://hitcf.com",
-      position: "",
-      notes: "",
-    };
-    save([...keywords, newEntry]);
-  };
-
-  const removeKeyword = (id: string) => {
-    save(keywords.filter((k) => k.id !== id));
-  };
-
-  const handleSave = () => {
-    localStorage.setItem(STORAGE_KEY_KEYWORDS, JSON.stringify(keywords));
-    toast.success("关键词数据已保存");
-  };
+  if (loading && keywords.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
+      {/* Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-blue-600">{totalClicks}</div>
+            <p className="text-xs text-muted-foreground">总点击</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-violet-500">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-violet-600">{totalImpressions.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">总展示</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-emerald-500">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-emerald-600">{avgCtr.toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground">平均 CTR</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-amber-500">
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-amber-600">{keywords.length}</div>
+            <p className="text-xs text-muted-foreground">关键词数</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Daily Trend */}
+      {trend.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">每日趋势（点击 / 展示）</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end gap-[2px] h-24">
+              {trend.map((t) => {
+                const maxImp = Math.max(...trend.map((r) => r.impressions), 1);
+                const h = Math.max((t.impressions / maxImp) * 100, 2);
+                return (
+                  <div key={t.date} className="flex-1 group relative">
+                    <div
+                      className="w-full bg-blue-200 dark:bg-blue-800 rounded-t transition-all hover:bg-blue-400"
+                      style={{ height: `${h}%` }}
+                    />
+                    <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-popover border rounded px-2 py-1 text-[10px] whitespace-nowrap shadow z-10">
+                      {t.date.slice(5)}: {t.clicks} clicks / {t.impressions} imp
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Keywords Table */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">关键词追踪</CardTitle>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={addKeyword}>
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
-              添加关键词
-            </Button>
-            <Button size="sm" onClick={handleSave}>
-              <Save className="mr-1.5 h-3.5 w-3.5" />
-              保存
+          <CardTitle className="text-sm font-medium">
+            关键词排名
+            <span className="ml-2 text-xs font-normal text-muted-foreground">来自 Google Search Console | {dateRange}</span>
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <select
+              className="h-8 rounded border bg-background px-2 text-xs"
+              value={days}
+              onChange={(e) => setDays(Number(e.target.value))}
+            >
+              <option value={7}>7 天</option>
+              <option value={14}>14 天</option>
+              <option value={28}>28 天</option>
+              <option value={90}>90 天</option>
+            </select>
+            <Button variant="outline" size="sm" onClick={() => load(days)} disabled={loading}>
+              <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+              刷新
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-xs text-muted-foreground mb-3">
-            手动追踪目标关键词在搜索引擎中的排名。数据存储在本地浏览器。
-          </p>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>关键词</TableHead>
-                <TableHead>目标页面</TableHead>
-                <TableHead>当前排名</TableHead>
-                <TableHead>备注</TableHead>
-                <TableHead className="w-[50px]" />
+                <TableHead className="text-right">点击</TableHead>
+                <TableHead className="text-right">展示</TableHead>
+                <TableHead className="text-right">CTR</TableHead>
+                <TableHead className="text-right">排名</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {keywords.map((kw) => (
-                <TableRow key={kw.id}>
-                  <TableCell>
-                    <Input
-                      value={kw.keyword}
-                      onChange={(e) => handleChange(kw.id, "keyword", e.target.value)}
-                      placeholder="关键词"
-                      className="h-8 text-xs"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={kw.targetPage}
-                      onChange={(e) => handleChange(kw.id, "targetPage", e.target.value)}
-                      placeholder="https://..."
-                      className="h-8 text-xs"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={kw.position}
-                      onChange={(e) => handleChange(kw.id, "position", e.target.value)}
-                      placeholder="排名"
-                      className="h-8 w-20 text-xs"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={kw.notes}
-                      onChange={(e) => handleChange(kw.id, "notes", e.target.value)}
-                      placeholder="备注"
-                      className="h-8 text-xs"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => removeKeyword(kw.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                    </Button>
+                <TableRow key={kw.keyword}>
+                  <TableCell className="font-mono text-sm">{kw.keyword}</TableCell>
+                  <TableCell className="text-right font-medium">{kw.clicks}</TableCell>
+                  <TableCell className="text-right">{kw.impressions}</TableCell>
+                  <TableCell className="text-right">{kw.ctr.toFixed(1)}%</TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant={kw.position <= 10 ? "default" : kw.position <= 30 ? "secondary" : "outline"}>
+                      {kw.position.toFixed(1)}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}
               {keywords.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-8">
-                    暂无关键词，点击 &quot;添加关键词&quot; 开始追踪
+                    暂无关键词数据
                   </TableCell>
                 </TableRow>
               )}
@@ -805,12 +811,55 @@ function KeywordsPanel() {
         </CardContent>
       </Card>
 
-      {/* Google Search Console Link */}
+      {/* Top Pages */}
+      {pages.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">热门页面</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>页面</TableHead>
+                  <TableHead className="text-right">点击</TableHead>
+                  <TableHead className="text-right">展示</TableHead>
+                  <TableHead className="text-right">CTR</TableHead>
+                  <TableHead className="text-right">排名</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pages.map((pg) => (
+                  <TableRow key={pg.page}>
+                    <TableCell>
+                      <a
+                        href={pg.page}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-blue-600 hover:underline text-xs font-mono"
+                      >
+                        {pg.page.replace("https://hitcf.com", "") || "/"}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">{pg.clicks}</TableCell>
+                    <TableCell className="text-right">{pg.impressions}</TableCell>
+                    <TableCell className="text-right">{pg.ctr.toFixed(1)}%</TableCell>
+                    <TableCell className="text-right">{pg.position.toFixed(1)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* External Links */}
       <Card>
         <CardContent className="flex items-center justify-between p-4">
           <div>
-            <p className="text-sm font-medium">查看更多排名数据</p>
-            <p className="text-xs text-muted-foreground">Google Search Console 提供完整的搜索查询数据</p>
+            <p className="text-sm font-medium">查看完整报告</p>
+            <p className="text-xs text-muted-foreground">Google Search Console / Bing Webmaster 提供更详细的数据</p>
           </div>
           <div className="flex gap-2">
             <a
