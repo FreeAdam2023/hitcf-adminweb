@@ -58,6 +58,9 @@ import type {
   GscKeywordRow,
   GscPageRow,
   GscTrendRow,
+  GeoCheckResult,
+  GeoHistoryResponse,
+  GeoPrompt,
 } from "./types";
 
 // Dashboard
@@ -968,4 +971,19 @@ export function fetchGscTrend(days = 28, keyword?: string) {
   sp.set("days", String(days));
   if (keyword) sp.set("keyword", keyword);
   return get<GscResponse<GscTrendRow>>(`/api/admin/gsc/trend?${sp}`);
+}
+
+// GEO (Generative Engine Optimization)
+export function fetchGeoCheck(promptId?: string) {
+  const sp = new URLSearchParams();
+  if (promptId) sp.set("prompt_id", promptId);
+  return post<{ results: GeoCheckResult[]; total_prompts: number }>(`/api/admin/geo/check?${sp}`);
+}
+
+export function fetchGeoHistory(days = 30) {
+  return get<GeoHistoryResponse>(`/api/admin/geo/history?days=${days}`);
+}
+
+export function fetchGeoPrompts() {
+  return get<{ prompts: GeoPrompt[] }>("/api/admin/geo/prompts");
 }

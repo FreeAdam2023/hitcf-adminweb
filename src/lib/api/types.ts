@@ -1092,3 +1092,41 @@ export interface SeoAuditResponse {
   good_count: number;
   warning_count: number;
 }
+
+// GEO (Generative Engine Optimization)
+export interface GeoEngineResult {
+  engine: string;
+  mentioned: boolean;
+  cited: boolean;
+  response_preview: string;
+  citations: string[];
+  competitors: string[];
+  error?: string;
+}
+
+export interface GeoCheckResult {
+  prompt_id: string;
+  prompt_text: string;
+  prompt_lang: string;
+  engines: GeoEngineResult[];
+  checked_at: string;
+}
+
+export interface GeoSummary {
+  total_prompts: number;
+  mentioned_count: number;
+  mention_rate: number;
+  top_competitors: [string, number][];
+}
+
+export interface GeoHistoryResponse {
+  summary: GeoSummary;
+  latest: GeoCheckResult[];
+  history: GeoCheckResult[];
+}
+
+export interface GeoPrompt {
+  id: string;
+  lang: string;
+  text: string;
+}
