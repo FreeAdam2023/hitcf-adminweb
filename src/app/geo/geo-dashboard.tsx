@@ -669,6 +669,18 @@ const TEST_PROMPTS = [
   },
 ];
 
+const PLATFORM_SEARCHES = [
+  { name: "Reddit — TCF Canada", icon: "🟠", query: "TCF Canada preparation", url: "https://www.reddit.com/search/?q=TCF+Canada&sort=new" },
+  { name: "Reddit — French Immigration", icon: "🟠", query: "French test immigration Canada", url: "https://www.reddit.com/search/?q=french+test+immigration+canada&sort=new" },
+  { name: "知乎 — TCF Canada", icon: "🔵", query: "TCF Canada 备考", url: "https://www.zhihu.com/search?type=content&q=TCF+Canada" },
+  { name: "知乎 — 法语移民", icon: "🔵", query: "加拿大法语考试", url: "https://www.zhihu.com/search?type=content&q=%E5%8A%A0%E6%8B%BF%E5%A4%A7%E6%B3%95%E8%AF%AD%E8%80%83%E8%AF%95" },
+  { name: "Quora — TCF Canada", icon: "🔴", query: "TCF Canada preparation", url: "https://www.quora.com/search?q=TCF+Canada+preparation" },
+  { name: "小红书 — TCF", icon: "📕", query: "TCF Canada 备考", url: "https://www.xiaohongshu.com/search_result?keyword=TCF+Canada" },
+  { name: "GitHub — TCF Resources", icon: "⚫", query: "TCF Canada", url: "https://github.com/search?q=TCF+Canada&type=repositories" },
+  { name: "Medium — TCF Canada", icon: "📝", query: "TCF Canada preparation", url: "https://medium.com/search?q=TCF+Canada+preparation" },
+  { name: "Google — 最近讨论", icon: "🔍", query: "TCF Canada 备考 site:reddit.com OR site:zhihu.com", url: "https://www.google.com/search?q=TCF+Canada+preparation+site%3Areddit.com+OR+site%3Azhihu.com+OR+site%3Aquora.com&tbs=qdr:m" },
+];
+
 function ManualTestPrompts() {
   const [copiedIdx, setCopiedIdx] = useState<string | null>(null);
 
@@ -730,6 +742,34 @@ function ManualTestPrompts() {
           </CardContent>
         </Card>
       ))}
+
+      {/* Platform search shortcuts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">各平台搜索直达</CardTitle>
+          <p className="text-xs text-muted-foreground">点击跳转搜索结果，找到相关问题后跟帖回复，自然提及 HiTCF</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {PLATFORM_SEARCHES.map((s) => (
+              <a
+                key={s.name}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border p-3 hover:bg-muted/30 transition-colors"
+              >
+                <span className="text-lg">{s.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium">{s.name}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">{s.query}</div>
+                </div>
+                <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              </a>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
