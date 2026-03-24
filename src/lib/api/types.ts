@@ -1130,3 +1130,13 @@ export interface GeoPrompt {
   lang: string;
   text: string;
 }
+
+export interface GeoContentItem {
+  _id: string;
+  url: string;
+  title: string;
+  platform: string;
+  lang: string;
+  notes: string;
+  created_at: string;
+}

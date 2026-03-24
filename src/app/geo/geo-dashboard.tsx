@@ -19,11 +19,16 @@ import { toast } from "sonner";
 import {
   fetchGeoCheck,
   fetchGeoHistory,
+  fetchGeoContent,
+  addGeoContent,
+  seedGeoContent,
+  deleteGeoContent,
 } from "@/lib/api/admin";
 import type {
   GeoCheckResult,
   GeoEngineResult,
   GeoSummary,
+  GeoContentItem,
 } from "@/lib/api/types";
 
 /* ──────────────────── Engine metadata ──────────────────── */
@@ -210,17 +215,15 @@ export function GeoDashboard({ tab }: Props) {
     );
   }
 
-  // Other tabs - placeholder
-  return (
-    <Card>
-      <CardContent className="py-12 text-center text-muted-foreground">
-        {tab === "citations" && "AI 引用监测 — 基于检测结果自动分析"}
-        {tab === "optimization" && "内容优化建议 — 开发中"}
-        {tab === "prompts" && "Prompt 覆盖率 — 开发中"}
-        {tab === "trends" && "AI 搜索趋势 — 开发中"}
-      </CardContent>
-    </Card>
-  );
+  if (tab === "content") {
+    return <ContentTracker />;
+  }
+
+  if (tab === "manual") {
+    return <ManualTestPrompts />;
+  }
+
+  return null;
 }
 
 /* ──────────────────── Prompt Result Card ──────────────────── */
@@ -378,6 +381,281 @@ function EngineDetail({ engine }: { engine: GeoEngineResult }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ──────────────────── Content Tracker (喂料追踪) ──────────────────── */
+
+const PLATFORM_META: Record<string, { label: string; icon: string }> = {
+  medium: { label: "Medium", icon: "📝" },
+  zhihu: { label: "知乎", icon: "🔵" },
+  reddit: { label: "Reddit", icon: "🟠" },
+  quora: { label: "Quora", icon: "🔴" },
+  xiaohongshu: { label: "小红书", icon: "📕" },
+  other: { label: "其他", icon: "🔗" },
+};
+
+function ContentTracker() {
+  const [items, setItems] = useState<GeoContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [newUrl, setNewUrl] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newPlatform, setNewPlatform] = useState("zhihu");
+  const [newLang, setNewLang] = useState("zh");
+  const [newNotes, setNewNotes] = useState("");
+
+  useEffect(() => {
+    loadContent();
+  }, []);
+
+  async function loadContent() {
+    try {
+      const data = await fetchGeoContent();
+      setItems(data.items);
+    } catch {
+      // Try seed first
+      try {
+        await seedGeoContent();
+        const data = await fetchGeoContent();
+        setItems(data.items);
+      } catch {
+        // ignore
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAdd() {
+    if (!newUrl || !newTitle) return;
+    setAdding(true);
+    try {
+      await addGeoContent({
+        url: newUrl,
+        title: newTitle,
+        platform: newPlatform,
+        lang: newLang,
+        notes: newNotes,
+      });
+      setNewUrl("");
+      setNewTitle("");
+      setNewNotes("");
+      toast.success("已添加");
+      await loadContent();
+    } catch (e) {
+      toast.error("添加失败: " + (e as Error).message);
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteGeoContent(id);
+      toast.success("已删除");
+      await loadContent();
+    } catch (e) {
+      toast.error("删除失败: " + (e as Error).message);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Add new */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">添加喂料文章</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <input
+              className="rounded-md border bg-background px-3 py-2 text-sm"
+              placeholder="文章 URL"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+            />
+            <input
+              className="rounded-md border bg-background px-3 py-2 text-sm"
+              placeholder="标题"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+            />
+            <select
+              className="rounded-md border bg-background px-3 py-2 text-sm"
+              value={newPlatform}
+              onChange={(e) => setNewPlatform(e.target.value)}
+            >
+              {Object.entries(PLATFORM_META).map(([key, meta]) => (
+                <option key={key} value={key}>{meta.icon} {meta.label}</option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <select
+                className="rounded-md border bg-background px-3 py-2 text-sm flex-1"
+                value={newLang}
+                onChange={(e) => setNewLang(e.target.value)}
+              >
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+              </select>
+              <Button onClick={handleAdd} disabled={adding || !newUrl || !newTitle}>
+                {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : "添加"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* List */}
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : items.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            暂无喂料记录
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item) => {
+            const meta = PLATFORM_META[item.platform] || PLATFORM_META.other;
+            return (
+              <Card key={item._id}>
+                <CardContent className="flex items-center gap-3 py-3">
+                  <span className="text-lg">{meta.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium hover:underline flex items-center gap-1"
+                    >
+                      {item.title}
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                    </a>
+                    <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                      <Badge variant="outline" className="text-[10px]">{meta.label}</Badge>
+                      <Badge variant="outline" className="text-[10px]">{item.lang}</Badge>
+                      {item.notes && <span>{item.notes}</span>}
+                      <span>{new Date(item.created_at).toLocaleDateString("zh-CN")}</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-500 hover:text-red-700 text-xs"
+                    onClick={() => handleDelete(item._id)}
+                  >
+                    删除
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ──────────────────── Manual Test Prompts ──────────────────── */
+
+const MANUAL_ENGINES = [
+  { name: "Gemini", url: "https://gemini.google.com", icon: "💎" },
+  { name: "DeepSeek", url: "https://chat.deepseek.com", icon: "🔍" },
+  { name: "豆包", url: "https://www.doubao.com", icon: "🫘" },
+  { name: "Claude", url: "https://claude.ai", icon: "🟣" },
+  { name: "Perplexity", url: "https://www.perplexity.ai", icon: "🌐" },
+  { name: "Kimi", url: "https://kimi.moonshot.cn", icon: "🌙" },
+];
+
+const TEST_PROMPTS = [
+  {
+    category: "推荐测试",
+    description: "测试 AI 是否推荐 HiTCF",
+    prompts: [
+      { lang: "EN", text: "What are the best online platforms to practice for the TCF Canada exam? Recommend specific websites with pros and cons." },
+      { lang: "FR", text: "Quels sont les meilleurs sites pour s'entraîner au TCF Canada en ligne ? Recommandez des sites spécifiques." },
+      { lang: "ZH", text: "TCF Canada 考试有哪些好的在线练习平台？请推荐具体网站，说明各自的优缺点。" },
+    ],
+  },
+  {
+    category: "参考源测试",
+    description: "让 AI 说出信息来源，便于定向喂料",
+    prompts: [
+      { lang: "EN", text: "What sources do you use to recommend TCF Canada preparation websites? Please list the articles, reviews, or websites that inform your recommendations." },
+      { lang: "FR", text: "Quelles sources utilisez-vous pour recommander des sites de préparation au TCF Canada ? Listez les articles ou sites qui informent vos recommandations." },
+      { lang: "ZH", text: "你推荐 TCF Canada 备考网站的依据是什么？请列出你参考的文章、评测或网站来源。" },
+    ],
+  },
+];
+
+function ManualTestPrompts() {
+  const [copiedIdx, setCopiedIdx] = useState<string | null>(null);
+
+  function copyToClipboard(text: string, idx: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedIdx(idx);
+    toast.success("已复制");
+    setTimeout(() => setCopiedIdx(null), 2000);
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground">
+            以下平台暂无 API，请手动打开网站测试。复制 Prompt 粘贴提问，观察是否推荐 HiTCF。
+          </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {MANUAL_ENGINES.map((e) => (
+              <a
+                key={e.name}
+                href={e.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
+              >
+                <span>{e.icon}</span>
+                <span>{e.name}</span>
+                <ExternalLink className="h-3 w-3 text-muted-foreground" />
+              </a>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {TEST_PROMPTS.map((group) => (
+        <Card key={group.category}>
+          <CardHeader>
+            <CardTitle className="text-base">{group.category}</CardTitle>
+            <p className="text-xs text-muted-foreground">{group.description}</p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {group.prompts.map((p, i) => {
+              const idx = `${group.category}-${i}`;
+              return (
+                <div
+                  key={idx}
+                  className="flex items-start gap-2 rounded-lg border p-3 hover:bg-muted/30 transition-colors cursor-pointer"
+                  onClick={() => copyToClipboard(p.text, idx)}
+                >
+                  <Badge variant="outline" className="text-[10px] shrink-0 mt-0.5">{p.lang}</Badge>
+                  <p className="text-sm flex-1">{p.text}</p>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {copiedIdx === idx ? "✓ 已复制" : "点击复制"}
+                  </span>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

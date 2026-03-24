@@ -61,6 +61,7 @@ import type {
   GeoCheckResult,
   GeoHistoryResponse,
   GeoPrompt,
+  GeoContentItem,
 } from "./types";
 
 // Dashboard
@@ -986,4 +987,20 @@ export function fetchGeoHistory(days = 30) {
 
 export function fetchGeoPrompts() {
   return get<{ prompts: GeoPrompt[] }>("/api/admin/geo/prompts");
+}
+
+export function fetchGeoContent() {
+  return get<{ items: GeoContentItem[]; total: number }>("/api/admin/geo/content");
+}
+
+export function addGeoContent(item: { url: string; title: string; platform: string; lang?: string; notes?: string }) {
+  return post<GeoContentItem>("/api/admin/geo/content", item);
+}
+
+export function seedGeoContent() {
+  return post<{ inserted: number; total: number }>("/api/admin/geo/content/seed");
+}
+
+export function deleteGeoContent(id: string) {
+  return del<{ ok: boolean }>(`/api/admin/geo/content/${id}`);
 }
