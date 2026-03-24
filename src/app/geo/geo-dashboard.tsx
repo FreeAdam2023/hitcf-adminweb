@@ -393,8 +393,21 @@ const PLATFORM_META: Record<string, { label: string; icon: string }> = {
   reddit: { label: "Reddit", icon: "🟠" },
   quora: { label: "Quora", icon: "🔴" },
   xiaohongshu: { label: "小红书", icon: "📕" },
+  wikipedia: { label: "Wikipedia", icon: "🌐" },
+  blog: { label: "官网博客", icon: "✍️" },
   other: { label: "其他", icon: "🔗" },
 };
+
+// 推荐喂料平台清单 — 按优先级排列
+const FEED_PLAN = [
+  { platform: "medium", target: "英文长文", impact: "ChatGPT 重度抓取", priority: "⭐⭐⭐" },
+  { platform: "zhihu", target: "中文长文", impact: "豆包/DeepSeek/Kimi 抓取", priority: "⭐⭐⭐" },
+  { platform: "reddit", target: "回答问题，自然提及", impact: "ChatGPT/Claude/Gemini 抓取", priority: "⭐⭐⭐" },
+  { platform: "quora", target: "回答 TCF 相关问题", impact: "ChatGPT/Perplexity 抓取", priority: "⭐⭐" },
+  { platform: "blog", target: "SEO 优化博客文章", impact: "所有搜索引擎 + AI", priority: "⭐⭐" },
+  { platform: "xiaohongshu", target: "备考经验分享", impact: "品牌曝光（华人圈）", priority: "⭐⭐" },
+  { platform: "wikipedia", target: "编辑 TCF 相关词条", impact: "所有 AI 训练数据", priority: "⭐（难度高）" },
+];
 
 function ContentTracker() {
   const [items, setItems] = useState<GeoContentItem[]>([]);
@@ -461,8 +474,69 @@ function ContentTracker() {
     }
   }
 
+  // Compute completion per platform
+  const publishedPlatforms = new Set(items.map((i) => i.platform));
+  const completedCount = FEED_PLAN.filter((p) => publishedPlatforms.has(p.platform)).length;
+
   return (
     <div className="space-y-6">
+      {/* Feed progress */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">喂料完成度</CardTitle>
+            <span className="text-sm font-medium">
+              {completedCount}/{FEED_PLAN.length} 平台
+            </span>
+          </div>
+          {/* Progress bar */}
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden mt-2">
+            <div
+              className="h-full bg-green-500 transition-all"
+              style={{ width: `${(completedCount / FEED_PLAN.length) * 100}%` }}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {FEED_PLAN.map((plan) => {
+              const done = publishedPlatforms.has(plan.platform);
+              const meta = PLATFORM_META[plan.platform] || PLATFORM_META.other;
+              const articleCount = items.filter((i) => i.platform === plan.platform).length;
+              return (
+                <div
+                  key={plan.platform}
+                  className={`flex items-center gap-3 rounded-lg border p-2.5 ${
+                    done ? "bg-green-50/50 border-green-200 dark:bg-green-950/20 dark:border-green-900" : ""
+                  }`}
+                >
+                  {done ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
+                  ) : (
+                    <div className="h-4 w-4 shrink-0 rounded-full border-2 border-muted-foreground/30" />
+                  )}
+                  <span className="text-sm">{meta.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{meta.label}</span>
+                      <span className="text-xs text-muted-foreground">{plan.priority}</span>
+                      {done && (
+                        <Badge className="bg-green-500 text-white text-[10px]">
+                          {articleCount} 篇
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {plan.target} · {plan.impact}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Add new */}
       <Card>
         <CardHeader>
