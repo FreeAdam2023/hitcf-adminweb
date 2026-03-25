@@ -64,6 +64,7 @@ import type {
   GeoContentItem,
   EmailLogItem,
   EmailStatsResponse,
+  TodoItem,
 } from "./types";
 
 // Dashboard
@@ -1031,4 +1032,24 @@ export function fetchEmailLogs(params: {
 
 export function fetchEmailStats() {
   return get<EmailStatsResponse>("/api/admin/emails/stats");
+}
+
+// Todos
+export function fetchTodos(status?: string) {
+  const sp = new URLSearchParams();
+  if (status) sp.set("status", status);
+  const qs = sp.toString();
+  return get<TodoItem[]>(`/api/admin/todos${qs ? `?${qs}` : ""}`);
+}
+
+export function createTodo(data: { title: string; description?: string; priority?: string }) {
+  return post<{ id: string; message: string }>("/api/admin/todos", data);
+}
+
+export function updateTodo(id: string, data: { title?: string; description?: string; status?: string; priority?: string }) {
+  return put<{ message: string }>(`/api/admin/todos/${id}`, data);
+}
+
+export function deleteTodo(id: string) {
+  return del<{ message: string }>(`/api/admin/todos/${id}`);
 }

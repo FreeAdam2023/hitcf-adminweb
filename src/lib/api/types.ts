@@ -1184,3 +1184,15 @@ export interface EmailStatsResponse {
   total_failed: number;
   by_type: Record<string, { sent: number; failed: number }>;
 }
+
+// Todos / Kanban
+export interface TodoItem {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "todo" | "in_progress" | "done";
+  priority: "low" | "medium" | "high" | "urgent";
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
