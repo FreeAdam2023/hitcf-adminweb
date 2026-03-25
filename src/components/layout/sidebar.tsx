@@ -32,6 +32,7 @@ import {
   ShieldAlert,
   Headphones,
   Database,
+  Mail,
   Search,
   Bot,
   Rocket,
@@ -104,6 +105,7 @@ const navEntries: NavEntry[] = [
       { href: "/anomalies", label: "异常检测", icon: ShieldAlert },
       { href: "/scrape-data", label: "数据采集", icon: Database },
       { href: "/audit", label: "审计日志", icon: Shield },
+      { href: "/emails", label: "邮件日志", icon: Mail },
     ],
   },
   {

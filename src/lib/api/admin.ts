@@ -62,6 +62,8 @@ import type {
   GeoHistoryResponse,
   GeoPrompt,
   GeoContentItem,
+  EmailLogItem,
+  EmailStatsResponse,
 } from "./types";
 
 // Dashboard
@@ -1003,4 +1005,27 @@ export function seedGeoContent() {
 
 export function deleteGeoContent(id: string) {
   return del<{ ok: boolean }>(`/api/admin/geo/content/${id}`);
+}
+
+// Email logs
+export function fetchEmailLogs(params: {
+  email_type?: string;
+  status?: string;
+  search?: string;
+  user_id?: string;
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params.email_type) sp.set("email_type", params.email_type);
+  if (params.status) sp.set("status", params.status);
+  if (params.search) sp.set("search", params.search);
+  if (params.user_id) sp.set("user_id", params.user_id);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  return get<PaginatedResponse<EmailLogItem>>(`/api/admin/emails?${sp}`);
+}
+
+export function fetchEmailStats() {
+  return get<EmailStatsResponse>("/api/admin/emails/stats");
 }

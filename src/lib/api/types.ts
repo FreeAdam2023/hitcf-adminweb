@@ -1140,3 +1140,21 @@ export interface GeoContentItem {
   notes: string;
   created_at: string;
 }
+
+// Email logs
+export interface EmailLogItem {
+  id: string;
+  to: string;
+  subject: string;
+  email_type: string;
+  status: string;
+  user_id: string | null;
+  error: string | null;
+  created_at: string;
+}
+
+export interface EmailStatsResponse {
+  total_sent: number;
+  total_failed: number;
+  by_type: Record<string, { sent: number; failed: number }>;
+}
