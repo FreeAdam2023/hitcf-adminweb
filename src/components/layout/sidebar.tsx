@@ -36,6 +36,7 @@ import {
   Search,
   Bot,
   Rocket,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ const navEntries: NavEntry[] = [
   { href: "/quick-links", label: "快捷方式", icon: ExternalLink },
   { href: "/users", label: "用户管理", icon: Users },
   { href: "/subscriptions", label: "订阅管理", icon: CreditCard },
+  { href: "/financials", label: "收支报表", icon: DollarSign },
   {
     label: "内容管理",
     icon: FolderOpen,

@@ -247,14 +247,38 @@ export interface CostItem {
   note: string;
 }
 
+export interface ManualCostItem {
+  name: string;
+  type: "manual";
+  cost: number | null;
+  unit: string;
+  note: string;
+}
+
+export interface AzureCosts {
+  total: number;
+  currency: string;
+  period: string;
+  by_service: Record<string, number>;
+}
+
 export interface CostEstimate {
   period: string;
   fixed_costs: CostItem[];
   variable_costs: CostItem[];
+  manual_costs: ManualCostItem[];
+  azure_costs: AzureCosts | null;
+  revenue: {
+    estimated_mrr: number;
+    active_subscriptions: number;
+    by_plan: Record<string, number>;
+  };
   summary: {
     total_fixed: number;
     total_variable: number;
     total_estimated: number;
+    total_revenue: number;
+    net_profit: number;
     user_count: number;
     cost_per_user: number;
   };

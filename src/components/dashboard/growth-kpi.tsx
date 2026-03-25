@@ -60,8 +60,8 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
     }
   }
 
-  // MRR target: $2000
-  const mrrTarget = 2000;
+  // Revenue goal: $20,000 total
+  const mrrTarget = 20000;
   const mrrProgress = Math.min((mrr / mrrTarget) * 100, 100);
 
   return (
@@ -132,8 +132,8 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
                   {revenue ? `$${mrr.toFixed(0)}` : "—"}
                 </span>
               </div>
-              <div className="mt-0.5 text-xs text-white/70">月经常性收入</div>
-              {/* MRR progress bar toward $2000 target */}
+              <div className="mt-0.5 text-xs text-white/70">目标盈利</div>
+              {/* Revenue progress bar toward $20,000 goal */}
               <div className="mt-1.5 flex items-center gap-2">
                 <div className="h-1.5 w-24 rounded-full bg-white/20">
                   <div
