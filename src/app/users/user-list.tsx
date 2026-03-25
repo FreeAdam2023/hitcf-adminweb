@@ -44,11 +44,27 @@ function formatLocation(t: { signup_country?: string | null; signup_city?: strin
   return parts.length > 0 ? parts.join(", ") : "-";
 }
 
+const ACTIVITY_OPTIONS = [
+  { value: "all", label: "全部活跃度" },
+  { value: "active", label: "活跃 (7天内)" },
+  { value: "inactive", label: "不活跃 (7-30天)" },
+  { value: "dormant", label: "沉睡 (30天+)" },
+];
+
+function ActivityDot({ lastActiveAt }: { lastActiveAt: string | null }) {
+  if (!lastActiveAt) return <span className="inline-block h-2 w-2 rounded-full bg-gray-300" title="从未活跃" />;
+  const days = Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86400000);
+  if (days <= 7) return <span className="inline-block h-2 w-2 rounded-full bg-green-500" title={`${days}天前活跃`} />;
+  if (days <= 30) return <span className="inline-block h-2 w-2 rounded-full bg-yellow-500" title={`${days}天前活跃`} />;
+  return <span className="inline-block h-2 w-2 rounded-full bg-gray-400" title={`${days}天前活跃`} />;
+}
+
 export function UserList() {
   const [data, setData] = useState<PaginatedResponse<AdminUserItem> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [activityStatus, setActivityStatus] = useState("all");
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -56,14 +72,18 @@ export function UserList() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchUsers({ search: search || undefined, page });
+      const res = await fetchUsers({
+        search: search || undefined,
+        activity_status: activityStatus !== "all" ? activityStatus : undefined,
+        page,
+      });
       setData(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : "加载用户失败");
     } finally {
       setLoading(false);
     }
-  }, [search, page]);
+  }, [search, activityStatus, page]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -109,12 +129,24 @@ export function UserList() {
 
   return (
     <div className="space-y-4">
-      <Input
-        placeholder="按邮箱搜索..."
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.target.value)}
-        className="max-w-sm"
-      />
+      <div className="flex flex-wrap items-center gap-3">
+        <Input
+          placeholder="按邮箱搜索..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="max-w-xs"
+        />
+        <Select value={activityStatus} onValueChange={(v) => { setActivityStatus(v); setPage(1); }}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ACTIVITY_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {loading ? (
         <div className="flex h-32 items-center justify-center"><LoadingSpinner /></div>
@@ -141,6 +173,7 @@ export function UserList() {
                 <TableHead className="text-center">答题</TableHead>
                 <TableHead className="text-center">收藏</TableHead>
                 <TableHead className="text-center">错题</TableHead>
+                <TableHead className="text-center">活跃</TableHead>
                 <TableHead>注册时间</TableHead>
                 <TableHead>最后登录</TableHead>
               </TableRow>
@@ -195,12 +228,13 @@ export function UserList() {
                     <TableCell className="text-center">{u.activity?.answers ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.saved_words ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.wrong_answers ?? 0}</TableCell>
+                    <TableCell className="text-center"><ActivityDot lastActiveAt={u.last_active_at} /></TableCell>
                     <TableCell>{formatDate(u.created_at)}</TableCell>
                     <TableCell>{formatDate(u.last_login_at)}</TableCell>
                   </TableRow>
                   {expandedId === u.id && (
                     <TableRow key={`${u.id}-detail`}>
-                      <TableCell colSpan={10} className="bg-muted/30">
+                      <TableCell colSpan={11} className="bg-muted/30">
                         <div className="space-y-3 px-4 py-3 text-sm">
                           {/* Row 1: Basic info */}
                           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

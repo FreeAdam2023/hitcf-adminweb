@@ -159,6 +159,7 @@ export interface AdminUserItem {
   subscription_status: string | null;
   created_at: string;
   last_login_at: string | null;
+  last_active_at: string | null;
   activity: {
     answers: number;
     saved_words: number;
@@ -369,6 +370,7 @@ export interface AdminSubscriptionItem {
   cancel_at_period_end?: boolean;
   stripe_customer_id: string | null;
   created_at: string;
+  last_active_at: string | null;
 }
 
 export interface SubscriptionRevenue {

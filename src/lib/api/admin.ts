@@ -103,9 +103,10 @@ export function fetchSlowRoutes(threshold = 1.0) {
 }
 
 // Users
-export function fetchUsers(params: { search?: string; page?: number; page_size?: number }) {
+export function fetchUsers(params: { search?: string; activity_status?: string; page?: number; page_size?: number }) {
   const sp = new URLSearchParams();
   if (params.search) sp.set("search", params.search);
+  if (params.activity_status) sp.set("activity_status", params.activity_status);
   if (params.page) sp.set("page", String(params.page));
   if (params.page_size) sp.set("page_size", String(params.page_size));
   return get<PaginatedResponse<AdminUserItem>>(`/api/admin/users?${sp}`);
@@ -182,6 +183,7 @@ export function fetchSubscriptions(params: {
   status?: string;
   plan?: string;
   search?: string;
+  activity_status?: string;
   page?: number;
   page_size?: number;
 }) {
@@ -189,6 +191,7 @@ export function fetchSubscriptions(params: {
   if (params.status) sp.set("status", params.status);
   if (params.plan) sp.set("plan", params.plan);
   if (params.search) sp.set("search", params.search);
+  if (params.activity_status) sp.set("activity_status", params.activity_status);
   if (params.page) sp.set("page", String(params.page));
   if (params.page_size) sp.set("page_size", String(params.page_size));
   return get<PaginatedResponse<AdminSubscriptionItem>>(`/api/admin/subscriptions?${sp}`);

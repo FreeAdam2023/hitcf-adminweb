@@ -26,6 +26,20 @@ import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
 const STATUS_OPTIONS = ["all", "active", "trialing", "cancelled", "past_due", "expired"];
 const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester"];
+const ACTIVITY_OPTIONS = [
+  { value: "all", label: "全部活跃度" },
+  { value: "active", label: "活跃 (7天内)" },
+  { value: "inactive", label: "不活跃 (7-30天)" },
+  { value: "dormant", label: "沉睡 (30天+)" },
+];
+
+function ActivityDot({ lastActiveAt }: { lastActiveAt: string | null }) {
+  if (!lastActiveAt) return <span className="inline-block h-2 w-2 rounded-full bg-gray-300" title="从未活跃" />;
+  const days = Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86400000);
+  if (days <= 7) return <span className="inline-block h-2 w-2 rounded-full bg-green-500" title={`${days}天前活跃`} />;
+  if (days <= 30) return <span className="inline-block h-2 w-2 rounded-full bg-yellow-500" title={`${days}天前活跃`} />;
+  return <span className="inline-block h-2 w-2 rounded-full bg-gray-400" title={`${days}天前活跃`} />;
+}
 const PLAN_LABELS: Record<string, string> = {
   all: "全部套餐",
   monthly: "月付",
@@ -55,6 +69,7 @@ export function SubscriptionList() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [plan, setPlan] = useState("all");
+  const [activityStatus, setActivityStatus] = useState("all");
   const [page, setPage] = useState(1);
 
   // Dialogs
@@ -71,6 +86,7 @@ export function SubscriptionList() {
         status: status !== "all" ? status : undefined,
         plan: plan !== "all" ? plan : undefined,
         search: search || undefined,
+        activity_status: activityStatus !== "all" ? activityStatus : undefined,
         page,
       });
       setData(res);
@@ -79,7 +95,7 @@ export function SubscriptionList() {
     } finally {
       setLoading(false);
     }
-  }, [status, plan, search, page]);
+  }, [status, plan, search, activityStatus, page]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -154,6 +170,14 @@ export function SubscriptionList() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={activityStatus} onValueChange={(v) => { setActivityStatus(v); setPage(1); }}>
+          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {ACTIVITY_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
@@ -168,6 +192,7 @@ export function SubscriptionList() {
                 <TableHead>邮箱</TableHead>
                 <TableHead>套餐</TableHead>
                 <TableHead>状态</TableHead>
+                <TableHead className="text-center">活跃</TableHead>
                 <TableHead>到期时间</TableHead>
                 <TableHead>创建时间</TableHead>
                 <TableHead>操作</TableHead>
@@ -191,6 +216,7 @@ export function SubscriptionList() {
                       <Badge variant={statusVariant(item.status)}>{STATUS_LABELS[item.status] || item.status}</Badge>
                     ) : "-"}
                   </TableCell>
+                  <TableCell className="text-center"><ActivityDot lastActiveAt={item.last_active_at} /></TableCell>
                   <TableCell>
                     {item.current_period_end
                       ? new Date(item.current_period_end).toLocaleDateString()
