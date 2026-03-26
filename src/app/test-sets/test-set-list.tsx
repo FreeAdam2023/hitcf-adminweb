@@ -5,12 +5,10 @@ import Link from "next/link";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TypeBadge } from "@/components/shared/type-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -24,21 +22,12 @@ import type { AdminTestSetItem, PaginatedResponse } from "@/lib/api/types";
 import { Pencil, Trash2, AlertCircle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
-const TYPE_OPTIONS = [
-  { value: "all", label: "全部类型" },
+const TYPE_TABS = [
+  { value: "all", label: "全部" },
   { value: "listening", label: "听力" },
   { value: "reading", label: "阅读" },
   { value: "speaking", label: "口语" },
   { value: "writing", label: "写作" },
-];
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const EXAM_TYPE_OPTIONS = [
-  { value: "all", label: "全部考试" },
-  { value: "tcf_canada", label: "TCF Canada" },
-  { value: "tcf_tp", label: "TCF TP" },
-  { value: "tcf_irn", label: "TCF IRN" },
-  { value: "tcf_quebec", label: "TCF Québec" },
 ];
 
 export function TestSetList() {
@@ -46,8 +35,6 @@ export function TestSetList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [examTypeFilter, setExamTypeFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -57,7 +44,6 @@ export function TestSetList() {
     try {
       const res = await fetchTestSets({
         type: typeFilter === "all" ? undefined : typeFilter,
-        exam_type: examTypeFilter === "all" ? undefined : examTypeFilter,
         search: search || undefined,
         page,
       });
@@ -67,7 +53,7 @@ export function TestSetList() {
     } finally {
       setLoading(false);
     }
-  }, [typeFilter, examTypeFilter, search, page]);
+  }, [typeFilter, search, page]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -105,18 +91,24 @@ export function TestSetList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {TYPE_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+      <div className="flex items-center gap-4 flex-wrap">
+        <Tabs
+          value={typeFilter}
+          onValueChange={(v) => { setTypeFilter(v); setPage(1); }}
+        >
+          <TabsList>
+            {TYPE_TABS.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+                {data && typeFilter === tab.value && (
+                  <span className="ml-1.5 text-xs text-muted-foreground">
+                    {data.total}
+                  </span>
+                )}
+              </TabsTrigger>
             ))}
-          </SelectContent>
-        </Select>
-        {/* Exam type filter hidden — only TCF Canada data for now */}
+          </TabsList>
+        </Tabs>
         <Input
           placeholder="按名称搜索..."
           value={searchInput}
