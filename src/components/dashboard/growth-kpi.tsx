@@ -64,6 +64,24 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
   const mrrTarget = 20000;
   const mrrProgress = Math.min((mrr / mrrTarget) * 100, 100);
 
+  // Estimated time to reach revenue goal based on current MRR
+  let etaLabel: string | null = null;
+  if (mrr > 0 && mrr < mrrTarget) {
+    const remaining = mrrTarget - mrr;
+    const months = remaining / mrr;
+    if (months < 1) {
+      etaLabel = `${Math.ceil(months * 30)} 天`;
+    } else if (months < 12) {
+      const m = Math.floor(months);
+      const d = Math.round((months - m) * 30);
+      etaLabel = d > 0 ? `${m} 月 ${d} 天` : `${m} 月`;
+    } else {
+      const y = Math.floor(months / 12);
+      const m = Math.round(months % 12);
+      etaLabel = m > 0 ? `${y} 年 ${m} 月` : `${y} 年`;
+    }
+  }
+
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
       {/* Gradient header with revenue hero */}
@@ -145,6 +163,11 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
                   ${mrrTarget} 目标
                 </span>
               </div>
+              {etaLabel && (
+                <div className="mt-1 text-[10px] text-white/50">
+                  预计 <span className="text-emerald-300 font-medium">{etaLabel}</span> 达成
+                </div>
+              )}
             </div>
           </div>
         </div>
