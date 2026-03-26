@@ -64,13 +64,26 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
   const mrrTarget = 20000;
   const mrrProgress = Math.min((mrr / mrrTarget) * 100, 100);
 
-  // Estimated time to reach revenue goal based on current MRR
+  // Estimated time to reach revenue goal using compound growth
+  // Use week-over-week user growth as proxy for MRR growth
+  // Formula: MRR × (1 + monthlyRate)^n = target → n = log(target/MRR) / log(1 + monthlyRate)
   let etaLabel: string | null = null;
   if (mrr > 0 && mrr < mrrTarget) {
-    const remaining = mrrTarget - mrr;
-    const months = remaining / mrr;
+    // Convert weekly growth rate to monthly (×4.33 weeks/month, compounded)
+    const weeklyRate = wowRate / 100; // e.g. 0.15 for 15%
+    const monthlyRate = weeklyRate > 0 ? Math.pow(1 + weeklyRate, 4.33) - 1 : 0;
+
+    let months: number;
+    if (monthlyRate > 0.01) {
+      // Compound growth: n = log(target/current) / log(1+rate)
+      months = Math.log(mrrTarget / mrr) / Math.log(1 + monthlyRate);
+    } else {
+      // No meaningful growth — linear fallback
+      months = (mrrTarget - mrr) / mrr;
+    }
+
     if (months < 1) {
-      etaLabel = `${Math.ceil(months * 30)} 天`;
+      etaLabel = `${Math.max(1, Math.ceil(months * 30))} 天`;
     } else if (months < 12) {
       const m = Math.floor(months);
       const d = Math.round((months - m) * 30);
@@ -166,6 +179,7 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
               {etaLabel && (
                 <div className="mt-1 text-[10px] text-white/50">
                   预计 <span className="text-emerald-300 font-medium">{etaLabel}</span> 达成
+                  {wowRate > 0 && <span className="ml-1 text-white/30">(周增{wowRate.toFixed(0)}%)</span>}
                 </div>
               )}
             </div>
