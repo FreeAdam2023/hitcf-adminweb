@@ -68,7 +68,6 @@ function isGroup(entry: NavEntry): entry is NavGroup {
 
 const navEntries: NavEntry[] = [
   { href: "/", label: "仪表盘", icon: LayoutDashboard },
-  { href: "/todos", label: "待办事项", icon: ClipboardList },
   { href: "/quick-links", label: "快捷方式", icon: ExternalLink },
   { href: "/users", label: "用户管理", icon: Users },
   { href: "/subscriptions", label: "订阅管理", icon: CreditCard },

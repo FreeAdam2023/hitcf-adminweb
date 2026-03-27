@@ -64,36 +64,8 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
   const mrrTarget = 20000;
   const mrrProgress = Math.min((mrr / mrrTarget) * 100, 100);
 
-  // Estimated time to reach revenue goal using compound growth
-  // Use week-over-week user growth as proxy for MRR growth
-  // Formula: MRR × (1 + monthlyRate)^n = target → n = log(target/MRR) / log(1 + monthlyRate)
-  let etaLabel: string | null = null;
-  if (mrr > 0 && mrr < mrrTarget) {
-    // Convert weekly growth rate to monthly (×4.33 weeks/month, compounded)
-    const weeklyRate = wowRate / 100; // e.g. 0.15 for 15%
-    const monthlyRate = weeklyRate > 0 ? Math.pow(1 + weeklyRate, 4.33) - 1 : 0;
-
-    let months: number;
-    if (monthlyRate > 0.01) {
-      // Compound growth: n = log(target/current) / log(1+rate)
-      months = Math.log(mrrTarget / mrr) / Math.log(1 + monthlyRate);
-    } else {
-      // No meaningful growth — linear fallback
-      months = (mrrTarget - mrr) / mrr;
-    }
-
-    if (months < 1) {
-      etaLabel = `${Math.max(1, Math.ceil(months * 30))} 天`;
-    } else if (months < 12) {
-      const m = Math.floor(months);
-      const d = Math.round((months - m) * 30);
-      etaLabel = d > 0 ? `${m} 月 ${d} 天` : `${m} 月`;
-    } else {
-      const y = Math.floor(months / 12);
-      const m = Math.round(months % 12);
-      etaLabel = m > 0 ? `${y} 年 ${m} 月` : `${y} 年`;
-    }
-  }
+  // MRR progress percentage only — no ETA prediction
+  // (TCF exam prep has high churn; compound growth projections are misleading)
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
@@ -176,10 +148,9 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
                   ${mrrTarget} 目标
                 </span>
               </div>
-              {etaLabel && (
+              {wowRate > 0 && (
                 <div className="mt-1 text-[10px] text-white/50">
-                  预计 <span className="text-emerald-300 font-medium">{etaLabel}</span> 达成
-                  {wowRate > 0 && <span className="ml-1 text-white/30">(周增{wowRate.toFixed(0)}%)</span>}
+                  周增 <span className="text-emerald-300 font-medium">{wowRate.toFixed(0)}%</span>
                 </div>
               )}
             </div>
