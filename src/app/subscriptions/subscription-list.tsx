@@ -43,7 +43,8 @@ const LANG_LABELS: Record<string, string> = {
 function ActivityLabel({ lastActiveAt }: { lastActiveAt: string | null }) {
   if (!lastActiveAt) return <span className="text-xs text-muted-foreground">从未</span>;
   const days = Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86400000);
-  if (days === 0) return <span className="text-xs font-medium text-green-600">今天</span>;
+  if (days <= 0) return <span className="text-xs font-medium text-green-600">今天</span>;
+  if (days === 1) return <span className="text-xs font-medium text-green-600">昨天</span>;
   if (days <= 7) return <span className="text-xs font-medium text-green-600">{days}天前</span>;
   if (days <= 30) return <span className="text-xs text-yellow-600">{days}天前</span>;
   return <span className="text-xs text-muted-foreground">{days}天前</span>;
