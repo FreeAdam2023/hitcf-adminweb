@@ -37,6 +37,7 @@ interface EmailTemplate {
   recalled: number;
   recall_total: number;
   recall_rate: number | null;
+  pending: number | null;
 }
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string }> = {
@@ -167,6 +168,15 @@ export function EmailTemplates() {
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
                       <p className="text-muted-foreground">{t.description}</p>
+
+                      {t.pending !== null && t.pending > 0 && (
+                        <div className="flex items-center gap-2 rounded-md bg-amber-50 dark:bg-amber-950 px-3 py-1.5 text-xs">
+                          <Clock className="h-3.5 w-3.5 text-amber-600" />
+                          <span className="font-semibold text-amber-700 dark:text-amber-400">
+                            {t.pending} 人待发送
+                          </span>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-y-1.5 text-xs">
                         <div className="flex items-center gap-1 text-muted-foreground">
