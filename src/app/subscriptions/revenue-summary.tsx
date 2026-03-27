@@ -73,12 +73,12 @@ export function RevenueSummary() {
       desc: "免费试用期",
     },
     {
-      label: "已取消·到期前",
+      label: "取消中",
       value: data.total_cancelling ?? 0,
       icon: UserX,
       iconBg: "bg-amber-100 dark:bg-amber-900/40",
       iconColor: "text-amber-600 dark:text-amber-400",
-      desc: "取消但仍可用",
+      desc: "用户取消·到期前",
     },
     {
       label: "已取消",
