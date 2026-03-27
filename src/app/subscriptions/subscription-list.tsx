@@ -24,7 +24,7 @@ import {
 } from "@/lib/api/admin";
 import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
-const STATUS_OPTIONS = ["all", "active", "trialing", "cancelled", "past_due", "expired"];
+const STATUS_OPTIONS = ["paying", "all", "active", "trialing", "cancelled", "past_due", "expired"];
 const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester", "referral", "recall"];
 const ACTIVITY_OPTIONS = [
   { value: "all", label: "全部活跃度" },
@@ -51,6 +51,7 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
+  paying: "付费中",
   active: "活跃",
   trialing: "试用中",
   cancelled: "已取消",
@@ -69,7 +70,7 @@ export function SubscriptionList() {
   const [data, setData] = useState<PaginatedResponse<AdminSubscriptionItem> | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState("paying");
   const [plan, setPlan] = useState("all");
   const [activityStatus, setActivityStatus] = useState("all");
   const [page, setPage] = useState(1);
