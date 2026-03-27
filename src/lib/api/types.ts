@@ -399,6 +399,9 @@ export interface AdminSubscriptionItem {
   current_period_end: string | null;
   trial_end: string | null;
   cancel_at_period_end?: boolean;
+  user_cancelled?: boolean;
+  cancel_reason?: string | null;
+  ui_language?: string | null;
   stripe_customer_id: string | null;
   created_at: string;
   last_active_at: string | null;

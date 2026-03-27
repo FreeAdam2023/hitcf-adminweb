@@ -33,12 +33,20 @@ const ACTIVITY_OPTIONS = [
   { value: "dormant", label: "沉睡 (30天+)" },
 ];
 
-function ActivityDot({ lastActiveAt }: { lastActiveAt: string | null }) {
-  if (!lastActiveAt) return <span className="inline-block h-2 w-2 rounded-full bg-gray-300" title="从未活跃" />;
+const LANG_LABELS: Record<string, string> = {
+  zh: "中",
+  en: "EN",
+  fr: "FR",
+  ar: "AR",
+};
+
+function ActivityLabel({ lastActiveAt }: { lastActiveAt: string | null }) {
+  if (!lastActiveAt) return <span className="text-xs text-muted-foreground">从未</span>;
   const days = Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86400000);
-  if (days <= 7) return <span className="inline-block h-2 w-2 rounded-full bg-green-500" title={`${days}天前活跃`} />;
-  if (days <= 30) return <span className="inline-block h-2 w-2 rounded-full bg-yellow-500" title={`${days}天前活跃`} />;
-  return <span className="inline-block h-2 w-2 rounded-full bg-gray-400" title={`${days}天前活跃`} />;
+  if (days === 0) return <span className="text-xs font-medium text-green-600">今天</span>;
+  if (days <= 7) return <span className="text-xs font-medium text-green-600">{days}天前</span>;
+  if (days <= 30) return <span className="text-xs text-yellow-600">{days}天前</span>;
+  return <span className="text-xs text-muted-foreground">{days}天前</span>;
 }
 const PLAN_LABELS: Record<string, string> = {
   all: "全部套餐",
@@ -52,14 +60,14 @@ const PLAN_LABELS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   paying: "付费中",
-  active: "活跃",
+  active: "已付费",
   trialing: "试用中",
   cancelled: "已取消",
   past_due: "逾期",
   expired: "已过期",
 };
 
-function statusVariant(s: string | null) {
+function statusVariant(s: string | null): "default" | "secondary" | "destructive" | "outline" {
   if (s === "active") return "default";
   if (s === "trialing") return "secondary";
   if (s === "past_due") return "destructive";
@@ -195,9 +203,9 @@ export function SubscriptionList() {
                 <TableHead>邮箱</TableHead>
                 <TableHead>套餐</TableHead>
                 <TableHead>状态</TableHead>
-                <TableHead className="text-center">活跃</TableHead>
-                <TableHead>到期时间</TableHead>
-                <TableHead>创建时间</TableHead>
+                <TableHead>语言</TableHead>
+                <TableHead>活跃</TableHead>
+                <TableHead>到期</TableHead>
                 <TableHead>操作</TableHead>
               </TableRow>
             </TableHeader>
@@ -213,19 +221,35 @@ export function SubscriptionList() {
                     {item.plan ? <Badge variant="secondary">{PLAN_LABELS[item.plan] || item.plan}</Badge> : "-"}
                   </TableCell>
                   <TableCell>
-                    {item.cancel_at_period_end ? (
-                      <Badge variant="outline" className="border-amber-500 text-amber-600">已取消·到期前</Badge>
+                    {item.user_cancelled && item.status !== "cancelled" ? (
+                      <div>
+                        <Badge variant="outline" className="border-amber-500 text-amber-600">取消中</Badge>
+                        {item.cancel_reason && (
+                          <span className="ml-1 text-xs text-muted-foreground">{item.cancel_reason}</span>
+                        )}
+                      </div>
+                    ) : ["tester", "referral", "recall"].includes(item.plan || "") ? (
+                      <Badge variant="secondary">{PLAN_LABELS[item.plan!] || item.plan}</Badge>
+                    ) : item.status === "active" && item.plan === "monthly" ? (
+                      <Badge variant="default">续费中</Badge>
                     ) : item.status ? (
                       <Badge variant={statusVariant(item.status)}>{STATUS_LABELS[item.status] || item.status}</Badge>
                     ) : "-"}
                   </TableCell>
-                  <TableCell className="text-center"><ActivityDot lastActiveAt={item.last_active_at} /></TableCell>
                   <TableCell>
-                    {item.current_period_end
-                      ? new Date(item.current_period_end).toLocaleDateString()
-                      : "-"}
+                    <span className="text-xs text-muted-foreground">{LANG_LABELS[item.ui_language || ""] || item.ui_language || "-"}</span>
                   </TableCell>
-                  <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell><ActivityLabel lastActiveAt={item.last_active_at} /></TableCell>
+                  <TableCell>
+                    {item.current_period_end ? (() => {
+                      const days = Math.ceil((new Date(item.current_period_end).getTime() - Date.now()) / 86400000);
+                      if (days < 0) return <span className="text-xs text-red-500">已过期{Math.abs(days)}天</span>;
+                      if (days === 0) return <span className="text-xs font-medium text-red-500">今天到期</span>;
+                      if (days <= 3) return <span className="text-xs font-medium text-red-500">{days}天后</span>;
+                      if (days <= 7) return <span className="text-xs text-amber-600">{days}天后</span>;
+                      return <span className="text-xs text-muted-foreground">{days}天后</span>;
+                    })() : "-"}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button
