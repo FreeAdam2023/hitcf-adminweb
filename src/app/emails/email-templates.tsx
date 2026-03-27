@@ -38,6 +38,7 @@ interface EmailTemplate {
   recall_total: number;
   recall_rate: number | null;
   pending: number | null;
+  metric_label: string | null;
 }
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string }> = {
@@ -217,12 +218,12 @@ export function EmailTemplates() {
                             {t.success_rate}% 成功率
                           </Badge>
                         )}
-                        {t.recall_rate !== null && (
+                        {t.recall_rate !== null && t.metric_label && (
                           <div className="flex items-center gap-1">
                             <span className={`font-semibold ${t.recall_rate >= 20 ? "text-green-600" : "text-amber-600"}`}>
                               {t.recall_rate}%
                             </span>
-                            <span className="text-muted-foreground">召回率</span>
+                            <span className="text-muted-foreground">{t.metric_label}</span>
                             <span className="text-muted-foreground">({t.recalled}/{t.recall_total})</span>
                           </div>
                         )}
