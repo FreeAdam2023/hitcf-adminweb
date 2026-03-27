@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionList } from "./subscription-list";
 import { RevenueSummary } from "./revenue-summary";
 import { EventList } from "./event-list";
+import { CancelReasons } from "./cancel-reasons";
 
 export default function SubscriptionsPage() {
   return (
@@ -15,6 +16,7 @@ export default function SubscriptionsPage() {
           <TabsTrigger value="revenue">收入统计</TabsTrigger>
           <TabsTrigger value="list">订阅用户</TabsTrigger>
           <TabsTrigger value="events">Stripe 事件</TabsTrigger>
+          <TabsTrigger value="cancel-reasons">取消原因</TabsTrigger>
         </TabsList>
         <TabsContent value="revenue" className="mt-4">
           <RevenueSummary />
@@ -24,6 +26,9 @@ export default function SubscriptionsPage() {
         </TabsContent>
         <TabsContent value="events" className="mt-4">
           <EventList />
+        </TabsContent>
+        <TabsContent value="cancel-reasons" className="mt-4">
+          <CancelReasons />
         </TabsContent>
       </Tabs>
     </div>
