@@ -48,6 +48,7 @@ const TIMELINE_CONFIG: Record<string, { icon: typeof BarChart3; label: string; c
   email_sent:       { icon: MessageSquare, label: "邮件",  color: "text-sky-600",     bg: "bg-sky-100 dark:bg-sky-900",         badgeCls: "bg-sky-100 text-sky-700" },
   email_failed:     { icon: MessageSquare, label: "邮件失败", color: "text-red-600", bg: "bg-red-100 dark:bg-red-900",         badgeCls: "bg-red-100 text-red-700" },
   event_page_view:  { icon: Navigation,   label: "浏览",   color: "text-slate-500",   bg: "bg-slate-100 dark:bg-slate-900",     badgeCls: "bg-slate-100 text-slate-600" },
+  event_page_leave: { icon: Navigation,   label: "停留",   color: "text-slate-500",   bg: "bg-slate-100 dark:bg-slate-900",     badgeCls: "bg-slate-100 text-slate-600" },
   event_login:      { icon: LogIn,        label: "登录",   color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900", badgeCls: "bg-emerald-100 text-emerald-700" },
   event_viewed_pricing: { icon: DollarSign, label: "看定价", color: "text-violet-600", bg: "bg-violet-100 dark:bg-violet-900", badgeCls: "bg-violet-100 text-violet-700" },
   event_clicked_subscribe: { icon: CreditCard, label: "点订阅", color: "text-green-600", bg: "bg-green-100 dark:bg-green-900", badgeCls: "bg-green-100 text-green-700" },
