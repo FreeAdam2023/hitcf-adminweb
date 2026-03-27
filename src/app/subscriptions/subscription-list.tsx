@@ -25,7 +25,7 @@ import {
 import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
 const STATUS_OPTIONS = ["all", "active", "trialing", "cancelled", "past_due", "expired"];
-const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester"];
+const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester", "referral", "recall"];
 const ACTIVITY_OPTIONS = [
   { value: "all", label: "全部活跃度" },
   { value: "active", label: "活跃 (7天内)" },
@@ -45,7 +45,9 @@ const PLAN_LABELS: Record<string, string> = {
   monthly: "月付",
   quarterly: "季付",
   yearly: "年付",
-  tester: "测试",
+  tester: "体验官",
+  referral: "推荐奖励",
+  recall: "召回体验",
 };
 
 const STATUS_LABELS: Record<string, string> = {

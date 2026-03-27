@@ -19,8 +19,9 @@ const PLAN_LABELS: Record<string, string> = {
   monthly: "月付",
   quarterly: "季付",
   yearly: "年付",
-  tester: "测试",
+  tester: "体验官",
   referral: "推荐奖励",
+  recall: "召回体验",
 };
 
 const PLAN_COLORS: Record<string, string> = {
