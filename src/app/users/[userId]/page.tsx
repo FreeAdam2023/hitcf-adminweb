@@ -16,12 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
-import { fetchUserDetail, activateSubscription, cancelSubscription } from "@/lib/api/admin";
-import type { UserDetail } from "@/lib/api/types";
+import { fetchUserDetail, fetchUserTimeline, activateSubscription, cancelSubscription } from "@/lib/api/admin";
+import type { UserDetail, TimelineEvent } from "@/lib/api/types";
 import {
   ArrowLeft, AlertCircle, BarChart3, PenTool, Mic, MessageSquare,
   BookMarked, Flag, CalendarDays, Globe, Monitor, Link2, CreditCard,
-  FlaskConical, XCircle,
+  FlaskConical, XCircle, Download, Eye, Headphones, BookOpen, Bot,
+  Save, UserPlus,
 } from "lucide-react";
 
 const DURATION_OPTIONS = [
@@ -34,17 +35,19 @@ const DURATION_OPTIONS = [
   { label: "10 年", days: 3650 },
 ];
 
-const TYPE_COLORS: Record<string, string> = {
-  listening: "bg-purple-100 text-purple-800",
-  reading: "bg-blue-100 text-blue-800",
-  speaking: "bg-green-100 text-green-800",
-  writing: "bg-orange-100 text-orange-800",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  completed: "bg-green-100 text-green-800",
-  in_progress: "bg-blue-100 text-blue-800",
-  abandoned: "bg-gray-100 text-gray-600",
+const TIMELINE_CONFIG: Record<string, { icon: typeof BarChart3; label: string; color: string; bg: string; badgeCls: string }> = {
+  register:         { icon: UserPlus,     label: "注册",   color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900", badgeCls: "bg-emerald-100 text-emerald-700" },
+  attempt_listening: { icon: Headphones,  label: "听力",   color: "text-purple-600",  bg: "bg-purple-100 dark:bg-purple-900",   badgeCls: "bg-purple-100 text-purple-700" },
+  attempt_reading:  { icon: BookOpen,     label: "阅读",   color: "text-blue-600",    bg: "bg-blue-100 dark:bg-blue-900",       badgeCls: "bg-blue-100 text-blue-700" },
+  attempt:          { icon: BarChart3,    label: "做题",   color: "text-blue-600",    bg: "bg-blue-100 dark:bg-blue-900",       badgeCls: "bg-blue-100 text-blue-700" },
+  writing:          { icon: PenTool,      label: "写作",   color: "text-orange-600",  bg: "bg-orange-100 dark:bg-orange-900",   badgeCls: "bg-orange-100 text-orange-700" },
+  speaking:         { icon: Mic,          label: "口语",   color: "text-pink-600",    bg: "bg-pink-100 dark:bg-pink-900",       badgeCls: "bg-pink-100 text-pink-700" },
+  conversation:     { icon: Bot,          label: "AI对话", color: "text-teal-600",    bg: "bg-teal-100 dark:bg-teal-900",       badgeCls: "bg-teal-100 text-teal-700" },
+  vocab_save:       { icon: Save,         label: "收藏",   color: "text-amber-600",   bg: "bg-amber-100 dark:bg-amber-900",     badgeCls: "bg-amber-100 text-amber-700" },
+  word_lookup:      { icon: Eye,          label: "查词",   color: "text-cyan-600",    bg: "bg-cyan-100 dark:bg-cyan-900",       badgeCls: "bg-cyan-100 text-cyan-700" },
+  email_sent:       { icon: MessageSquare, label: "邮件",  color: "text-sky-600",     bg: "bg-sky-100 dark:bg-sky-900",         badgeCls: "bg-sky-100 text-sky-700" },
+  email_failed:     { icon: MessageSquare, label: "邮件失败", color: "text-red-600", bg: "bg-red-100 dark:bg-red-900",         badgeCls: "bg-red-100 text-red-700" },
+  _default:         { icon: BarChart3,    label: "事件",   color: "text-gray-600",    bg: "bg-gray-100 dark:bg-gray-900",       badgeCls: "bg-gray-100 text-gray-700" },
 };
 
 function parseUA(ua: string | null): string {
@@ -86,6 +89,7 @@ function formatRelative(d: string | null): string {
 export default function UserDetailPage({ params }: { params: { userId: string } }) {
   const { userId } = params;
   const [user, setUser] = useState<UserDetail | null>(null);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -97,8 +101,12 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchUserDetail(userId);
+      const [data, tl] = await Promise.all([
+        fetchUserDetail(userId),
+        fetchUserTimeline(userId),
+      ]);
       setUser(data);
+      setTimeline(tl.events);
     } catch (err) {
       setError(err instanceof Error ? err.message : "加载失败");
     } finally {
@@ -154,6 +162,7 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
     { label: "AI对话", value: user.activity.conversations, icon: MessageSquare, color: "text-teal-600 bg-teal-50 dark:bg-teal-950" },
     { label: "词汇", value: user.activity.vocab, icon: BookMarked, color: "text-amber-600 bg-amber-50 dark:bg-amber-950" },
     { label: "错题", value: user.activity.wrong_answers, icon: XCircle, color: "text-rose-600 bg-rose-50 dark:bg-rose-950" },
+    { label: "导出", value: user.activity.exports, icon: Download, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950" },
     { label: "举报", value: user.activity.reports, icon: Flag, color: "text-red-600 bg-red-50 dark:bg-red-950" },
     { label: "活跃天数", value: user.activity.active_days, icon: CalendarDays, color: "text-green-600 bg-green-50 dark:bg-green-950" },
   ];
@@ -289,48 +298,38 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
         </Card>
       )}
 
-      {/* Recent Attempts */}
+      {/* Activity Timeline */}
       <Card>
-        <CardHeader><CardTitle className="text-base">最近做题记录</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">活动轨迹</CardTitle></CardHeader>
         <CardContent>
-          {user.recent_attempts.length === 0 ? (
+          {timeline.length === 0 ? (
             <p className="text-sm text-muted-foreground">暂无记录</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-muted-foreground">
-                    <th className="text-left py-2 font-medium">题库</th>
-                    <th className="text-center py-2 font-medium">类型</th>
-                    <th className="text-center py-2 font-medium">模式</th>
-                    <th className="text-center py-2 font-medium">状态</th>
-                    <th className="text-center py-2 font-medium">得分</th>
-                    <th className="text-right py-2 font-medium">时间</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {user.recent_attempts.map((a) => (
-                    <tr key={a.id} className="border-b last:border-0 hover:bg-accent/50">
-                      <td className="py-2 max-w-[200px] truncate">{a.test_set_name || "-"}</td>
-                      <td className="text-center py-2">
-                        <Badge variant="secondary" className={TYPE_COLORS[a.test_set_type] || ""}>
-                          {a.test_set_type}
-                        </Badge>
-                      </td>
-                      <td className="text-center py-2">{a.mode === "practice" ? "练习" : a.mode === "exam" ? "考试" : a.mode}</td>
-                      <td className="text-center py-2">
-                        <Badge variant="secondary" className={STATUS_COLORS[a.status] || ""}>
-                          {a.status === "completed" ? "完成" : a.status === "in_progress" ? "进行中" : a.status}
-                        </Badge>
-                      </td>
-                      <td className="text-center py-2 font-medium">
-                        {a.score != null && a.total != null ? `${a.score}/${a.total}` : "-"}
-                      </td>
-                      <td className="text-right py-2 text-xs text-muted-foreground">{formatRelative(a.started_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="relative ml-3 border-l-2 border-muted pl-6 space-y-4">
+              {timeline.map((ev, i) => {
+                const cfg = TIMELINE_CONFIG[ev.type] || TIMELINE_CONFIG._default;
+                const Icon = cfg.icon;
+                return (
+                  <div key={`${ev.type}-${ev.time}-${i}`} className="relative">
+                    <div className={`absolute -left-[33px] flex h-6 w-6 items-center justify-center rounded-full border-2 border-background ${cfg.bg}`}>
+                      <Icon className={`h-3 w-3 ${cfg.color}`} />
+                    </div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${cfg.badgeCls}`}>
+                            {cfg.label}
+                          </Badge>
+                          <span className="text-sm truncate">{ev.detail}</span>
+                        </div>
+                      </div>
+                      <span className="flex-shrink-0 text-xs text-muted-foreground whitespace-nowrap">
+                        {formatRelative(ev.time)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>

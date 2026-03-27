@@ -64,7 +64,9 @@ import type {
   GeoContentItem,
   EmailLogItem,
   EmailStatsResponse,
+  EmailDetail,
   TodoItem,
+  TimelineEvent,
 } from "./types";
 
 // Dashboard
@@ -482,6 +484,11 @@ export function fetchUserGeo() {
 // User Detail
 export function fetchUserDetail(userId: string) {
   return get<UserDetail>(`/api/admin/users/${userId}/detail`, { timeout: 60_000 });
+}
+
+// User Timeline
+export function fetchUserTimeline(userId: string) {
+  return get<{ events: TimelineEvent[] }>(`/api/admin/users/${userId}/timeline`, { timeout: 60_000 });
 }
 
 // Notifications
@@ -1032,6 +1039,10 @@ export function fetchEmailLogs(params: {
 
 export function fetchEmailStats() {
   return get<EmailStatsResponse>("/api/admin/emails/stats");
+}
+
+export function fetchEmailDetail(emailId: string) {
+  return get<EmailDetail>(`/api/admin/emails/${emailId}`);
 }
 
 // Todos

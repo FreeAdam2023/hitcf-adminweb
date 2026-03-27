@@ -176,7 +176,14 @@ export interface UserDetailActivity {
   vocab: number;
   wrong_answers: number;
   reports: number;
+  exports: number;
   active_days: number;
+}
+
+export interface TimelineEvent {
+  type: string;
+  time: string;
+  detail: string;
 }
 
 export interface UserDetailAttempt {
@@ -1176,7 +1183,12 @@ export interface EmailLogItem {
   status: string;
   user_id: string | null;
   error: string | null;
+  has_body: boolean;
   created_at: string;
+}
+
+export interface EmailDetail extends EmailLogItem {
+  html_body: string | null;
 }
 
 export interface EmailStatsResponse {
