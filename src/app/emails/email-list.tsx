@@ -38,7 +38,8 @@ import type { EmailLogItem, EmailStatsResponse, EmailDetail, PaginatedResponse }
 const EMAIL_TYPES = [
   { value: "", label: "全部类型" },
   { value: "verification", label: "验证码" },
-  { value: "inactive-reminder", label: "召回邮件" },
+  { value: "inactive-reminder", label: "48h未活跃" },
+  { value: "dormant-reminder", label: "7天沉默召回" },
   { value: "cancellation", label: "取消确认" },
   { value: "admin_alert", label: "管理员告警" },
   { value: "subscription_new", label: "新订阅" },
