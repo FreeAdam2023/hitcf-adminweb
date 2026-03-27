@@ -4,12 +4,19 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { get } from "@/lib/api/client";
 import {
   Clock, Globe, Send, AlertTriangle, CheckCircle2,
   Mail, UserPlus, Bell, CreditCard, Gift, Shield,
-  BarChart3, Megaphone,
+  BarChart3, Megaphone, Eye,
 } from "lucide-react";
 
 interface EmailTemplate {
@@ -65,9 +72,42 @@ function formatRelative(d: string | null): string {
   return new Date(d).toLocaleDateString("zh-CN");
 }
 
+const PREVIEW_LANGS = [
+  { value: "zh", label: "中文" },
+  { value: "en", label: "English" },
+  { value: "fr", label: "Français" },
+  { value: "ar", label: "العربية" },
+];
+
 export function EmailTemplates() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Preview state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState("");
+  const [previewSubject, setPreviewSubject] = useState("");
+  const [previewType, setPreviewType] = useState("");
+  const [previewLang, setPreviewLang] = useState("zh");
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  const loadPreview = async (type: string, lang: string) => {
+    setPreviewOpen(true);
+    setPreviewLoading(true);
+    setPreviewType(type);
+    setPreviewLang(lang);
+    try {
+      const res = await get<{ subject: string; html: string }>(
+        `/api/admin/emails/templates/preview/${type}?lang=${lang}`
+      );
+      setPreviewSubject(res.subject);
+      setPreviewHtml(res.html);
+    } catch {
+      toast.error("加载预览失败");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
   useEffect(() => {
     get<{ templates: EmailTemplate[] }>("/api/admin/emails/templates")
@@ -181,11 +221,23 @@ export function EmailTemplates() {
                         </div>
                       </div>
 
-                      {t.last_sent_at && (
-                        <div className="text-[11px] text-muted-foreground">
-                          最近发送: {formatRelative(t.last_sent_at)}
-                        </div>
-                      )}
+                      <div className="flex items-center justify-between">
+                        {t.last_sent_at && (
+                          <div className="text-[11px] text-muted-foreground">
+                            最近发送: {formatRelative(t.last_sent_at)}
+                          </div>
+                        )}
+                        {["verification", "inactive-reminder", "dormant-reminder", "trial-reminder", "password_reset"].includes(t.type) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 gap-1 text-xs"
+                            onClick={() => loadPreview(t.type, "zh")}
+                          >
+                            <Eye className="h-3 w-3" /> 预览
+                          </Button>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 );
@@ -194,6 +246,46 @@ export function EmailTemplates() {
           </div>
         );
       })}
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base">邮件预览</DialogTitle>
+            <div className="flex items-center gap-3 pt-2">
+              <Select value={previewLang} onValueChange={(v) => loadPreview(previewType, v)}>
+                <SelectTrigger className="w-[120px] h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PREVIEW_LANGS.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {previewSubject && (
+                <p className="text-sm text-muted-foreground truncate flex-1">
+                  主题: {previewSubject}
+                </p>
+              )}
+            </div>
+          </DialogHeader>
+          {previewLoading ? (
+            <div className="flex h-32 items-center justify-center"><LoadingSpinner /></div>
+          ) : previewHtml ? (
+            <div className="mt-2 rounded-lg border bg-white p-1">
+              <iframe
+                srcDoc={previewHtml}
+                className="w-full min-h-[400px] border-0"
+                sandbox=""
+                title="Email preview"
+              />
+            </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-muted-foreground">暂无预览</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
