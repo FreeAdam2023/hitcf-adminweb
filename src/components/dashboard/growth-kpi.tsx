@@ -43,6 +43,7 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
   const planLabels: Record<string, string> = {
     monthly: "月付",
     quarterly: "季付",
+    semiannual: "半年付",
     yearly: "年付",
   };
 

@@ -20,9 +20,12 @@ const PLAN_COLORS: Record<string, string> = {
 const PLAN_LABELS: Record<string, string> = {
   monthly: "月付",
   quarterly: "季付",
+  semiannual: "半年付",
   yearly: "年付",
   tester: "测试",
   referral: "推荐",
+  recall: "召回",
+  reverse_trial: "注册试用",
 };
 
 export function PaidUsersOverview() {

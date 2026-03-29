@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,6 +95,7 @@ function formatRelative(d: string | null): string {
 
 export default function UserDetailPage({ params }: { params: { userId: string } }) {
   const { userId } = params;
+  const router = useRouter();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -176,9 +178,9 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/users">
-          <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
-        </Link>
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <PageHeader title={user.name || user.email} description={user.name ? user.email : undefined} />
       </div>
 

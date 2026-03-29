@@ -69,9 +69,16 @@ function isGroup(entry: NavEntry): entry is NavGroup {
 const navEntries: NavEntry[] = [
   { href: "/", label: "仪表盘", icon: LayoutDashboard },
   { href: "/quick-links", label: "快捷方式", icon: ExternalLink },
-  { href: "/users", label: "用户管理", icon: Users },
-  { href: "/subscriptions", label: "订阅管理", icon: CreditCard },
-  { href: "/financials", label: "收支报表", icon: DollarSign },
+  {
+    label: "用户与收入",
+    icon: Users,
+    children: [
+      { href: "/users", label: "用户管理", icon: Users },
+      { href: "/subscriptions", label: "订阅管理", icon: CreditCard },
+      { href: "/paid-users", label: "付费用户", icon: CreditCard },
+      { href: "/financials", label: "收支报表", icon: DollarSign },
+    ],
+  },
   {
     label: "内容管理",
     icon: FolderOpen,
@@ -79,7 +86,6 @@ const navEntries: NavEntry[] = [
       { href: "/test-sets", label: "题库", icon: BookOpen },
       { href: "/questions", label: "题目", icon: FileText },
       { href: "/explanations", label: "解析", icon: Lightbulb },
-      { href: "/attempts", label: "答题记录", icon: ClipboardList },
       { href: "/writing", label: "写作", icon: PenTool },
       { href: "/vocabulary", label: "词汇", icon: BookMarked },
       { href: "/audio-review", label: "音频审核", icon: Headphones },
@@ -90,10 +96,7 @@ const navEntries: NavEntry[] = [
     icon: TrendingUp,
     children: [
       { href: "/analytics", label: "总览", icon: BarChart3 },
-      { href: "/paid-users", label: "付费用户", icon: CreditCard },
-      { href: "/referrals", label: "推荐奖励", icon: Gift },
-      { href: "/feedback", label: "用户反馈", icon: MessageSquare },
-      { href: "/reports", label: "举报", icon: Flag },
+      { href: "/attempts", label: "答题记录", icon: ClipboardList },
       { href: "/competitors", label: "竞品分析", icon: Swords },
     ],
   },
@@ -103,17 +106,20 @@ const navEntries: NavEntry[] = [
     children: [
       { href: "/ops", label: "运营工作台", icon: Megaphone },
       { href: "/announcements", label: "消息通知", icon: Bell },
+      { href: "/feedback", label: "用户反馈", icon: MessageSquare },
+      { href: "/reports", label: "举报", icon: Flag },
       { href: "/metrics", label: "性能监控", icon: Gauge },
       { href: "/anomalies", label: "异常检测", icon: ShieldAlert },
       { href: "/scrape-data", label: "数据采集", icon: Database },
       { href: "/audit", label: "审计日志", icon: Shield },
-      { href: "/emails", label: "邮件日志", icon: Mail },
     ],
   },
   {
     label: "增长",
     icon: Rocket,
     children: [
+      { href: "/referrals", label: "推荐奖励", icon: Gift },
+      { href: "/emails", label: "邮件日志", icon: Mail },
       { href: "/seo", label: "SEO 优化", icon: Search },
       { href: "/geo", label: "GEO 优化", icon: Bot },
     ],

@@ -12,7 +12,9 @@ import { MapPin, Clock, BookOpen, PenTool, Mic, BookMarked, ExternalLink } from 
 const PLAN_BADGE: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
   monthly: { label: "月付", variant: "default" },
   quarterly: { label: "季付", variant: "default" },
+  semiannual: { label: "半年付", variant: "default" },
   yearly: { label: "年付", variant: "default" },
+  reverse_trial: { label: "注册试用", variant: "outline" },
 };
 
 function timeAgo(dateStr: string | null): string {

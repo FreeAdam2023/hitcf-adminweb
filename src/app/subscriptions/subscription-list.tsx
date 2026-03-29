@@ -25,7 +25,7 @@ import {
 import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
 const STATUS_OPTIONS = ["paying", "all", "active", "trialing", "cancelled", "past_due", "expired"];
-const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester", "referral", "recall"];
+const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester", "referral", "recall", "reverse_trial"];
 const ACTIVITY_OPTIONS = [
   { value: "all", label: "全部活跃度" },
   { value: "active", label: "活跃 (7天内)" },
@@ -53,10 +53,12 @@ const PLAN_LABELS: Record<string, string> = {
   all: "全部套餐",
   monthly: "月付",
   quarterly: "季付",
+  semiannual: "半年付",
   yearly: "年付",
   tester: "体验官",
   referral: "推荐奖励",
   recall: "召回体验",
+  reverse_trial: "注册试用",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -229,7 +231,7 @@ export function SubscriptionList() {
                           <span className="ml-1 text-xs text-muted-foreground">{item.cancel_reason}</span>
                         )}
                       </div>
-                    ) : ["tester", "referral", "recall"].includes(item.plan || "") ? (
+                    ) : ["tester", "referral", "recall", "reverse_trial"].includes(item.plan || "") ? (
                       <Badge variant="secondary">{PLAN_LABELS[item.plan!] || item.plan}</Badge>
                     ) : item.status === "active" && item.plan === "monthly" ? (
                       <Badge variant="default">续费中</Badge>
@@ -325,6 +327,7 @@ export function SubscriptionList() {
                 <SelectContent>
                   <SelectItem value="monthly">月付</SelectItem>
                   <SelectItem value="quarterly">季付</SelectItem>
+                  <SelectItem value="semiannual">半年付</SelectItem>
                   <SelectItem value="yearly">年付</SelectItem>
                 </SelectContent>
               </Select>

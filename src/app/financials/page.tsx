@@ -182,6 +182,7 @@ export default function FinancialsPage() {
                   const planLabels: Record<string, string> = {
                     monthly: "月付",
                     quarterly: "季付",
+                    semiannual: "半年付",
                     yearly: "年付",
                   };
                   return (

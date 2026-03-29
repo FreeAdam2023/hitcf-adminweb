@@ -18,10 +18,12 @@ import {
 const PLAN_LABELS: Record<string, string> = {
   monthly: "月付",
   quarterly: "季付",
+  semiannual: "半年付",
   yearly: "年付",
   tester: "体验官",
   referral: "推荐奖励",
   recall: "召回体验",
+  reverse_trial: "注册试用",
 };
 
 const PLAN_COLORS: Record<string, string> = {
