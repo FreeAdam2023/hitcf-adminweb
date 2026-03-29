@@ -103,7 +103,7 @@ jobs:
 
   notify-success:
     needs: [lint, test, deploy, smoke-test]
-    if: success()
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Send success notification
