@@ -172,11 +172,13 @@ export default function FinancialsPage() {
                   const priceMap: Record<string, number> = {
                     monthly: 19.9,
                     quarterly: 49.9,
+                    semiannual: 69.9,
                     yearly: 99.9,
                   };
                   const mrrMap: Record<string, number> = {
                     monthly: 19.9,
                     quarterly: 16.63,
+                    semiannual: 11.65,
                     yearly: 8.33,
                   };
                   const planLabels: Record<string, string> = {
