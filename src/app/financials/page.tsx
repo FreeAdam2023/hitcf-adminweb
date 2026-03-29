@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
 import { fetchCostEstimate } from "@/lib/api/admin";
 import type { CostEstimate } from "@/lib/api/types";
+import { PRICING, MRR_PER_PLAN, PLAN_LABELS } from "@/lib/constants";
 import {
   DollarSign,
   TrendingUp,
@@ -169,24 +170,9 @@ export default function FinancialsPage() {
             <div className="space-y-2">
               {Object.entries(revenue.by_plan).length > 0 ? (
                 Object.entries(revenue.by_plan).map(([plan, count]) => {
-                  const priceMap: Record<string, number> = {
-                    monthly: 19.9,
-                    quarterly: 49.9,
-                    semiannual: 69.9,
-                    yearly: 99.9,
-                  };
-                  const mrrMap: Record<string, number> = {
-                    monthly: 19.9,
-                    quarterly: 16.63,
-                    semiannual: 11.65,
-                    yearly: 8.33,
-                  };
-                  const planLabels: Record<string, string> = {
-                    monthly: "月付",
-                    quarterly: "季付",
-                    semiannual: "半年付",
-                    yearly: "年付",
-                  };
+                  const priceMap = PRICING as Record<string, number>;
+                  const mrrMap = MRR_PER_PLAN;
+                  const planLabels = PLAN_LABELS;
                   return (
                     <div
                       key={plan}

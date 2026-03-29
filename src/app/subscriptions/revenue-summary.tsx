@@ -14,31 +14,15 @@ import {
   AlertTriangle,
   TrendingUp,
 } from "lucide-react";
-
-const PLAN_LABELS: Record<string, string> = {
-  monthly: "月付",
-  quarterly: "季付",
-  semiannual: "半年付",
-  yearly: "年付",
-  tester: "体验官",
-  referral: "推荐奖励",
-  recall: "召回体验",
-  reverse_trial: "注册试用",
-};
+import { PLAN_LABELS, PLAN_PRICE_LABELS as PLAN_PRICES } from "@/lib/constants";
 
 const PLAN_COLORS: Record<string, string> = {
   monthly: "bg-blue-500",
   quarterly: "bg-violet-500",
+  semiannual: "bg-indigo-500",
   yearly: "bg-emerald-500",
   tester: "bg-gray-400",
   referral: "bg-amber-500",
-};
-
-const PLAN_PRICES: Record<string, string> = {
-  monthly: "$19.90/月",
-  quarterly: "$49.90/季",
-  semiannual: "$69.90/半年",
-  yearly: "$99.90/年",
 };
 
 export function RevenueSummary() {
