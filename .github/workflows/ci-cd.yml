@@ -101,6 +101,28 @@ jobs:
           echo "::error::Admin site unreachable after 5 attempts"
           exit 1
 
+  notify-success:
+    needs: [lint, test, deploy, smoke-test]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send success notification
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: |
+          if [ -z "$RESEND_API_KEY" ] || [ -z "$NOTIFY_EMAIL" ]; then exit 0; fi
+          REPO="${{ github.repository }}"
+          BRANCH="${{ github.ref_name }}"
+          COMMIT="${{ github.event.head_commit.message }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          SUBJECT="✅ ${REPO##*/} (${BRANCH}) deployed"
+          BODY="<div style='font-family:sans-serif'><h3 style='color:#16a34a'>✅ Deploy Success</h3><p><b>Repo:</b> ${REPO}<br><b>Branch:</b> ${BRANCH}</p><p><b>Commit:</b> ${COMMIT}</p><p><a href='${RUN_URL}'>View run</a></p></div>"
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer ${RESEND_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg from "HiTCF CI/CD <noreply@hitcf.com>" --arg to "$NOTIFY_EMAIL" --arg subject "$SUBJECT" --arg html "$BODY" '{from: $from, to: [$to], subject: $subject, html: $html}')"
+
   notify-failure:
     needs: [lint, test, deploy, smoke-test]
     if: failure()
