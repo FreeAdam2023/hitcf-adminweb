@@ -1064,3 +1064,55 @@ export function updateTodo(id: string, data: { title?: string; description?: str
 export function deleteTodo(id: string) {
   return del<{ message: string }>(`/api/admin/todos/${id}`);
 }
+
+// ── Risk Accounts ──────────────────────────────────────────
+
+export interface RiskAccount {
+  id: string;
+  email: string;
+  name: string | null;
+  risk_score: number;
+  risk_flags: string[];
+  risk_status: string | null;
+  risk_reviewed_at: string | null;
+  risk_reviewed_by: string | null;
+  is_locked: boolean;
+  locked_reason: string | null;
+  plan: string | null;
+  sub_status: string | null;
+  signup_ip: string | null;
+  signup_country: string | null;
+  device_fingerprint: string | null;
+  created_at: string | null;
+}
+
+export interface RiskSummary {
+  flagged: number;
+  approved: number;
+  rejected: number;
+  high_risk: number;
+  medium_risk: number;
+}
+
+export function fetchRiskAccounts(params?: { status?: string; min_score?: number; search?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set("status", params.status);
+  if (params?.min_score) sp.set("min_score", String(params.min_score));
+  if (params?.search) sp.set("search", params.search);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.page_size) sp.set("page_size", String(params.page_size));
+  const qs = sp.toString();
+  return get<PaginatedResponse<RiskAccount>>(`/api/admin/risk/accounts${qs ? `?${qs}` : ""}`);
+}
+
+export function fetchRiskSummary() {
+  return get<RiskSummary>("/api/admin/risk/summary");
+}
+
+export function runRiskScan() {
+  return post<{ scanned: number; flagged: number }>("/api/admin/risk/scan", {});
+}
+
+export function reviewRiskAccount(userId: string, action: "approve" | "reject" | "reset", note?: string) {
+  return post<{ ok: boolean; risk_status: string | null; is_locked: boolean }>(`/api/admin/risk/accounts/${userId}/review`, { action, note });
+}

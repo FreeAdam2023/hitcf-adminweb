@@ -109,6 +109,7 @@ const navEntries: NavEntry[] = [
       { href: "/feedback", label: "用户反馈", icon: MessageSquare },
       { href: "/reports", label: "举报", icon: Flag },
       { href: "/metrics", label: "性能监控", icon: Gauge },
+      { href: "/risk-review", label: "风险审核", icon: Shield },
       { href: "/anomalies", label: "异常检测", icon: ShieldAlert },
       { href: "/scrape-data", label: "数据采集", icon: Database },
       { href: "/audit", label: "审计日志", icon: Shield },
