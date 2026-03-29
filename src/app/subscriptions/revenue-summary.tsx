@@ -36,7 +36,8 @@ const PLAN_COLORS: Record<string, string> = {
 
 const PLAN_PRICES: Record<string, string> = {
   monthly: "$19.90/月",
-  quarterly: "$39.90/季",
+  quarterly: "$49.90/季",
+  semiannual: "$69.90/半年",
   yearly: "$99.90/年",
 };
 
