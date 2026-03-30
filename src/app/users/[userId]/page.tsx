@@ -355,6 +355,12 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
             </DialogDescription>
           </DialogHeader>
 
+          {user.subscription?.status === "active" && user.subscription?.plan !== "tester" && (
+            <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200">
+              该用户当前已有 <span className="font-medium">{user.subscription.plan}</span> 订阅，激活体验官将覆盖现有订阅。
+            </div>
+          )}
+
           <div className="space-y-3 py-2">
             <label className="text-sm font-medium">有效期</label>
             <div className="grid grid-cols-4 gap-2">
