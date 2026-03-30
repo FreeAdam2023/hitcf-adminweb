@@ -110,14 +110,14 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           if [ -z "$RESEND_API_KEY" ] || [ -z "$NOTIFY_EMAIL" ]; then exit 0; fi
           REPO="${{ github.repository }}"
           BRANCH="${{ github.ref_name }}"
-          COMMIT="${{ github.event.head_commit.message }}"
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           SUBJECT="✅ ${REPO##*/} (${BRANCH}) deployed"
-          BODY="<div style='font-family:sans-serif'><h3 style='color:#16a34a'>✅ Deploy Success</h3><p><b>Repo:</b> ${REPO}<br><b>Branch:</b> ${BRANCH}</p><p><b>Commit:</b> ${COMMIT}</p><p><a href='${RUN_URL}'>View run</a></p></div>"
+          BODY="<div style='font-family:sans-serif'><h3 style='color:#16a34a'>✅ Deploy Success</h3><p><b>Repo:</b> ${REPO}<br><b>Branch:</b> ${BRANCH}</p><p><b>Commit:</b> ${COMMIT_MSG}</p><p><a href='${RUN_URL}'>View run</a></p></div>"
           curl -s -X POST https://api.resend.com/emails \
             -H "Authorization: Bearer ${RESEND_API_KEY}" \
             -H "Content-Type: application/json" \
@@ -132,6 +132,7 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           if [ -z "$RESEND_API_KEY" ] || [ -z "$NOTIFY_EMAIL" ]; then
             echo "Notification secrets not configured, skipping"
@@ -140,7 +141,6 @@ jobs:
 
           REPO="${{ github.repository }}"
           BRANCH="${{ github.ref_name }}"
-          COMMIT="${{ github.event.head_commit.message }}"
           SHA="${{ github.sha }}"
           SHORT_SHA="${SHA:0:7}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -151,7 +151,7 @@ jobs:
             <h2 style='color:#ef4444'>${SUBJECT}</h2>
             <table style='border-collapse:collapse;width:100%'>
               <tr><td style='padding:4px 12px;font-weight:bold'>Branch</td><td>${BRANCH}</td></tr>
-              <tr><td style='padding:4px 12px;font-weight:bold'>Commit</td><td>${SHORT_SHA} — ${COMMIT}</td></tr>
+              <tr><td style='padding:4px 12px;font-weight:bold'>Commit</td><td>${SHORT_SHA} — ${COMMIT_MSG}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Lint</td><td>${{ needs.lint.result }}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Test</td><td>${{ needs.test.result }}</td></tr>
               <tr><td style='padding:4px 12px;font-weight:bold'>Deploy</td><td>${{ needs.deploy.result }}</td></tr>
