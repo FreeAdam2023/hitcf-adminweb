@@ -159,8 +159,9 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
         </div>
       </div>
 
-      {/* KPI Grid — 6 cells */}
-      <div className="grid grid-cols-3 divide-x divide-border border-b lg:grid-cols-6">
+      {/* KPI Grid — 7 cells */}
+      <div className="grid grid-cols-4 divide-x divide-border border-b lg:grid-cols-7">
+        <OnlineCell count={stats.online_now ?? 0} />
         <KPICell
           label="累计用户"
           value={stats.user_count}
@@ -201,6 +202,19 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
         />
       </div>
     </Card>
+  );
+}
+
+function OnlineCell({ count }: { count: number }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-1 px-3 py-4">
+      <span className="relative flex h-4 w-4 items-center justify-center">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+      </span>
+      <div className="text-2xl font-bold text-emerald-600">{count}</div>
+      <div className="text-[11px] text-muted-foreground">当前在线</div>
+    </div>
   );
 }
 

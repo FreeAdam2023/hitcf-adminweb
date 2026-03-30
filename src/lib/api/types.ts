@@ -44,6 +44,7 @@ export interface AdminStats {
   // Active users (actually practiced)
   dau: number;
   wau: number;
+  online_now: number;
   // Data quality
   questions_without_answer: number;
   questions_without_options: number;
