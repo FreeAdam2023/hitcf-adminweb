@@ -11,7 +11,6 @@ import {
   UserPlus,
   Activity,
   CreditCard,
-  DollarSign,
   Target,
 } from "lucide-react";
 
@@ -130,9 +129,8 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
             {/* Revenue — hero number */}
             <div className="text-right">
               <div className="flex items-center justify-end gap-2">
-                <DollarSign className="h-5 w-5 text-emerald-300" />
                 <span className="text-4xl font-extrabold text-white">
-                  {revenue ? `$${totalReceived.toFixed(0)}` : "—"}
+                  {revenue ? `$${totalReceived.toFixed(2)}` : "—"}
                 </span>
               </div>
               <div className="mt-0.5 text-xs text-white/70">累计收入</div>
