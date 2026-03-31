@@ -33,6 +33,7 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
   const wauVal = stats.wau ?? 0;
   const paidCount = stats.active_subscription_count;
   const mrr = revenue?.estimated_mrr ?? 0;
+  const totalReceived = revenue?.total_received ?? 0;
   const trialing = revenue?.total_trialing ?? 0;
 
   const wowPositive = wowRate >= 0;
@@ -62,10 +63,8 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
   }
 
   // Revenue goal: $20,000 total
-  const mrrTarget = 20000;
-  const mrrProgress = Math.min((mrr / mrrTarget) * 100, 100);
-
-  // MRR progress percentage only — no ETA prediction
+  const revenueTarget = 20000;
+  const revenueProgress = Math.min((totalReceived / revenueTarget) * 100, 100);
   // (TCF exam prep has high churn; compound growth projections are misleading)
 
   return (
@@ -128,30 +127,30 @@ export function GrowthKPI({ stats }: GrowthKPIProps) {
             {/* Divider */}
             <div className="h-14 w-px bg-white/20" />
 
-            {/* MRR — hero number */}
+            {/* Revenue — hero number */}
             <div className="text-right">
               <div className="flex items-center justify-end gap-2">
                 <DollarSign className="h-5 w-5 text-emerald-300" />
                 <span className="text-4xl font-extrabold text-white">
-                  {revenue ? `$${mrr.toFixed(0)}` : "—"}
+                  {revenue ? `$${totalReceived.toFixed(0)}` : "—"}
                 </span>
               </div>
-              <div className="mt-0.5 text-xs text-white/70">目标盈利</div>
+              <div className="mt-0.5 text-xs text-white/70">累计收入</div>
               {/* Revenue progress bar toward $20,000 goal */}
               <div className="mt-1.5 flex items-center gap-2">
                 <div className="h-1.5 w-24 rounded-full bg-white/20">
                   <div
                     className="h-1.5 rounded-full bg-emerald-400 transition-all"
-                    style={{ width: `${mrrProgress}%` }}
+                    style={{ width: `${revenueProgress}%` }}
                   />
                 </div>
                 <span className="text-[10px] text-white/50">
-                  ${mrrTarget} 目标
+                  ${revenueTarget} 目标
                 </span>
               </div>
-              {wowRate > 0 && (
+              {mrr > 0 && (
                 <div className="mt-1 text-[10px] text-white/50">
-                  周增 <span className="text-emerald-300 font-medium">{wowRate.toFixed(0)}%</span>
+                  月收入 <span className="text-emerald-300 font-medium">${mrr.toFixed(0)}</span>
                 </div>
               )}
             </div>

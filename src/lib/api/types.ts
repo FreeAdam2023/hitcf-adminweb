@@ -416,6 +416,7 @@ export interface SubscriptionRevenue {
   total_past_due: number;
   by_plan: Record<string, number>;
   estimated_mrr: number;
+  total_received: number;
 }
 
 export interface StripeEventItem {
