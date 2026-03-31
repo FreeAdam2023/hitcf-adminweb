@@ -204,6 +204,10 @@ export function fetchSubscriptionRevenue() {
   return get<SubscriptionRevenue>("/api/admin/subscriptions/revenue");
 }
 
+export function fetchRevenueHistory() {
+  return get<{ history: { date: string; daily: number; cumulative: number }[]; total: number }>("/api/admin/subscriptions/revenue-history");
+}
+
 export function extendSubscription(userId: string, days: number) {
   return put<{ message: string }>(`/api/admin/subscriptions/${userId}/extend`, { days });
 }
