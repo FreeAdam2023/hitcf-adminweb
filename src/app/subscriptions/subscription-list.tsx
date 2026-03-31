@@ -244,7 +244,9 @@ export function SubscriptionList() {
                   </TableCell>
                   <TableCell><ActivityLabel lastActiveAt={item.last_active_at} /></TableCell>
                   <TableCell>
-                    {item.current_period_end ? (() => {
+                    {item.status === "cancelled" || item.status === "expired" ? (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    ) : item.current_period_end ? (() => {
                       const days = Math.ceil((new Date(item.current_period_end).getTime() - Date.now()) / 86400000);
                       if (days < 0) return <span className="text-xs text-red-500">已过期{Math.abs(days)}天</span>;
                       if (days === 0) return <span className="text-xs font-medium text-red-500">今天到期</span>;

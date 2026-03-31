@@ -42,7 +42,7 @@ export function RevenueChart() {
           <DollarSign className="h-4 w-4 text-emerald-600" />
           累计收入曲线
           <span className="ml-auto text-2xl font-bold text-emerald-600">
-            ${total.toFixed(0)}
+            ${total.toFixed(2)}
           </span>
         </CardTitle>
       </CardHeader>

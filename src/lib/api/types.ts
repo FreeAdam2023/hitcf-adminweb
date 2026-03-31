@@ -207,6 +207,7 @@ export interface UserDetail {
   is_locked: boolean;
   locked_at: string | null;
   locked_reason: string | null;
+  ui_language: string | null;
   created_at: string;
   last_login_at: string | null;
   subscription: {

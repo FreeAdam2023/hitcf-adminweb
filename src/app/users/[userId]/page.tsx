@@ -22,7 +22,7 @@ import {
   ArrowLeft, AlertCircle, BarChart3, PenTool, Mic, MessageSquare,
   BookMarked, Flag, CalendarDays, Globe, Monitor, Link2, CreditCard,
   FlaskConical, XCircle, Download, Eye, Headphones, BookOpen, Bot,
-  Save, UserPlus, Navigation, LogIn, DollarSign,
+  Save, UserPlus, Navigation, LogIn, DollarSign, Languages,
 } from "lucide-react";
 
 const DURATION_OPTIONS = [
@@ -184,7 +184,7 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
       </div>
 
       {/* Basic Info */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground">角色</p>
@@ -203,6 +203,19 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground">最后登录</p>
             <p className="text-sm font-medium mt-1">{formatRelative(user.last_login_at)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Languages className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">语言偏好</p>
+                <p className="text-sm font-medium mt-1">
+                  {{ zh: "中文", en: "English", fr: "Français", ar: "العربية", es: "Español", pt: "Português", hi: "हिन्दी" }[user.ui_language || "zh"] || user.ui_language || "zh"}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card>
