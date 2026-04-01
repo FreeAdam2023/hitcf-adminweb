@@ -25,7 +25,7 @@ import {
 import type { AdminSubscriptionItem, PaginatedResponse } from "@/lib/api/types";
 
 const STATUS_OPTIONS = ["paying", "all", "active", "trialing", "cancelled", "past_due", "expired"];
-const PLAN_OPTIONS = ["all", "monthly", "quarterly", "yearly", "tester", "referral", "recall", "reverse_trial"];
+const PLAN_OPTIONS = ["all", "monthly", "quarterly", "semiannual", "yearly", "tester", "referral", "recall", "reverse_trial"];
 const ACTIVITY_OPTIONS = [
   { value: "all", label: "全部活跃度" },
   { value: "active", label: "活跃 (7天内)" },
@@ -233,8 +233,6 @@ export function SubscriptionList() {
                       </div>
                     ) : ["tester", "referral", "recall", "reverse_trial"].includes(item.plan || "") ? (
                       <Badge variant="secondary">{PLAN_LABELS[item.plan!] || item.plan}</Badge>
-                    ) : item.status === "active" && item.plan === "monthly" ? (
-                      <Badge variant="default">续费中</Badge>
                     ) : item.status ? (
                       <Badge variant={statusVariant(item.status)}>{STATUS_LABELS[item.status] || item.status}</Badge>
                     ) : "-"}
