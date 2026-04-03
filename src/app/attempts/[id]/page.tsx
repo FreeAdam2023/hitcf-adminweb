@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
@@ -17,6 +18,7 @@ import type { AdminAttemptDetail } from "@/lib/api/types";
 import { ArrowLeft, Check, X } from "lucide-react";
 
 export default function AttemptDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const [data, setData] = useState<AdminAttemptDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -60,11 +62,9 @@ export default function AttemptDetailPage({ params }: { params: { id: string } }
         title="答题详情"
         description={`${data.user_email} - ${data.test_set_name}`}
         actions={
-          <Button variant="outline" asChild>
-            <Link href="/attempts">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Attempts
-            </Link>
+          <Button variant="outline" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            返回
           </Button>
         }
       />

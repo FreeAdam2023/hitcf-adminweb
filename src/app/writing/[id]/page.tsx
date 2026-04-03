@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingSpinner } from "@/components/shared/loading-spinner";
@@ -51,6 +52,7 @@ function CriterionCard({ name, data }: { name: string; data: CriterionFeedback |
 }
 
 export default function WritingDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const [data, setData] = useState<AdminWritingDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,11 +74,9 @@ export default function WritingDetailPage({ params }: { params: { id: string } }
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/writing">
-            <ArrowLeft className="mr-1 h-4 w-4" />
-            Back
-          </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          返回
         </Button>
       </div>
 
