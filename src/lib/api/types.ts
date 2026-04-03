@@ -230,6 +230,9 @@ export interface UserDetail {
   recent_attempts: UserDetailAttempt[];
   accuracy_percent: number | null;
   streak_days: number;
+  exam_date: string | null;
+  exam_city: string | null;
+  speaking_persona: Record<string, unknown> | null;
 }
 
 export interface NotificationItem {

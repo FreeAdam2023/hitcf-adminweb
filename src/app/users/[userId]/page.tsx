@@ -279,6 +279,58 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
         </Card>
       </div>
 
+      {/* Exam Countdown + Speaking Persona */}
+      {(user.exam_date || user.speaking_persona) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {user.exam_date && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  备考倒计时
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl font-bold tabular-nums text-primary">
+                      {Math.max(0, Math.round((new Date(user.exam_date).getTime() - new Date().getTime()) / 86400000))}
+                    </span>
+                    <span className="text-sm text-muted-foreground">天</span>
+                  </div>
+                  <p className="text-sm">
+                    <span className="font-medium">{user.exam_date}</span>
+                    {user.exam_city && (
+                      <Badge variant="outline" className="ml-2">{user.exam_city}</Badge>
+                    )}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {user.speaking_persona && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Mic className="h-4 w-4" />
+                  口语个性化设置
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1 text-sm">
+                  {Object.entries(user.speaking_persona).map(([key, val]) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="text-muted-foreground min-w-[80px]">{key}</span>
+                      <span className="font-medium">{String(val)}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
       {/* Activity Summary */}
       <div>
         <h2 className="text-lg font-semibold mb-3">活动统计</h2>
