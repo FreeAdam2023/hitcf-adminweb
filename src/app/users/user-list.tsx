@@ -224,6 +224,14 @@ export function UserList() {
                       <Badge variant={u.subscription_status === "active" ? "default" : "secondary"}>
                         {u.subscription_status || "无"}
                       </Badge>
+                      {u.subscription_end && (
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {u.subscription_plan && <span>{u.subscription_plan} · </span>}
+                          {new Date(u.subscription_end) < new Date()
+                            ? <span className="text-red-500">已过期</span>
+                            : new Date(u.subscription_end).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">{u.activity?.answers ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.saved_words ?? 0}</TableCell>
@@ -240,7 +248,12 @@ export function UserList() {
                           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                             <div>
                               <span className="text-xs text-muted-foreground">订阅</span>
-                              <p className="font-medium">{u.subscription_status || "无"}</p>
+                              <p className="font-medium">{u.subscription_status || "无"}{u.subscription_plan ? ` (${u.subscription_plan})` : ""}</p>
+                              {u.subscription_end && (
+                                <p className="text-xs text-muted-foreground">
+                                  到期: {new Date(u.subscription_end).toLocaleDateString("zh-CN")}
+                                </p>
+                              )}
                             </div>
                             <div>
                               <span className="text-xs text-muted-foreground">角色</span>

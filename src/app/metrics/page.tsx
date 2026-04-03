@@ -5,8 +5,10 @@ import { PageHeader } from "@/components/shared/page-header";
 import {
   fetchMetrics,
   fetchSlowRoutes,
+  fetchBackgroundTasks,
   type MetricsSnapshot,
   type RouteMetrics,
+  type BackgroundTasksResponse,
 } from "@/lib/api/admin";
 import {
   Table,
@@ -27,6 +29,7 @@ import {
   RefreshCw,
   Server,
   Zap,
+  Radar,
 } from "lucide-react";
 
 function formatUptime(seconds: number): string {
@@ -59,6 +62,7 @@ export default function MetricsPage() {
   const [slowRoutes, setSlowRoutes] = useState<
     Array<RouteMetrics & { route: string }>
   >([]);
+  const [bgTasks, setBgTasks] = useState<BackgroundTasksResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [threshold, setThreshold] = useState("1.0");
   const [filter, setFilter] = useState("");
@@ -68,12 +72,14 @@ export default function MetricsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [metrics, slow] = await Promise.all([
+      const [metrics, slow, tasks] = await Promise.all([
         fetchMetrics(),
         fetchSlowRoutes(parseFloat(threshold) || 1.0),
+        fetchBackgroundTasks(),
       ]);
       setData(metrics);
       setSlowRoutes(slow.routes || []);
+      setBgTasks(tasks);
     } catch {
       // ignore
     } finally {
@@ -334,6 +340,68 @@ export default function MetricsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Background Tasks — Seat Monitor */}
+      {bgTasks && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Radar className="h-5 w-5" />
+              后台任务 · 考位监控
+              <Badge variant="outline" className="ml-2 font-normal">
+                每 {bgTasks.seat_monitor.interval_seconds / 60} 分钟
+              </Badge>
+              <span className="ml-auto text-sm font-normal text-muted-foreground">
+                累计 {bgTasks.seat_monitor.total_snapshots} 次抓取 · {bgTasks.seat_monitor.total_watches} 个订阅
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>城市</TableHead>
+                    <TableHead>状态</TableHead>
+                    <TableHead>上次检查</TableHead>
+                    <TableHead className="text-right">耗时</TableHead>
+                    <TableHead className="text-right">可用日期</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bgTasks.seat_monitor.cities.map((c) => {
+                    const ago = c.last_check
+                      ? `${Math.round((Date.now() - new Date(c.last_check).getTime()) / 60000)} 分钟前`
+                      : "-";
+                    return (
+                      <TableRow key={c.city_code}>
+                        <TableCell className="font-medium">{c.city_name}</TableCell>
+                        <TableCell>
+                          <Badge variant={c.status === "success" ? "default" : "destructive"}>
+                            {c.status}
+                          </Badge>
+                          {c.error && <span className="ml-2 text-xs text-red-500">{c.error}</span>}
+                        </TableCell>
+                        <TableCell>{ago}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {c.duration_ms != null ? `${c.duration_ms}ms` : "-"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {c.available_dates.length > 0 ? (
+                            <span className="font-medium text-green-600">{c.available_dates.length} 个</span>
+                          ) : (
+                            <span className="text-muted-foreground">无</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

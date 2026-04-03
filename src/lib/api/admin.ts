@@ -74,6 +74,10 @@ export function fetchAdminStats() {
   return get<AdminStats>("/api/admin/stats");
 }
 
+export function fetchOnlineHistory(hours = 24) {
+  return get<{ hours: number; data: { hour: string; count: number }[] }>(`/api/admin/online-history?hours=${hours}`);
+}
+
 export function fetchTraffic(days = 30) {
   return get<TrafficData>(`/api/admin/traffic?days=${days}`);
 }
@@ -95,8 +99,31 @@ export interface MetricsSnapshot {
   routes: Record<string, RouteMetrics>;
 }
 
+export interface SeatCityStatus {
+  city_code: string;
+  city_name: string;
+  last_check: string | null;
+  status: string;
+  error: string | null;
+  duration_ms: number | null;
+  available_dates: string[];
+}
+
+export interface BackgroundTasksResponse {
+  seat_monitor: {
+    interval_seconds: number;
+    cities: SeatCityStatus[];
+    total_snapshots: number;
+    total_watches: number;
+  };
+}
+
 export function fetchMetrics() {
   return get<MetricsSnapshot>("/api/admin/metrics");
+}
+
+export function fetchBackgroundTasks() {
+  return get<BackgroundTasksResponse>("/api/admin/background-tasks");
 }
 
 export function fetchSlowRoutes(threshold = 1.0) {

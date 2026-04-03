@@ -158,6 +158,8 @@ export interface AdminUserItem {
   role: string;
   is_locked: boolean;
   subscription_status: string | null;
+  subscription_plan: string | null;
+  subscription_end: string | null;
   created_at: string;
   last_login_at: string | null;
   last_active_at: string | null;
