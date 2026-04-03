@@ -217,11 +217,19 @@ export interface UserDetail {
     status: string;
     trial_end: string | null;
     current_period_end: string | null;
+    cancel_at_period_end: boolean;
+    user_cancelled: boolean;
     stripe_customer_id: string | null;
+    stripe_subscription_id: string | null;
   } | null;
+  risk_score: number | null;
+  risk_flags: string[];
+  risk_status: string | null;
   tracking: UserTrackingInfo | null;
   activity: UserDetailActivity;
   recent_attempts: UserDetailAttempt[];
+  accuracy_percent: number | null;
+  streak_days: number;
 }
 
 export interface NotificationItem {

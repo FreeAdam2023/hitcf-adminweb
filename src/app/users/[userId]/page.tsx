@@ -22,7 +22,7 @@ import {
   ArrowLeft, AlertCircle, BarChart3, PenTool, Mic, MessageSquare,
   BookMarked, Flag, CalendarDays, Globe, Monitor, Link2, CreditCard,
   FlaskConical, XCircle, Download, Eye, Headphones, BookOpen, Bot,
-  Save, UserPlus, Navigation, LogIn, DollarSign, Languages,
+  Save, UserPlus, Navigation, LogIn, DollarSign, Languages, Flame,
 } from "lucide-react";
 
 const DURATION_OPTIONS = [
@@ -172,6 +172,8 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
     { label: "导出", value: user.activity.exports, icon: Download, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950" },
     { label: "举报", value: user.activity.reports, icon: Flag, color: "text-red-600 bg-red-50 dark:bg-red-950" },
     { label: "活跃天数", value: user.activity.active_days, icon: CalendarDays, color: "text-green-600 bg-green-50 dark:bg-green-950" },
+    { label: "正确率", value: user.accuracy_percent != null ? `${user.accuracy_percent}%` : "-", icon: BarChart3, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950" },
+    { label: "连续打卡", value: user.streak_days, icon: Flame, color: "text-orange-600 bg-orange-50 dark:bg-orange-950" },
   ];
 
   return (
@@ -225,11 +227,25 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">订阅</p>
                 {user.subscription ? (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant={user.subscription.status === "active" ? "default" : "secondary"}>
-                      {user.subscription.status}
-                    </Badge>
-                    <span className="text-sm">{user.subscription.plan}</span>
+                  <div className="mt-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={user.subscription.status === "active" ? "default" : "secondary"}>
+                        {user.subscription.status}
+                      </Badge>
+                      <span className="text-sm font-medium">{user.subscription.plan}</span>
+                      {user.subscription.user_cancelled && <Badge variant="outline" className="text-xs">已取消</Badge>}
+                    </div>
+                    {user.subscription.current_period_end && (
+                      <p className="text-xs text-muted-foreground">
+                        到期: {new Date(user.subscription.current_period_end).toLocaleDateString("zh-CN")}
+                        {new Date(user.subscription.current_period_end) < new Date() && (
+                          <span className="text-red-500 ml-1">已过期</span>
+                        )}
+                      </p>
+                    )}
+                    {user.subscription.stripe_customer_id && (
+                      <p className="text-xs text-muted-foreground font-mono">{user.subscription.stripe_customer_id}</p>
+                    )}
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground mt-1">无</p>

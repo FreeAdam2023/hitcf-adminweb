@@ -131,7 +131,9 @@ export function ReportList() {
                         {r.question_text && <p className="text-xs text-muted-foreground truncate mt-0.5">{r.question_text}</p>}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{r.user_email}</TableCell>
+                    <TableCell className="text-sm">
+                      <a href={`/users/${r.user_id}`} className="text-primary hover:underline">{r.user_email}</a>
+                    </TableCell>
                     <TableCell className="max-w-[200px]">
                       <p className="text-sm truncate">{r.description || "-"}</p>
                     </TableCell>
