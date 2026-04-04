@@ -248,6 +248,7 @@ export interface QuestionReportItem {
   id: string;
   user_id: string;
   user_email: string;
+  user_plan: string | null;
   question_id: string;
   question_number: number | null;
   question_type: string;

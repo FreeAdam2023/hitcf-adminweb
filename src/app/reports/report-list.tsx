@@ -133,6 +133,9 @@ export function ReportList() {
                     </TableCell>
                     <TableCell className="text-sm">
                       <a href={`/users/${r.user_id}`} className="text-primary hover:underline">{r.user_email}</a>
+                      {r.user_plan === "tester" && (
+                        <Badge variant="secondary" className="ml-1.5 bg-purple-100 text-purple-700 text-[10px] px-1 py-0">体验官</Badge>
+                      )}
                     </TableCell>
                     <TableCell className="max-w-[200px]">
                       <p className="text-sm truncate">{r.description || "-"}</p>
