@@ -51,6 +51,14 @@ const ACTIVITY_OPTIONS = [
   { value: "dormant", label: "沉睡 (30天+)" },
 ];
 
+const SUB_FILTER_OPTIONS = [
+  { value: "all", label: "全部用户" },
+  { value: "paid", label: "付费用户" },
+  { value: "trial", label: "试用中" },
+  { value: "churned", label: "已流失" },
+  { value: "free", label: "免费用��" },
+];
+
 function ActivityDot({ lastActiveAt }: { lastActiveAt: string | null }) {
   if (!lastActiveAt) return <span className="inline-block h-2 w-2 rounded-full bg-gray-300" title="从未活跃" />;
   const days = Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86400000);
@@ -65,6 +73,7 @@ export function UserList() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [activityStatus, setActivityStatus] = useState("all");
+  const [subFilter, setSubFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -75,6 +84,7 @@ export function UserList() {
       const res = await fetchUsers({
         search: search || undefined,
         activity_status: activityStatus !== "all" ? activityStatus : undefined,
+        sub_filter: subFilter !== "all" ? subFilter : undefined,
         page,
       });
       setData(res);
@@ -83,7 +93,7 @@ export function UserList() {
     } finally {
       setLoading(false);
     }
-  }, [search, activityStatus, page]);
+  }, [search, activityStatus, subFilter, page]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -136,6 +146,16 @@ export function UserList() {
           onChange={(e) => setSearchInput(e.target.value)}
           className="max-w-xs"
         />
+        <Select value={subFilter} onValueChange={(v) => { setSubFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SUB_FILTER_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={activityStatus} onValueChange={(v) => { setActivityStatus(v); setPage(1); }}>
           <SelectTrigger className="w-[160px]">
             <SelectValue />

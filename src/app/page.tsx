@@ -18,6 +18,7 @@ import { GrowthKPI } from "@/components/dashboard/growth-kpi";
 import { ChurnAlert } from "@/components/dashboard/churn-alert";
 import { FunnelMini } from "@/components/dashboard/funnel-mini";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { OnlineChart } from "@/components/dashboard/online-chart";
 
 interface StatCard {
   label: string;
@@ -112,10 +113,11 @@ export default function DashboardPage() {
       <GrowthKPI stats={stats} />
       <div className="grid gap-4 md:grid-cols-2">
         <RevenueChart />
-        <div className="space-y-4">
-          <FunnelMini />
-          <ChurnAlert />
-        </div>
+        <OnlineChart />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <FunnelMini />
+        <ChurnAlert />
       </div>
 
       {/* Overview Stats */}

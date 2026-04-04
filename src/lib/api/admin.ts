@@ -126,6 +126,27 @@ export function fetchBackgroundTasks() {
   return get<BackgroundTasksResponse>("/api/admin/background-tasks");
 }
 
+export interface RateLimitItem {
+  name: string;
+  scope: string;
+  description: string;
+  max_requests: number;
+  window_seconds: number;
+  active_keys: number;
+}
+
+export interface RateLimitsResponse {
+  rate_limits: RateLimitItem[];
+  quotas: {
+    free_daily_questions: number;
+    free_daily_explanations: number;
+  };
+}
+
+export function fetchRateLimits() {
+  return get<RateLimitsResponse>("/api/admin/rate-limits");
+}
+
 export function fetchSlowRoutes(threshold = 1.0) {
   return get<{ threshold: number; routes: Array<RouteMetrics & { route: string }> }>(
     `/api/admin/metrics/slow?threshold=${threshold}`,
@@ -133,10 +154,11 @@ export function fetchSlowRoutes(threshold = 1.0) {
 }
 
 // Users
-export function fetchUsers(params: { search?: string; activity_status?: string; page?: number; page_size?: number }) {
+export function fetchUsers(params: { search?: string; activity_status?: string; sub_filter?: string; page?: number; page_size?: number }) {
   const sp = new URLSearchParams();
   if (params.search) sp.set("search", params.search);
   if (params.activity_status) sp.set("activity_status", params.activity_status);
+  if (params.sub_filter) sp.set("sub_filter", params.sub_filter);
   if (params.page) sp.set("page", String(params.page));
   if (params.page_size) sp.set("page_size", String(params.page_size));
   return get<PaginatedResponse<AdminUserItem>>(`/api/admin/users?${sp}`);
@@ -654,6 +676,13 @@ export function fetchEvents(params?: { event?: string; user_id?: string; days?: 
   if (params?.page) sp.set("page", String(params.page));
   if (params?.page_size) sp.set("page_size", String(params.page_size));
   return get<EventsData>(`/api/admin/analytics/events?${sp}`, { timeout: 60_000 });
+}
+
+// ---- Trial Hatch (试用孵化) ----
+import type { TrialHatchData } from "./types";
+
+export function fetchTrialHatch(weeks = 12) {
+  return get<TrialHatchData>(`/api/admin/analytics/trial-hatch?weeks=${weeks}`, { timeout: 60_000 });
 }
 
 // ---- 运营工作台 (Ops Workbench) ----

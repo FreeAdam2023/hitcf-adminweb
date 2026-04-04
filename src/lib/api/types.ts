@@ -954,6 +954,56 @@ export interface WatermarkUserResult {
   last_login_at: string | null;
 }
 
+// ---- Trial Hatch (试用孵化) ----
+
+export interface TrialHatchSummary {
+  total: number;
+  hatched: number;
+  broken: number;
+  incubating: number;
+  cold: number;
+  hatch_rate: number;
+}
+
+export interface TrialHatchCohort {
+  week: string;
+  registered: number;
+  hatched: number;
+  broken: number;
+  incubating: number;
+  cold: number;
+  hatch_rate: number | null;
+}
+
+export interface TrialHatchDayHeat {
+  day: number;
+  label: string;
+  active: number;
+  total: number;
+  rate: number;
+}
+
+export interface TrialHatchEgg {
+  user_id: string;
+  email: string;
+  name: string | null;
+  status: "incubating" | "cold" | "hatched" | "broken";
+  created_at: string;
+  trial_end: string | null;
+  day: number;
+  trial_days: number;
+  last_active: string | null;
+  plan: string | null;
+  current_plan: string | null;
+}
+
+export interface TrialHatchData {
+  summary: TrialHatchSummary;
+  weekly_cohorts: TrialHatchCohort[];
+  daily_heatmap: TrialHatchDayHeat[];
+  eggs: TrialHatchEgg[];
+}
+
 // ---- 运营工作台 (Ops Workbench) ----
 
 export interface OpsPostPerformance {

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Menu,
   ChevronRight,
+  ChevronDown,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -37,6 +38,8 @@ import {
   Bot,
   Rocket,
   DollarSign,
+  Egg,
+  Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -68,61 +71,56 @@ function isGroup(entry: NavEntry): entry is NavGroup {
 
 const navEntries: NavEntry[] = [
   { href: "/", label: "仪表盘", icon: LayoutDashboard },
-  { href: "/quick-links", label: "快捷方式", icon: ExternalLink },
   {
-    label: "用户与收入",
+    label: "客户",
     icon: Users,
     children: [
       { href: "/users", label: "用户管理", icon: Users },
-      { href: "/subscriptions", label: "订阅管理", icon: CreditCard },
-      { href: "/paid-users", label: "付费用户", icon: CreditCard },
-      { href: "/financials", label: "收支报表", icon: DollarSign },
+      { href: "/trial-hatch", label: "试用孵化", icon: Egg },
     ],
   },
   {
-    label: "内容管理",
+    label: "收入",
+    icon: DollarSign,
+    children: [
+      { href: "/financials", label: "收支报表", icon: DollarSign },
+      { href: "/subscriptions", label: "订阅管理", icon: CreditCard },
+      { href: "/referrals", label: "推荐奖励", icon: Gift },
+    ],
+  },
+  {
+    label: "内容",
     icon: FolderOpen,
     children: [
       { href: "/test-sets", label: "题库", icon: BookOpen },
-      { href: "/questions", label: "题目", icon: FileText },
-      { href: "/explanations", label: "解析", icon: Lightbulb },
+      { href: "/questions", label: "题目 & 解析", icon: FileText },
       { href: "/writing", label: "写作", icon: PenTool },
       { href: "/vocabulary", label: "词汇", icon: BookMarked },
       { href: "/audio-review", label: "音频审核", icon: Headphones },
     ],
   },
   {
-    label: "数据分析",
+    label: "分析",
     icon: TrendingUp,
     children: [
       { href: "/analytics", label: "总览", icon: BarChart3 },
       { href: "/attempts", label: "答题记录", icon: ClipboardList },
-      { href: "/competitors", label: "竞品分析", icon: Swords },
-    ],
-  },
-  {
-    label: "运营",
-    icon: Settings,
-    children: [
-      { href: "/ops", label: "运营工作台", icon: Megaphone },
-      { href: "/announcements", label: "消息通知", icon: Bell },
-      { href: "/feedback", label: "用户反馈", icon: MessageSquare },
-      { href: "/reports", label: "举报", icon: Flag },
-      { href: "/metrics", label: "性能监控", icon: Gauge },
-      { href: "/risk-review", label: "风险审核", icon: Shield },
-      { href: "/anomalies", label: "异常检测", icon: ShieldAlert },
-      { href: "/scrape-data", label: "数据采集", icon: Database },
+      { href: "/feedback", label: "反馈 & 举报", icon: MessageSquare },
       { href: "/audit", label: "审计日志", icon: Shield },
     ],
   },
   {
-    label: "增长",
-    icon: Rocket,
+    label: "工具",
+    icon: Wrench,
     children: [
-      { href: "/referrals", label: "推荐奖励", icon: Gift },
+      { href: "/ops", label: "运营工作台", icon: Megaphone },
+      { href: "/metrics", label: "性能监控", icon: Gauge },
+      { href: "/risk-review", label: "风险 & 异常", icon: ShieldAlert },
+      { href: "/scrape-data", label: "数据采集", icon: Database },
+      { href: "/seo", label: "SEO / GEO", icon: Search },
       { href: "/emails", label: "邮件日志", icon: Mail },
-      { href: "/seo", label: "SEO 优化", icon: Search },
-      { href: "/geo", label: "GEO 优化", icon: Bot },
+      { href: "/competitors", label: "竞品分析", icon: Swords },
+      { href: "/quick-links", label: "快捷链接", icon: ExternalLink },
     ],
   },
 ];

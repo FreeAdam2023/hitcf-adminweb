@@ -6,9 +6,11 @@ import {
   fetchMetrics,
   fetchSlowRoutes,
   fetchBackgroundTasks,
+  fetchRateLimits,
   type MetricsSnapshot,
   type RouteMetrics,
   type BackgroundTasksResponse,
+  type RateLimitsResponse,
 } from "@/lib/api/admin";
 import {
   Table,
@@ -30,6 +32,7 @@ import {
   Server,
   Zap,
   Radar,
+  Shield,
 } from "lucide-react";
 
 function formatUptime(seconds: number): string {
@@ -63,6 +66,7 @@ export default function MetricsPage() {
     Array<RouteMetrics & { route: string }>
   >([]);
   const [bgTasks, setBgTasks] = useState<BackgroundTasksResponse | null>(null);
+  const [rateLimits, setRateLimits] = useState<RateLimitsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [threshold, setThreshold] = useState("1.0");
   const [filter, setFilter] = useState("");
@@ -72,14 +76,16 @@ export default function MetricsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [metrics, slow, tasks] = await Promise.all([
+      const [metrics, slow, tasks, limits] = await Promise.all([
         fetchMetrics(),
         fetchSlowRoutes(parseFloat(threshold) || 1.0),
         fetchBackgroundTasks(),
+        fetchRateLimits(),
       ]);
       setData(metrics);
       setSlowRoutes(slow.routes || []);
       setBgTasks(tasks);
+      setRateLimits(limits);
     } catch {
       // ignore
     } finally {
@@ -340,6 +346,63 @@ export default function MetricsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Rate Limits */}
+      {rateLimits && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              限流配置
+              <span className="ml-auto text-sm font-normal text-muted-foreground">
+                免费日限: {rateLimits.quotas.free_daily_questions} 题 · {rateLimits.quotas.free_daily_explanations} 解析
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>名称</TableHead>
+                    <TableHead>说明</TableHead>
+                    <TableHead>适用</TableHead>
+                    <TableHead className="text-right">上限</TableHead>
+                    <TableHead className="text-right">窗口</TableHead>
+                    <TableHead className="text-right">活跃用户</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rateLimits.rate_limits.map((r) => (
+                    <TableRow key={r.name}>
+                      <TableCell>
+                        <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{r.name}</code>
+                      </TableCell>
+                      <TableCell>{r.description}</TableCell>
+                      <TableCell>
+                        <Badge variant={r.scope === "all" ? "default" : r.scope === "pro" ? "secondary" : "outline"}>
+                          {r.scope === "all" ? "全部" : r.scope === "pro" ? "Pro" : "免费"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums font-medium">{r.max_requests}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                        {r.window_seconds >= 86400 ? `${r.window_seconds / 86400}天` : r.window_seconds >= 3600 ? `${r.window_seconds / 3600}小时` : `${r.window_seconds}秒`}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {r.active_keys > 0 ? (
+                          <span className="font-medium text-blue-600">{r.active_keys}</span>
+                        ) : (
+                          <span className="text-muted-foreground">0</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Background Tasks — Seat Monitor */}
       {bgTasks && (
