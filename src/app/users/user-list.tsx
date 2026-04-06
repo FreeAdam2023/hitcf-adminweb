@@ -44,6 +44,32 @@ function formatLocation(t: { signup_country?: string | null; signup_city?: strin
   return parts.length > 0 ? parts.join(", ") : "-";
 }
 
+/** Extract a short, human-readable source label from tracking data. */
+function formatSource(t: AdminUserItem["tracking"]): string {
+  if (!t) return "-";
+  // Prefer first_touch_referer (captures the real entry point before OAuth redirects)
+  const ref = t.first_touch_referer || t.signup_referer || "";
+  const utm = t.signup_utm_source;
+  if (utm) return utm;
+  if (!ref) return "-";
+  try {
+    const host = new URL(ref).hostname.replace(/^www\./, "");
+    // Shorten known domains
+    if (host.includes("google")) return "Google";
+    if (host.includes("bing")) return "Bing";
+    if (host.includes("baidu")) return "Baidu";
+    if (host.includes("xiaohongshu") || host.includes("xhslink")) return "小红书";
+    if (host.includes("t.co") || host.includes("twitter") || host.includes("x.com")) return "X/Twitter";
+    if (host.includes("facebook") || host.includes("fb.")) return "Facebook";
+    if (host.includes("chatgpt") || host.includes("openai")) return "ChatGPT";
+    if (host.includes("reddit")) return "Reddit";
+    if (host.includes("hitcf")) return "直接";
+    return host.split(".").slice(-2).join(".");
+  } catch {
+    return ref.slice(0, 20);
+  }
+}
+
 const ACTIVITY_OPTIONS = [
   { value: "all", label: "全部活跃度" },
   { value: "active", label: "活跃 (7天内)" },
@@ -194,6 +220,7 @@ export function UserList() {
                 <TableHead className="text-center">收藏</TableHead>
                 <TableHead className="text-center">错题</TableHead>
                 <TableHead className="text-center">活跃</TableHead>
+                <TableHead>来源</TableHead>
                 <TableHead>注册时间</TableHead>
                 <TableHead>最后登录</TableHead>
               </TableRow>
@@ -257,12 +284,13 @@ export function UserList() {
                     <TableCell className="text-center">{u.activity?.saved_words ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.wrong_answers ?? 0}</TableCell>
                     <TableCell className="text-center"><ActivityDot lastActiveAt={u.last_active_at} /></TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{formatSource(u.tracking)}</TableCell>
                     <TableCell>{formatDate(u.created_at)}</TableCell>
                     <TableCell>{formatDate(u.last_login_at)}</TableCell>
                   </TableRow>
                   {expandedId === u.id && (
                     <TableRow key={`${u.id}-detail`}>
-                      <TableCell colSpan={11} className="bg-muted/30">
+                      <TableCell colSpan={12} className="bg-muted/30">
                         <div className="space-y-3 px-4 py-3 text-sm">
                           {/* Row 1: Basic info */}
                           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -311,6 +339,11 @@ export function UserList() {
                                 <p className="font-medium">
                                   {u.tracking?.signup_utm_source || u.tracking?.signup_referer || "-"}
                                 </p>
+                                {u.tracking?.first_touch_referer && u.tracking.first_touch_referer !== u.tracking.signup_referer && (
+                                  <p className="text-xs text-muted-foreground mt-0.5" title={u.tracking.first_touch_referer}>
+                                    首次来源: {formatSource({ ...u.tracking, signup_referer: null, signup_utm_source: null })}
+                                  </p>
+                                )}
                               </div>
                               <div>
                                 <span className="flex items-center gap-1 text-xs text-muted-foreground">

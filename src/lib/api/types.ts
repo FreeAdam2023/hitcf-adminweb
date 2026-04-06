@@ -148,6 +148,8 @@ export interface UserTrackingInfo {
   signup_utm_campaign: string | null;
   last_login_ip: string | null;
   last_login_user_agent: string | null;
+  first_touch_referer: string | null;
+  first_touch_landing_url: string | null;
 }
 
 // Admin User List Item
