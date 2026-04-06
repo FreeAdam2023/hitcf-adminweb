@@ -137,8 +137,8 @@ export function ReportList() {
                         <Badge variant="secondary" className="ml-1.5 bg-purple-100 text-purple-700 text-[10px] px-1 py-0">体验官</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="max-w-[200px]">
-                      <p className="text-sm truncate">{r.description || "-"}</p>
+                    <TableCell className="max-w-[400px]">
+                      <p className="text-sm line-clamp-3 whitespace-pre-wrap" title={r.description || undefined}>{r.description || "-"}</p>
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className={status.color}>{status.label}</Badge>
