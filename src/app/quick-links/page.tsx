@@ -161,6 +161,12 @@ const linkGroups: LinkGroup[] = [
         description: "SEO 搜索表现与索引",
         icon: BarChart3,
       },
+      {
+        label: "Bing Webmaster Tools",
+        href: "https://www.bing.com/webmasters?siteUrl=https%3A%2F%2Fhitcf.com",
+        description: "Bing 搜索表现与索引",
+        icon: BarChart3,
+      },
     ],
   },
   {
