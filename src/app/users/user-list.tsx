@@ -219,6 +219,7 @@ export function UserList() {
                 <TableHead className="text-center">答题</TableHead>
                 <TableHead className="text-center">收藏</TableHead>
                 <TableHead className="text-center">错题</TableHead>
+                <TableHead className="text-center">监控</TableHead>
                 <TableHead className="text-center">活跃</TableHead>
                 <TableHead>来源</TableHead>
                 <TableHead>注册时间</TableHead>
@@ -283,6 +284,7 @@ export function UserList() {
                     <TableCell className="text-center">{u.activity?.answers ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.saved_words ?? 0}</TableCell>
                     <TableCell className="text-center">{u.activity?.wrong_answers ?? 0}</TableCell>
+                    <TableCell className="text-center">{u.activity?.seat_watches ?? 0}</TableCell>
                     <TableCell className="text-center"><ActivityDot lastActiveAt={u.last_active_at} /></TableCell>
                     <TableCell className="text-xs text-muted-foreground">{formatSource(u.tracking)}</TableCell>
                     <TableCell>{formatDate(u.created_at)}</TableCell>
@@ -290,7 +292,7 @@ export function UserList() {
                   </TableRow>
                   {expandedId === u.id && (
                     <TableRow key={`${u.id}-detail`}>
-                      <TableCell colSpan={12} className="bg-muted/30">
+                      <TableCell colSpan={13} className="bg-muted/30">
                         <div className="space-y-3 px-4 py-3 text-sm">
                           {/* Row 1: Basic info */}
                           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

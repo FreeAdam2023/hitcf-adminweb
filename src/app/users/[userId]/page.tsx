@@ -23,6 +23,7 @@ import {
   BookMarked, Flag, CalendarDays, Globe, Monitor, Link2, CreditCard,
   FlaskConical, XCircle, Download, Eye, Headphones, BookOpen, Bot,
   Save, UserPlus, Navigation, LogIn, DollarSign, Languages, Flame,
+  MapPin, Bell,
 } from "lucide-react";
 
 const DURATION_OPTIONS = [
@@ -171,6 +172,8 @@ export default function UserDetailPage({ params }: { params: { userId: string } 
     { label: "错题", value: user.activity.wrong_answers, icon: XCircle, color: "text-rose-600 bg-rose-50 dark:bg-rose-950" },
     { label: "导出", value: user.activity.exports, icon: Download, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950" },
     { label: "举报", value: user.activity.reports, icon: Flag, color: "text-red-600 bg-red-50 dark:bg-red-950" },
+    { label: "监控城市", value: user.activity.seat_watches, icon: MapPin, color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950" },
+    { label: "考位通知", value: user.activity.seat_notifications, icon: Bell, color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-950" },
     { label: "活跃天数", value: user.activity.active_days, icon: CalendarDays, color: "text-green-600 bg-green-50 dark:bg-green-950" },
     { label: "正确率", value: user.accuracy_percent != null ? `${user.accuracy_percent}%` : "-", icon: BarChart3, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950" },
     { label: "连续打卡", value: user.streak_days, icon: Flame, color: "text-orange-600 bg-orange-50 dark:bg-orange-950" },

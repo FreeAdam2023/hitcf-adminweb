@@ -169,6 +169,7 @@ export interface AdminUserItem {
     answers: number;
     saved_words: number;
     wrong_answers: number;
+    seat_watches: number;
   } | null;
   tracking: UserTrackingInfo | null;
 }
@@ -183,6 +184,8 @@ export interface UserDetailActivity {
   reports: number;
   exports: number;
   active_days: number;
+  seat_watches: number;
+  seat_notifications: number;
 }
 
 export interface TimelineEvent {
