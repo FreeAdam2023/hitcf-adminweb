@@ -34,6 +34,7 @@ import {
   DollarSign,
   Egg,
   Wrench,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,7 @@ const navEntries: NavEntry[] = [
       { href: "/writing", label: "写作", icon: PenTool },
       { href: "/vocabulary", label: "词汇", icon: BookMarked },
       { href: "/audio-review", label: "音频审核", icon: Headphones },
+      { href: "/duplicates", label: "重复题管理", icon: Copy },
     ],
   },
   {

@@ -1176,3 +1176,125 @@ export function runRiskScan() {
 export function reviewRiskAccount(userId: string, action: "approve" | "reject" | "reset", note?: string) {
   return post<{ ok: boolean; risk_status: string | null; is_locked: boolean }>(`/api/admin/risk/accounts/${userId}/review`, { action, note });
 }
+
+// ── Duplicate management ────────────────────────────────────────────
+
+export interface DuplicateGroupSummary {
+  group_id: string;
+  question_count: number;
+  type: string;
+  has_primary: boolean;
+  all_marked: boolean;
+  questions: Array<{
+    id: string;
+    test_set_name: string;
+    test_set_code: string;
+    question_number: number;
+    level: string | null;
+    duplicate_status: string | null;
+    content_hash: string | null;
+  }>;
+}
+
+export interface DuplicateGroupDetail {
+  group_id: string;
+  question_count: number;
+  type: string;
+  questions: Array<{
+    id: string;
+    test_set_id: string;
+    test_set_name: string;
+    test_set_code: string;
+    question_number: number;
+    type: string;
+    level: string | null;
+    content_hash: string | null;
+    duplicate_status: string | null;
+    transcript: string | null;
+    passage: string | null;
+    question_text: string | null;
+    options: Array<{ key: string; text: string }>;
+    correct_answer: string | null;
+    audio_url: string | null;
+    has_image: boolean;
+    attempt_count: number;
+    wrong_rate: number | null;
+  }>;
+}
+
+export interface AnswerConflictItem {
+  group_id: string;
+  type: string;
+  question_count: number;
+  distinct_answers: string[];
+  primary_answer: string | null;
+  questions: Array<{
+    id: string;
+    question_code: string | null;
+    test_set_code: string;
+    question_number: number;
+    level: string | null;
+    duplicate_status: string | null;
+    correct_answer: string | null;
+    source_origin: string | null;
+  }>;
+}
+
+export function fetchDuplicateGroups(params: {
+  type?: string;
+  status?: "unreviewed" | "marked" | "all";
+  page?: number;
+  page_size?: number;
+}) {
+  const sp = new URLSearchParams();
+  if (params.type) sp.set("type", params.type);
+  if (params.status) sp.set("status", params.status);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  const qs = sp.toString();
+  return get<PaginatedResponse<DuplicateGroupSummary> & { stats: { total_groups: number; total_questions: number; marked_count: number } }>(
+    `/api/admin/duplicates${qs ? `?${qs}` : ""}`
+  );
+}
+
+export function fetchDuplicateGroupDetail(groupId: string) {
+  return get<DuplicateGroupDetail>(`/api/admin/duplicates/${groupId}`);
+}
+
+export function markDuplicateStatus(questionId: string, status: "primary" | "duplicate") {
+  return put<{ ok: boolean; question_id: string; duplicate_status: string; duplicate_group: string }>(
+    `/api/admin/duplicates/${questionId}/mark`,
+    { status }
+  );
+}
+
+export function createDuplicateGroup(primary_id: string, duplicate_ids: string[]) {
+  return post<{ ok: boolean; group_id: string; primary_id: string; duplicate_ids: string[] }>(
+    `/api/admin/duplicates/create`,
+    { primary_id, duplicate_ids }
+  );
+}
+
+export function dissolveDuplicateGroup(groupId: string) {
+  return del<{ ok: boolean; group_id: string; members_cleared: number }>(
+    `/api/admin/duplicates/${groupId}`
+  );
+}
+
+export function fetchAnswerConflicts(params: { type?: string; page?: number; page_size?: number }) {
+  const sp = new URLSearchParams();
+  if (params.type) sp.set("type", params.type);
+  if (params.page) sp.set("page", String(params.page));
+  if (params.page_size) sp.set("page_size", String(params.page_size));
+  const qs = sp.toString();
+  return get<PaginatedResponse<AnswerConflictItem>>(
+    `/api/admin/duplicates/conflicts/list${qs ? `?${qs}` : ""}`
+  );
+}
+
+export function fixGroupAnswer(groupId: string, correct_answer: string) {
+  return put<{ ok: boolean; group_id: string; new_answer: string; updated: number }>(
+    `/api/admin/duplicates/${groupId}/answer`,
+    { correct_answer }
+  );
+}
